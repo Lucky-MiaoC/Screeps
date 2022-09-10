@@ -396,9 +396,3 @@ Room.prototype.updateStructureIndex = function (type = undefined) {
         }
     }
 }
-
-/*
-Game.market.calcTransactionCost(50000, 'W59N37', 'W23N42');
-Game.market.deal('630b18b9c640032aae946fec', 50000, 'W59N37');
-Game.market.createOrder({type: ORDER_BUY,  resourceType: RESOURCE_GHODIUM, price: 25.000, totalAmount: 5000, roomName: "W59N37"});
-*/
