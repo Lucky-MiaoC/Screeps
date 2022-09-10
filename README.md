@@ -1,4 +1,4 @@
-# Screeps code of TC_MiaoC
+# Screeps Script of TC-MiaoC
 
 [Screeps](https://screeps.com/a/#!/enter)是一款大型多人在线编程RTS游戏，该项目实现了在Screeps公共服务器（[shard3](https://screeps.com/a/#!/shards)）上运行的半自动化AI脚本。
 
