@@ -2,7 +2,7 @@
 
 [Screeps](https://screeps.com/a/#!/enter)是一款大型多人在线编程RTS游戏，该项目实现了在Screeps公共服务器（[shard3](https://screeps.com/a/#!/shards)）上运行的半自动化AI脚本。
 
-## 准备工作：
+## 准备工作
 
 为了运行该项目，你需要首先：
 
@@ -33,7 +33,7 @@ npm install
 }
 ```
 
-## 运行项目：
+## 运行项目
 
 你可以通过以下 `npm` 命令来运行该项目：
 
@@ -55,7 +55,7 @@ npm run push
 npm run local
 ```
 
-## 手动控制：
+## 手动控制
 
 你可以通过以下方法手动控制游戏运行：
 
@@ -63,11 +63,11 @@ npm run local
 - 通过游戏内控制台访问Memory、全局变量和全局函数进行控制（参考[操作指南](/%E6%93%8D%E4%BD%9C%E6%8C%87%E5%8D%97.md)）
 - 游戏内直接修改memory（不推荐）
 
-## 代码设计：
+## 代码设计
 
 访问 [/doc](./doc/) 来查看代码设计。
 
-## 其他说明：
+## 其他说明
 
 本项目的构建参考了简书上HoPGoldy大佬❤的[中文教程](https://www.jianshu.com/p/5431cb7f42d3)（~~没错这个Markdown也是参考的这位大佬写的😀~~），同时得到了[Screeps>_编程交流群](https://jq.qq.com/?_wv=1027&k=FFUue0TM)里许多大佬的帮助与解答，包括并不限于 *大猫的家*、*PandaFlower* 等等，感谢各位大佬的指导！
 
