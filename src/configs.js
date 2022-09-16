@@ -5,13 +5,7 @@ export const configs = {
         'W59N38': ['PandaFlower']
     },
 
-    // 房间签名
-    roomSign: {
-        'W59N37': `我是新手，别打我，求你了！\nI'am noob, please don't attack me, thanks! \n白名单 whiteList：PandaFlower`,
-        'W59N38': `我是新手，别打我，求你了！\nI'am noob, please don't attack me, thanks! \n白名单 whiteList：PandaFlower`
-    },
-
-    // 房间carry中心点
+    // 房间Centercarrier所处的中心点
     centerPoint: {
         'W59N37': new RoomPosition(19, 12, 'W59N37'),
         'W59N38': null
@@ -19,8 +13,18 @@ export const configs = {
 
     // 修墙、门修到的最大血量
     maxHitsRepairingWallOrRampart: {
-        'W59N37': 11000000,
-        'W59N38': 1000
+        [STRUCTURE_CENTERRAMPART]: {
+            'W59N37': 12000000,
+            'W59N38': 1000
+        },
+        [STRUCTURE_SURROUNDINGRAMPART]: {
+            'W59N37': 1000,
+            'W59N38': 1000
+        },
+        [STRUCTURE_WALL]: {
+            'W59N37': 1000,
+            'W59N38': 1000
+        }
     },
 
     // creep角色设定表
@@ -35,7 +39,10 @@ export const configs = {
         'warcarrier': 3, 'controllerattacker': 3, 'dismantler': 3
     },
 
-    // creep数量设定表
+    // creep数量设定表，提醒：
+    // creep生产具有条件，即使数量设定不为0，也可能因为达不到生产条件而不生产
+    // 但是如果creep达到生产条件，该数量设定表可以设定数量
+    // 当设定数量为0时，即使creep达到生产条件也不会生产
     creepNumberSetting: {
         'sim': {
             'harvester': 2, 'filler': 1, 'collecter': 2, 'centercarrier': 1, 'upgrader': 2, 'builder': 2, 'miner': 1, 'outsideharvester': 0,

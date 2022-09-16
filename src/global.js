@@ -1,6 +1,10 @@
 import { configs } from "./configs";
 
-// 获取矿的开采位数量
+/**
+ * 获取矿的开采位数量，理论上这个不属于global，不过因为Source原型的修改只有这一处，懒得再开一个source的文件了
+ *
+ * @returns {Number} 返回矿的开采位数量
+ */
 Source.prototype.getFreeSpaceNumber = function () {
     const terrain = new Room.Terrain(this.room.name);
     const xs = [this.pos.x - 1, this.pos.x, this.pos.x + 1];
@@ -16,13 +20,19 @@ Source.prototype.getFreeSpaceNumber = function () {
     return freeSpaceNumber;
 };
 
-// 从能量角度评估当前RCL所处等级，用于指导creepBody的选择
+/**
+ * 从能量角度评估当前RCL所处等级，用于指导creepBody的选择
+ *
+ * rcl四级及以下时，缺少filler或harvester均使用当前可用能量来评估RCL等级
+ * rcl四级以上时，缺失filler才使用当前可用能量来评估RCL等级
+ * 其余时候使用当前能量上限来评估
+ *
+ * @param {Room} room 房间对象
+ * @returns {String} 返回"RCL_*"字符串
+ */
 global.assessRCL = function (room) {
     let energyForRCLAssessment = 0;
 
-    // rcl四级及以下时，缺少filler或harvester均使用当前可用能量来评估RCL等级
-    // rcl四级以上时，缺失filler才使用当前可用能量来评估RCL等级
-    // 其余时候使用当前能量上限来评估
     let state = room.controller.level <= 4 ?
         (room.memory.creepNumber['filler'] == 0 || room.memory.creepNumber['harvester'] == 0) : room.memory.creepNumber['filler'] == 0;
     if (state) {
@@ -52,7 +62,12 @@ global.assessRCL = function (room) {
     }
 };
 
-// 判断建筑是否需要塔维修
+/**
+ * 判断建筑是否需要塔维修
+ *
+ * @param {Structure} structure 需要判断的建筑对象
+ * @returns {boolean} 返回true或者false
+ */
 global.judgeIfStructureNeedTowerFix = function (structure) {
     if (structure instanceof Structure) {
         switch (structure.structureType) {
@@ -63,9 +78,20 @@ global.judgeIfStructureNeedTowerFix = function (structure) {
             case STRUCTURE_ROAD:
             case STRUCTURE_CONTAINER:
                 return structure.hits / structure.hitsMax < 0.9 ? true : false;
-            // RAMPART血量低于设定血量则修
-            case STRUCTURE_RAMPART:
-                return structure.hits < configs.maxHitsRepairingWallOrRampart[structure.room.name] ? true : false;
+            // RAMPART血量低于5k或者低于设定血量且高于设定血量-5k则修
+            case STRUCTURE_RAMPART: {
+                let rampartType = undefined;
+                switch (true) {
+                    case !!structure.pos.lookFor(LOOK_STRUCTURES).length:
+                        rampartType = STRUCTURE_CENTERRAMPART;
+                        break;
+                    default:
+                        rampartType = STRUCTURE_SURROUNDINGRAMPART;
+                }
+                let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name];
+                return (structure.hits < 5000 || (structure.hits > hitsSetting - 5000 ||
+                    structure.hits < hitsSetting)) ? true : false;
+            }
             // 其他建筑掉血了就修
             default:
                 return structure.hits < structure.hitsMax ? true : false;
@@ -76,10 +102,12 @@ global.judgeIfStructureNeedTowerFix = function (structure) {
     }
 }
 
-// 在内存中更新 RCL、GCL、GPL 使用情况和当前 CPU、bucket 使用情况
+/**
+ * 在内存中更新 RCL、GCL、GPL 使用情况和当前 CPU、bucket 使用情况
+ */
 global.stateScanner = function () {
-    // 每 30 tick 运行一次
-    if (!(Game.time % 30)) {
+    // 每 50 tick 运行一次
+    if (!(Game.time % 50)) {
         // 统计每个房间的 RCL 的等级、升级百分比、剩余进度
         Object.keys(Game.rooms).forEach((roomName) => {
             let room = Game.rooms[roomName];
@@ -88,7 +116,8 @@ global.stateScanner = function () {
                 let RCLPercentage = room.controller.progressTotal ?
                     ((room.controller.progress / room.controller.progressTotal) * 100).toFixed(2) + '%' : '100.00%';
                 let progressrLeft = room.controller.progressTotal ? room.controller.progressTotal - room.controller.progress : 0;
-                Memory.stats[roomName] = `RCLLevel：${RCLLevel} RCLPercentage：${RCLPercentage} progressrLeft：${progressrLeft}`;
+                Memory.stats[roomName] =
+                    `RCLLevel：${RCLLevel} | RCLPercentage：${RCLPercentage} | progressrLeft：${progressrLeft}`;
             }
         })
 
@@ -101,13 +130,22 @@ global.stateScanner = function () {
         // 统计 CPU 的当前使用量
         Memory.stats.CPUUsage = Game.cpu.getUsed();
         // 统计 bucket 的当前剩余量
-        Memory.stats.bucket = Game.cpu.bucket;
+        Memory.stats.Bucket = Game.cpu.bucket;
+
+        // 输出至控制台
+        Object.keys(Memory.stats).forEach((key) => {
+            console.log(JSON.stringify(key + '：' + Memory.stats[key]));
+        });
     }
 };
 
-// 内存初始化函数
+/**
+ * 内存初始化函数
+ */
 global.memoryInitialization = function () {
-    // Memory = {};
+    // 清空所有内存
+    RawMemory.set("{}");
+    // 针对每个房间执行内存初始化
     Object.keys(Game.rooms).forEach((roomName) => {
         let room = Game.rooms[roomName];
         if (room.controller && room.controller.my) {
@@ -125,7 +163,7 @@ global.memoryInitialization = function () {
 
             // 需要塔修理的建筑名单
             room.memory.structuresNeedTowerFix = [];
-            // 需要攻击的敌对creep名单
+            // 需要攻击的敌对creep的id
             room.memory.hostileNeedToAttcak = null;
 
             // 需要observer观测的房间名
@@ -165,32 +203,11 @@ global.memoryInitialization = function () {
                 }
             }
 
-            // 初始化游戏状态扫描相关内存
-            Memory.stats = {};
-
-            // 重新设置内存初始化标志位
-            Memory.doNotInitializeMyMemory = !(Memory.doNotInitializeMyMemory);
             console.log("Room：" + roomName + " 内存初始化完成！");
         }
     });
+    // 初始化游戏状态扫描相关内存
+    Memory.stats = {};
+    // 重新设置内存初始化标志位
+    Memory.doNotInitializeMyMemory = !Memory.doNotInitializeMyMemory;
 };
-
-// 给房间签名
-global.signRoom = function (idOrName, roomSign = null) {
-    let creep = Game.getObjectById(idOrName) || Game.creeps[idOrName];
-    if (creep) {
-        let text = roomSign || configs.roomSign[creep.room.name];
-        if (sign) {
-            creep.memory.autoControl = false;
-            switch (creep.signController(creep.room.controller, text)) {
-                case OK: {
-                    creep.memory.autoControl = true;
-                    return 'OK';
-                }
-                case ERR_NOT_IN_RANGE: {
-                    creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
-                }
-            }
-        }
-    }
-}

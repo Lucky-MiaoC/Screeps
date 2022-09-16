@@ -1,5 +1,5 @@
 /**
- *  修改自群（565401831）里Scorpior_gh大佬的极致建筑缓存v1.4.3，对代码进行额外添加、修改、删除以满足本人需求
+ *  修改自群（565401831）里Scorpior_gh大佬的极致建筑缓存v1.4.3，对代码进行大量额外添加、修改、删除以满足本人需求
  *
  *
  *  命令：
@@ -33,26 +33,35 @@
  *          room.source             // 得到source数组
  *          room.deposit            // 得到deposit数组
  *
- *      linkList系列:
+ *      link系列:
  *          room.centerLink         // 得到centerLink数组
  *          room.sourceLink         // 得到sourceLink数组
  *          room.upgradeLink        // 得到sourceLink数组
  *
- *      containerList系列:
+ *      container系列:
  *          room.sourceContainer    // 得到sourceContainer数组
  *          room.mineralContainer   // 得到mineralContainer数组
  *
+ *      rampart系列：
+ *          room.centerrampart      // 得到centerRampart数组
+ *          room.surroundingrampart // 得到surroundingrampart数组
  *
  *  建筑缓存存放在global.structureIndex[room.name]，唯一对象存id, 复数对象存Set([id])
  *  复数建筑不存在时返回[]，唯一建筑不存在时返回undefined，linkList系列、containerList系列均返回[]（视为复数建筑）
  *  拆除建筑会自动移除缓存，新建筑用room.update()更新缓存，不主动调用room.update()则不会识别新建筑
+ *
+ *  建筑id缓存在global.structureIndex上，当访问room.*时，实际上是获取缓存里的对应id再转为对象（数组）返回，
+ *  更新时实际是更新global.structureIndex上的缓存内容
  */
 
+// 自定义的特殊建筑种类，它们都是现有建筑的子类
 const STRUCTURE_CENTERLINK = "centerLink";
 const STRUCTURE_SOURCELINK = "sourceLink";
 const STRUCTURE_UPGRADELINK = "upgradeLink";
 const STRUCTURE_SOURCECONTAINER = "sourceContainer";
 const STRUCTURE_MINERALCONTAINER = "mineralContainer";
+const STRUCTURE_CENTERRAMPART = "centerrampart";
+const STRUCTURE_SURROUNDINGRAMPART = "surroundingrampart";
 
 // 复数建筑类
 const multipleList = new Set([
@@ -73,25 +82,34 @@ const additionalList = new Set([
     LOOK_SOURCES, LOOK_DEPOSITS, LOOK_TOMBSTONES, LOOK_MINERALS,
 ]);
 
-
-
-// linkList系列
+// link系列
 const linkList = new Set([
     STRUCTURE_CENTERLINK, STRUCTURE_SOURCELINK, STRUCTURE_UPGRADELINK,
 ])
 
-// containerList系列
+// container系列
 const containerList = new Set([
     STRUCTURE_SOURCECONTAINER, STRUCTURE_MINERALCONTAINER,
+])
+
+// rampart系列
+const rampartList = new Set([
+    STRUCTURE_CENTERRAMPART, STRUCTURE_SURROUNDINGRAMPART,
 ])
 
 // 缓存位置
 global.structureIndex = {};
 
-// 初始化
+
+/**
+ * structure初始化构造函数
+ *
+ * @param {Room} room 房间对象
+*/
 function structureIndexInitialization(room) {
     this.name = room.name;
 
+    // 处理复数建筑类和唯一建筑类
     let structureData = _.groupBy(room.find(FIND_STRUCTURES), (structure) => structure.structureType);
     for (let type in structureData) {
         if (singleList.has(type)) {
@@ -103,6 +121,7 @@ function structureIndexInitialization(room) {
         }
     }
 
+    // 处理LOOK_*系列
     for (let type of additionalList) {
         let objects = room.lookForAtArea(type, 1, 1, 49, 49, true);
         if (objects.length > 1) {
@@ -113,6 +132,7 @@ function structureIndexInitialization(room) {
         }
     }
 
+    // 处理link系列
     room.find(FIND_STRUCTURES, {
         filter: (structure) => { return structure.structureType == STRUCTURE_LINK; }
     }).forEach((link) => {
@@ -130,6 +150,7 @@ function structureIndexInitialization(room) {
         }
     });
 
+    // 处理container系列
     room.find(FIND_STRUCTURES, {
         filter: (structure) => { return structure.structureType == STRUCTURE_CONTAINER; }
     }).forEach((container) => {
@@ -143,9 +164,25 @@ function structureIndexInitialization(room) {
         }
     });
 
+    // 处理rampart系列
+    room.find(FIND_STRUCTURES, {
+        filter: (structure) => { return structure.structureType == STRUCTURE_RAMPART; }
+    }).forEach((rampart) => {
+        if (rampart.pos.lookFor(LOOK_STRUCTURES).length) {
+            this[STRUCTURE_CENTERRAMPART] = this[STRUCTURE_CENTERRAMPART] ?
+                this[STRUCTURE_CENTERRAMPART].add(rampart.id) : new Set([rampart.id]);
+        }
+        else {
+            this[STRUCTURE_SURROUNDINGRAMPART] = this[STRUCTURE_SURROUNDINGRAMPART] ?
+                this[STRUCTURE_SURROUNDINGRAMPART].add(rampart.id) : new Set([rampart.id]);
+        }
+    })
+
+    // 绑定该构造函数到global上
     global.structureIndex[room.name] = this;
 }
 
+// 定义获取唯一建筑类时的行为，返回建筑对象或者undefind
 singleList.forEach((type) => {
     let bindstring = '_' + type;
     Object.defineProperty(Room.prototype, type, {
@@ -171,6 +208,7 @@ singleList.forEach((type) => {
     });
 })
 
+// 定义获取复数建筑类时的行为，返回建筑对象数组或者[]空数组
 multipleList.forEach((type) => {
     let bindstring = '_' + type;
     Object.defineProperty(Room.prototype, type, {
@@ -203,6 +241,7 @@ multipleList.forEach((type) => {
     })
 })
 
+// 定义获取LOOK_*系列建筑类时的行为，返回建筑对象数组或者undefined或者[]空数组
 additionalList.forEach((type) => {
     let bindstring = '_' + type;
     Object.defineProperty(Room.prototype, type, {
@@ -244,6 +283,7 @@ additionalList.forEach((type) => {
     })
 })
 
+// 定义获取link系列建筑类时的行为，返回建筑对象数组或者[]空数组
 linkList.forEach((type) => {
     let bindstring = '_' + type;
     Object.defineProperty(Room.prototype, type, {
@@ -276,6 +316,7 @@ linkList.forEach((type) => {
     })
 })
 
+// 定义获取container系列建筑类时的行为，返回建筑对象数组或者[]空数组
 containerList.forEach((type) => {
     let bindstring = '_' + type;
     Object.defineProperty(Room.prototype, type, {
@@ -308,6 +349,44 @@ containerList.forEach((type) => {
     })
 })
 
+// 定义获取rampart系列建筑类时的行为，返回建筑对象数组或者[]空数组
+rampartList.forEach((type) => {
+    let bindstring = '_' + type;
+    Object.defineProperty(Room.prototype, type, {
+        get: function () {
+            if (bindstring in this) {
+                return this[bindstring];
+            }
+            else {
+                let cache = global.structureIndex[this.name] ?
+                    global.structureIndex[this.name][type] : new structureIndexInitialization(this)[type];
+                this[bindstring] = [];
+                if (cache) {
+                    for (let id of cache) {
+                        let object = Game.getObjectById(id);
+                        if (object) {
+                            this[bindstring].push(object);
+                        }
+                        else {
+                            cache.delete(id);
+                        }
+                    }
+                }
+                return this[bindstring];
+            }
+        },
+        set: function () {
+        },
+        enumerable: false,
+        configurable: true
+    })
+})
+
+/**
+ * 更新建筑列表
+ *
+ * @param {String|undefined} type STRUCTURE_*系列
+ */
 Room.prototype.updateStructureIndex = function (type = undefined) {
     // 全部更新
     if (!type || !global.structureIndex[this.name]) {
@@ -317,6 +396,7 @@ Room.prototype.updateStructureIndex = function (type = undefined) {
     else if (type) {
         let cache = global.structureIndex[this.name];
         delete cache[type];
+        // 更新LOOK_*系列
         if (additionalList.has(type)) {
             let objects = this.lookForAtArea(type, 1, 1, 49, 49, true);
             if (objects.length > 1) {
@@ -379,6 +459,30 @@ Room.prototype.updateStructureIndex = function (type = undefined) {
                 });
             }
         }
+        // STRUCTURE_RAMPART更新的时候同时更新rampartList
+        else if (type == STRUCTURE_RAMPART) {
+            let objects = this.find(FIND_STRUCTURES, {
+                filter: (structure) => { return structure.structureType == type }
+            });
+            if (objects.length) {
+                cache[type] = new Set(objects.map((s) => {
+                    return s.id;
+                }));
+                delete cache[STRUCTURE_CENTERRAMPART];
+                delete cache[STRUCTURE_SURROUNDINGRAMPART];
+                objects.forEach((rampart) => {
+                    if (rampart.pos.lookFor(LOOK_STRUCTURES).length) {
+                        cache[STRUCTURE_CENTERRAMPART] = cache[STRUCTURE_CENTERRAMPART] ?
+                            cache[STRUCTURE_CENTERRAMPART].add(rampart.id) : new Set([rampart.id]);
+                    }
+                    else {
+                        cache[STRUCTURE_SURROUNDINGRAMPART] = cache[STRUCTURE_SURROUNDINGRAMPART] ?
+                            cache[STRUCTURE_SURROUNDINGRAMPART].add(rampart.id) : new Set([rampart.id]);
+                    }
+                });
+            }
+        }
+        // 更新其他建筑
         else {
             let objects = this.find(FIND_STRUCTURES, {
                 filter: (structure) => structure.structureType == type

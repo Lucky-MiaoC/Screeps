@@ -1,5 +1,4 @@
 import { errorMapper } from './modules/errorMapper';
-import { configs } from "./configs";
 
 import { towerWork } from "./structures/tower";
 import { linkWork } from "./structures/link";
@@ -26,6 +25,7 @@ module.exports.loop = errorMapper(() => {
     if (Game.cpu.bucket == 10000) {
         Game.cpu.generatePixel();
     }
+
     // 建筑索引初始化
     if (!Memory.doNotInitializeMyStructureIndex) {
         Object.keys(Game.rooms).forEach((roomName) => {
@@ -59,6 +59,7 @@ module.exports.loop = errorMapper(() => {
             }
 
             // 每隔100tick扫描一次房间是否有建筑工地或者墙、门是否要builder去修
+            // 提醒：每100t扫描一次是否需要builder，每30t扫描一次是否需要tower修复建筑，每20t扫描一次是否有敌人是否进入自卫战争
             if ((Game.time % 100)) {
                 room.updateIfNeedBuilderWork();
             }

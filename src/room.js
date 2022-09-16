@@ -1,6 +1,8 @@
 import { configs } from "./configs";
 
-// 根据房间内矿的开采位权重来随机选择矿
+/**
+ * 根据房间内矿的开采位权重来随机选择矿
+ */
 Room.prototype.chooseSourceByFreeSpaceWeight = function () {
     let randomList = [];
     this.source.forEach((i) => {
@@ -12,7 +14,9 @@ Room.prototype.chooseSourceByFreeSpaceWeight = function () {
     return Game.getObjectById(_.sample(randomList));
 };
 
-// 更新需要塔修复的建筑
+/**
+ * 更新需要塔修复的建筑，在tower.js里每30tick被调用一次
+ */
 Room.prototype.updateStructuresNeedTowerFix = function () {
     let structuresNeedTowerFix = [];
     this.find(FIND_STRUCTURES).forEach((structure) => {
@@ -23,7 +27,9 @@ Room.prototype.updateStructuresNeedTowerFix = function () {
     this.memory.structuresNeedTowerFix = structuresNeedTowerFix;
 }
 
-// 扫描房间是否有建筑工地或者墙、门是否要修
+/**
+ * 扫描房间是否有建筑工地或者墙、门是否要修，在main.js里每100tick调用一次
+ */
 Room.prototype.updateIfNeedBuilderWork = function () {
     let target;
     // 自卫战争时期紧急修墙，停止工地建设，找血量最低的墙、门
@@ -48,7 +54,9 @@ Room.prototype.updateIfNeedBuilderWork = function () {
             })[0];
     }
 
-    if (target instanceof ConstructionSite || target.hits < (configs.maxHitsRepairingWallOrRampart[this.name] - 10000)) {
+    // -5000是防止血量波动tower没来得及修造成意外生产了builder浪费
+    if (target instanceof ConstructionSite ||
+        target.hits < (configs.maxHitsRepairingWallOrRampart[this.name] - 5000)) {
         this.memory.code.ifNeedBuilderWork = true;
     }
     else {
@@ -56,7 +64,12 @@ Room.prototype.updateIfNeedBuilderWork = function () {
     }
 }
 
-// 判断creepRole是否达到生产条件
+/**
+ * 判断某一角色类型是否达到生产条件
+ *
+ * @param {String} creepRole 角色类型
+ * @returns {boolean} 返回true或者false
+ */
 Room.prototype.judgeIfCreepNeedSpawn = function (creepRole) {
     switch (creepRole) {
         // harvester一直都需要生产
@@ -64,11 +77,11 @@ Room.prototype.judgeIfCreepNeedSpawn = function (creepRole) {
         // filler只有在有storage或者sourceContainer时才需要生产
         case "filler": { return (this.storage || this.sourceContainer.length) ? true : false; }
         // collecter只有在有storage和sourceContainer、mineralContainer任意一种
-        // 同时storage有空余、mineralContainer满了时才需要生产
+        // 同时storage有空余、mineralContainer快满了时才需要生产
         case "collecter": {
-            return (this.storage && this.storage.store.getFreeCapacity() > 1000 &&
+            return (this.storage && this.storage.store.getFreeCapacity() > 100000 &&
                 (this.sourceContainer.length ||
-                    (this.mineralContainer.length && this.mineralContainer[0].store.getFreeCapacity() < 100))) ? true : false;
+                    (this.mineralContainer.length && this.mineralContainer[0].store.getFreeCapacity() < 200))) ? true : false;
         }
         // centercarrier只有在有storage和centerLink时才需要生产
         case "centercarrier": { return (this.storage && this.centerLink.length) ? true : false; }
@@ -79,7 +92,7 @@ Room.prototype.judgeIfCreepNeedSpawn = function (creepRole) {
         // miner只有在有extractor和mineralContainer且storage有空余且矿余量不为0时才会生产
         case "miner": {
             return (this.extractor && this.mineralContainer.length &&
-                this.storage && this.storage.store.getFreeCapacity() > 1000 &&
+                this.storage && this.storage.store.getFreeCapacity() > 100000 &&
                 this.mineral.mineralAmount > 0) ? true : false;
         }
         // outsideharvester只有有storage且有外矿房间设定时才会生产
@@ -87,7 +100,8 @@ Room.prototype.judgeIfCreepNeedSpawn = function (creepRole) {
         case 'warcarrier':
         case 'controllerattacker':
         case 'dismantler': { return this.memory.code.warOfRevolution; }
-        // default: { return true; }
+        // 其他角色一律放行
+        default: { return true; }
     }
 }
 

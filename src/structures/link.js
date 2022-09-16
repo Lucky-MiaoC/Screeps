@@ -4,12 +4,14 @@ export const linkWork = {
             let sourceLinks = room.sourceLink;
             let centerLinks = room.centerLink;
 
-            if (!centerLinks[0].cooldown && centerLinks[0].store[RESOURCE_ENERGY] == 0) {
-                sourceLinks.forEach((link) => {
+            // 默认centerLink只有一个（目前我的布局只有一个），如果布局中certerLink有多个则需要重写下面方法
+            if (centerLinks[0].store[RESOURCE_ENERGY] == 0) {
+                for (let link of sourceLinks) {
                     if (!link.cooldown && link.store[RESOURCE_ENERGY] == 800) {
                         link.transferEnergy(centerLinks[0]);
+                        break;
                     }
-                });
+                }
             }
         }
     }

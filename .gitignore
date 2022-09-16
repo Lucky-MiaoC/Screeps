@@ -1,13 +1,13 @@
-# 排除rollup之后生成的dist
+# 排除rollup之后生成的dist，减少文件上传下载，需要时可使用npm build重新构建
 /dist
 
-# 排除node_modules文件，减少上传下载文件，需要时可使用npm build重新构建
+# 排除node_modules文件，减少文件上传下载，需要时可使用npm install重新构建
 /node_modules
 
 # 排除vscode配置
 .vscode
 
-# 排除隐私文件
+# 排除游戏token密钥及本地copy路径文件
 .secret.json
 
 # 排除所有.开头的文件，但不排除.gitignore本身
