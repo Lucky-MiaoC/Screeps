@@ -19,7 +19,7 @@ export const configs = {
 
     // 修墙、门修到的最大血量
     maxHitsRepairingWallOrRampart: {
-        'W59N37': 8000000,
+        'W59N37': 11000000,
         'W59N38': 1000
     },
 
@@ -42,7 +42,7 @@ export const configs = {
             'warcarrier': 0, 'controllerattacker': 0, 'dismantler': 0
         },
         'W59N37': {
-            'harvester': 2, 'filler': 2, 'collecter': 0, 'centercarrier': 1, 'upgrader': 1, 'builder': 2, 'miner': 0, 'outsideharvester': 0,
+            'harvester': 2, 'filler': 2, 'collecter': 0, 'centercarrier': 1, 'upgrader': 1, 'builder': 2, 'miner': 0, 'outsideharvester': 4,
             'warcarrier': 0, 'controllerattacker': 0, 'dismantler': 0
         },
         'W59N38': {
@@ -53,7 +53,7 @@ export const configs = {
 
     // 外矿房间设定表
     outsideSoucreRoomSetting: {
-        'W59N37': ['W58N37'],
+        'W59N37': ['W59N38'],
         'W59N38': []
     },
 

@@ -53,7 +53,7 @@ export const roleOutsideharvester = {
                 });
             }
             else {
-                let source = Game.getObjectById(creep.memory.outsideSoucreId) || creep.room.find(FIND_SOURCES_ACTIVE)[0];
+                let source = Game.getObjectById(creep.memory.outsideSoucreId) || _.sample(creep.room.find(FIND_SOURCES_ACTIVE));
                 if (source) {
                     if (!(creep.memory.outsideSoucreId)) {
                         creep.memory.outsideSoucreId = source.id;
