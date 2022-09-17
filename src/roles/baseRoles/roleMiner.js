@@ -1,5 +1,17 @@
+/**
+ * miner是矿工，采取挖运分离，它的任务很简单，生产它的条件却很复杂
+ */
 export const roleMiner = {
     run: function (creep) {
+        // 手动控制
+        if (!creep.memory.autoControl) {
+            return undefined;
+        }
+
+        // creep状态初始化
+        creep.memory.busy = true;
+        creep.memory.moving = false;
+
         // 工作状态切换
         if (creep.memory.ready && creep.store.getUsedCapacity() == 0) {
             creep.memory.ready = false;
@@ -30,11 +42,13 @@ export const roleMiner = {
                 for (let resourceType in creep.store) {
                     if (creep.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+                        creep.memory.moving = true;
                     }
                 }
             }
             else {
-                Game.time % 5 ? null : creep.say('躺平咯', true);
+                // Game.time % 5 ? null : creep.say('没地方放矿了', true);
+                creep.memory.busy = false;
             }
         }
         // 身上矿空了，选择矿藏作为来源
@@ -50,10 +64,12 @@ export const roleMiner = {
             if (source && (source.mineralAmount > 0) && creep.room.extractor && !creep.room.extractor.cooldown) {
                 if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
+                    creep.memory.moving = true;
                 }
             }
             else {
-                Game.time % 5 ? null : creep.say('躺平咯', true);
+                // Game.time % 5 ? null : creep.say('矿干了，等吧', true);
+                creep.memory.busy = false;
             }
         }
     }

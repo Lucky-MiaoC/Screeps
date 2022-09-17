@@ -385,7 +385,7 @@ rampartList.forEach((type) => {
 /**
  * 更新建筑列表
  *
- * @param {String|undefined} type STRUCTURE_*系列
+ * @param {string | undefined} type STRUCTURE_*系列
  */
 Room.prototype.updateStructureIndex = function (type = undefined) {
     // 全部更新

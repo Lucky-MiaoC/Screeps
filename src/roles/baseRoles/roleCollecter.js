@@ -1,5 +1,18 @@
+/**
+ * collecter负责收集资源，资源流向为sourceContainer和mineralContainer --> storage或者terminal
+ * 以后可能会让他收集掉落的资源和墓碑资源，现阶段考虑到cpu开销不捡资源
+ */
 export const roleCollecter = {
     run: function (creep) {
+        // 手动控制
+        if (!creep.memory.autoControl) {
+            return undefined;
+        }
+
+        // creep状态初始化
+        creep.memory.busy = true;
+        creep.memory.moving = false;
+
         // 工作状态切换
         if (creep.memory.ready && creep.store.getUsedCapacity() == 0) {
             creep.memory.ready = false;
@@ -14,10 +27,11 @@ export const roleCollecter = {
         }
 
         let target = Game.getObjectById(creep.memory.targetChoice) ||
-            (creep.room.storage && creep.room.storage.store.getFreeCapacity() > 0) ? creep.room.storage : null;
+            ((creep.room.storage && creep.room.storage.store.getFreeCapacity() > 0) ? creep.room.storage : null) ||
+            ((creep.room.terminal && creep.room.terminal.store.getFreeCapacity() > 0) ? creep.room.terminal : null);
 
         if (target) {
-            // 身上满货，选择storage
+            // 身上满货，选择storage或者terminal
             if (creep.memory.ready) {
                 if (!Game.getObjectById(creep.memory.targetChoice)) {
                     creep.memory.targetChoice = target.id;
@@ -29,10 +43,11 @@ export const roleCollecter = {
                 for (let resourceType in creep.store) {
                     if (creep.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+                        creep.memory.moving = true;
                     }
                 }
             }
-            // 身上空了，选择sourceContainer和mineralContainer
+            // 身上空了，随机选择sourceContainer和mineralContainer
             else {
                 if (creep.memory.targetChoice) {
                     creep.memory.targetChoice = null;
@@ -57,16 +72,19 @@ export const roleCollecter = {
                     for (let resourceType in source.store) {
                         if (creep.withdraw(source, resourceType) == ERR_NOT_IN_RANGE) {
                             creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
+                            creep.memory.moving = true;
                         }
                     }
                 }
                 else {
-                    Game.time % 5 ? null : creep.say('玩去咯', true);
+                    // Game.time % 5 ? null : creep.say('没东西要收集的', true);
+                    creep.memory.busy = false;
                 }
             }
         }
         else {
-            Game.time % 5 ? null : creep.say('玩去咯', true);
+            // Game.time % 5 ? null : creep.say('都TM装满了', true);
+            creep.memory.busy = false;
         }
     }
 }

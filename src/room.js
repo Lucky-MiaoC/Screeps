@@ -84,7 +84,7 @@ Room.prototype.updateHostiles = function () {
 /**
  * 判断某一角色类型是否达到生产条件
  *
- * @param {String} creepRole 角色类型
+ * @param {string} creepRole 角色类型
  * @returns {boolean} 返回true或者false
  */
 Room.prototype.judgeIfCreepNeedSpawn = function (creepRole) {
@@ -251,3 +251,85 @@ Room.prototype.updateSpawnQueue = function () {
         }
     });
 };
+
+/**
+ * 创建中央搬运任务
+ *
+ * @param {StructureTerminal | StructureStorage | StructureFactory} source 源对象，应该是Terminal或者Storage或者Factory之一
+ * @param {StructureTerminal | StructureStorage | StructureFactory} target 目标对象，应该是Terminal或者Storage或者Factory之一
+ * @param {string} resourceType RESOURCE_*系列
+ * @param {number} resourceNumber 需要搬运的资源
+ */
+Room.prototype.creatCenterCarryTask = function (source, target, resourceType, resourceNumber) {
+    if (!([STRUCTURE_TERMINAL, STRUCTURE_STORAGE, STRUCTURE_FACTORY].includes(source.structureType)) ||
+        !([STRUCTURE_TERMINAL, STRUCTURE_STORAGE, STRUCTURE_FACTORY].includes(target.structureType)) ||
+        !(RESOURCES_ALL.includes(resourceType)) || !(typeof resourceNumber == 'number') ||
+        !(source.store[resourceType]) || (source.store[resourceType] < resourceNumber) ||
+        (target.store.getFreeCapacity(resourceType) < resourceNumber)) {
+        console.log("创建中央搬运任务失败，请检查：");
+        console.log("1、source、target、resourceType、resourceNumber类型是否错误");
+        console.log("2、source是否有足够的对应资源的数量");
+        console.log("3、target是否有足够的剩余空间");
+        return undefined;
+    }
+
+    if (this.memory.centerCarryTask.some((task) => {
+        return task.id == Game.time;
+    })) {
+        console.log("同一tick只能创建一份中央搬运任务，请下一tick之后重试");
+        return undefined;
+    }
+
+    let centerCarryTask = {};
+    centerCarryTask.id = Game.time;
+    centerCarryTask.sourceId = source.id;
+    centerCarryTask.targetId = target.id;
+    centerCarryTask.resourceType = resourceType;
+    centerCarryTask.resourceNumber = resourceNumber;
+    this.memory.centerCarryTask.push(centerCarryTask);
+    console.log("成功创建以下中央搬运任务：");
+    console.log(`id：${centerCarryTask.id} | sourceType：${source.structureType} | targetType：${target.structureType} | resourceType：${resourceType} | resourceNumber：${resourceNumber}`);
+}
+
+/**
+ * 取消已存在的中央搬运任务
+ *
+ * @param {number} taskId 需要取消的中央搬运任务的id
+ */
+Room.prototype.cancelCenterCarryTask = function (taskId) {
+    if (this.memory.centerCarryTask.some((task) => {
+        return task.id == taskId;
+    })) {
+        _.remove(this.memory.centerCarryTask, (task) => {
+            return task.id == taskId;
+        });
+        console.log(`成功移除id为${taskId}的中央搬运任务`);
+    }
+    else {
+        console.log(`不存在id为${taskId}的中央搬运任务`);
+    }
+}
+
+/**
+ * 在控制台显示当前存在的中央搬运任务
+ *
+ * @param {number | null} taskId 当提供id时只显示对应中央搬运任务，当不提供参数时，显示所有中央搬运任务
+ */
+Room.prototype.showCenterCarryTask = function (taskId = null) {
+    if (taskId) {
+        let task = this.memory.centerCarryTask.find((t) => {
+            return t.id == taskId;
+        })
+        if (task) {
+            console.log(`id：${task.id} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber}`);
+        }
+        else {
+            console.log(`不存在id为${taskId}的中央搬运任务`);
+        }
+    }
+    else {
+        this.memory.centerCarryTask.forEach((task) => {
+            console.log(`id：${task.id} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber}`);
+        });
+    }
+}

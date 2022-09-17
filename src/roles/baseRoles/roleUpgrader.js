@@ -1,5 +1,17 @@
+/**
+ * upgrader是升级者，它的任务是最简单的
+ */
 export const roleUpgrader = {
     run: function (creep) {
+        // 手动控制
+        if (!creep.memory.autoControl) {
+            return undefined;
+        }
+
+        // creep状态初始化
+        creep.memory.busy = true;
+        creep.memory.moving = false;
+
         // 工作状态切换
         if (creep.memory.ready && creep.store[RESOURCE_ENERGY] == 0) {
             creep.memory.ready = false;
@@ -24,18 +36,22 @@ export const roleUpgrader = {
             if (target) {
                 if (creep.upgradeController(target) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+                    creep.memory.moving = true;
                 }
             }
         }
 
-        // 身上能量空了，优先选择storage，其次随机选择一个sourceContainer，最后是根据开采位权重随机选择一个source
+        // 身上能量空了，优先选择storage，其次是terminal，再者随机选择一个sourceContainer，最后是根据开采位权重随机选择一个source
         else {
-            let source = Game.getObjectById(creep.memory.sourceChoice) ||
-                (creep.room.storage && creep.room.storage.store[RESOURCE_ENERGY] >
-                    creep.getActiveBodyparts(CARRY) * 50) ? creep.room.storage :
-                _.sample(_.filter(creep.room.sourceContainer, (container) => {
-                    return container.store[RESOURCE_ENERGY] > creep.getActiveBodyparts(CARRY) * 50
-                })) || ((creep.room.sourceContainer.length || creep.room.sourceLink.length)
+            let source = Game.getObjectById(creep.memory.sourceChoice)
+                || ((creep.room.storage && creep.room.storage.store[RESOURCE_ENERGY] >
+                    creep.getActiveBodyparts(CARRY) * 50) ? creep.room.storage : null)
+                || ((creep.room.terminal && creep.room.terminal.store[RESOURCE_ENERGY] >
+                    creep.getActiveBodyparts(CARRY) * 50) ? creep.room.terminal : null)
+                || _.sample(_.filter(creep.room.sourceContainer, (container) => {
+                    return container.store[RESOURCE_ENERGY] > creep.getActiveBodyparts(CARRY) * 50;
+                }))
+                || ((creep.room.sourceContainer.length || creep.room.sourceLink.length)
                     ? null : creep.room.chooseSourceByFreeSpaceWeight());
 
             if (source) {
@@ -49,16 +65,19 @@ export const roleUpgrader = {
                 if (source instanceof Source) {
                     if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
+                        creep.memory.moving = true;
                     }
                 }
                 else {
                     if (creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
+                        creep.memory.moving = true;
                     }
                 }
             }
             else {
-                Game.time % 5 ? null : creep.say('摸鱼咯', true);
+                // Game.time % 5 ? null : creep.say('没能量升级了', true);
+                creep.memory.busy = false;
             }
         }
     }

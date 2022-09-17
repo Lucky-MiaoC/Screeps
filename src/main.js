@@ -1,20 +1,27 @@
+// 导入错误处理程序
 import { errorMapper } from './modules/errorMapper';
 
+// 导入建筑
 import { towerWork } from "./structures/tower";
 import { linkWork } from "./structures/link";
 import { observerWork } from "./structures/observer";
 
-import { roleHarvester } from "./roles/roleHarvester";
-import { roleFiller } from "./roles/roleFiller";
-import { roleCollecter } from "./roles/roleCollecter";
-import { roleCentercarrier } from "./roles/roleCentercarrier";
-import { roleUpgrader } from "./roles/roleUpgrader";
-import { roleBuilder } from "./roles/roleBuilder";
-import { roleMiner } from "./roles/roleMiner";
+// 导入基础角色
+import { roleHarvester } from "./roles/baseRoles/roleHarvester";
+import { roleFiller } from "./roles/baseRoles/roleFiller";
+import { roleCollecter } from "./roles/baseRoles/roleCollecter";
+import { roleCentercarrier } from "./roles/baseRoles/roleCentercarrier";
+import { roleUpgrader } from "./roles/baseRoles/roleUpgrader";
+import { roleBuilder } from "./roles/baseRoles/roleBuilder";
+import { roleMiner } from "./roles/baseRoles/roleMiner";
+
+// 导入远程角色
 import { roleOutsideharvester } from "./roles/roleOutsideharvester";
 
+// 导入战争角色
 import { roleWarcarrier } from './roles/roleWarcarrier';
 
+// 导入全局依赖
 import "./structures/index";
 import "./global";
 import "./room";

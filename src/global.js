@@ -3,7 +3,7 @@ import { configs } from "./configs";
 /**
  * 获取矿的开采位数量，理论上这个不属于global，不过因为Source原型的修改只有这一处，懒得再开一个source的文件了
  *
- * @returns {Number} 返回矿的开采位数量
+ * @returns {number} 返回矿的开采位数量
  */
 Source.prototype.getFreeSpaceNumber = function () {
     const terrain = new Room.Terrain(this.room.name);
@@ -28,7 +28,7 @@ Source.prototype.getFreeSpaceNumber = function () {
  * 其余时候使用当前能量上限来评估
  *
  * @param {Room} room 房间对象
- * @returns {String} 返回"RCL_*"字符串
+ * @returns {string} 返回"RCL_*"字符串
  */
 global.assessRCL = function (room) {
     let energyForRCLAssessment = 0;
@@ -222,6 +222,9 @@ global.memoryInitialization = function () {
             // 需要observer观测的房间名
             room.memory.roomNameNeedObserver = null;
 
+            // 初始化当前房间的中央搬运任务队列
+            room.memory.centerCarryTask = [];
+
             // creep数量内存初始化构造
             let creepNumberInitialization = {};
             let spawnQueueCreepNumberInitialization = {};
@@ -267,8 +270,8 @@ global.memoryInitialization = function () {
 /**
  * 使用observer观测房间
  *
- * @param {String} targetRoomName 目标房间名称
- * @param {String | null} sourceRoomName observer所在房间名称，为空时随机选择合适的房间的observer进行观测
+ * @param {string} targetRoomName 目标房间名称
+ * @param {string | null} sourceRoomName observer所在房间名称，为空时随机选择合适的房间的observer进行观测
  */
 global.observeRoom = function (targetRoomName, sourceRoomName = null) {
     if (sourceRoomName) {
@@ -294,7 +297,7 @@ global.observeRoom = function (targetRoomName, sourceRoomName = null) {
 /**
  * 停止对一个房间的观测
  *
- * @param {String} targetRoomName 需要停止观测的房间
+ * @param {string} targetRoomName 需要停止观测的房间
  */
 global.stopObserveRoom = function (targetRoomName) {
     let code = 0;
