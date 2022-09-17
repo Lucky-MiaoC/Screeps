@@ -22,9 +22,7 @@ export const towerWork = {
                         // 日常维护及战后维修留一半能量以防万一
                         if (tower.store[RESOURCE_ENERGY] > 500 && structures.length) {
                             let closestDamagedStructure = tower.pos.findClosestByRange(structures);
-                            if (closestDamagedStructure) {
-                                tower.repair(closestDamagedStructure);
-                            }
+                            tower.repair(closestDamagedStructure);
                         }
                     })
                 }

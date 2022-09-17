@@ -48,7 +48,7 @@ module.exports.loop = errorMapper(() => {
         Memory.doNotInitializeMyStructureIndex = true;
     }
 
-    // 内存初始化执行函数
+    // 内存初始化（注意内存初始化需要依赖建筑索引初始化，请保证先执行建筑索引初始化）
     if (!Memory.doNotInitializeMyMemory) {
         global.memoryInitialization();
     }
@@ -56,7 +56,8 @@ module.exports.loop = errorMapper(() => {
     // 当Spawn被攻击时自动开SF，单房间用，多房间因为同时只能开一个，需要慎重使用
     Object.keys(Game.spawns).forEach((spawnName) => {
         if (Game.spawns[spawnName].hits / Game.spawns[spawnName].hitsMax < 0.9) {
-            Game.spawns[spawnName].room.controller.safeMode ? null : Game.spawns[spawnName].room.controller.activateSafeMode();
+            Game.spawns[spawnName].room.controller.safeMode ?
+                null : Game.spawns[spawnName].room.controller.activateSafeMode();
         }
     })
 

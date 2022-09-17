@@ -23,7 +23,7 @@ export const roleBuilder = {
                 target = Game.getObjectById(creep.memory.targetChoice) ||
                     creep.room.find(FIND_STRUCTURES, {
                         filter: (structure) => {
-                            return structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART;
+                            return judgeIfNeedBuilderWork(structure);
                         }
                     }).sort((i, j) => {
                         return i.hits - j.hits;
@@ -35,7 +35,7 @@ export const roleBuilder = {
                     creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES) ||
                     creep.room.find(FIND_STRUCTURES, {
                         filter: (structure) => {
-                            return structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART;
+                            return judgeIfNeedBuilderWork(structure);
                         }
                     }).sort((i, j) => {
                         return i.hits - j.hits;
@@ -111,5 +111,3 @@ export const roleBuilder = {
         }
     }
 }
-
-module.exports = roleBuilder;

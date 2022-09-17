@@ -168,7 +168,7 @@ function structureIndexInitialization(room) {
     room.find(FIND_STRUCTURES, {
         filter: (structure) => { return structure.structureType == STRUCTURE_RAMPART; }
     }).forEach((rampart) => {
-        if (rampart.pos.lookFor(LOOK_STRUCTURES).length) {
+        if (rampart.pos.lookFor(LOOK_STRUCTURES).length || rampart.pos.isNearTo(room.controller)) {
             this[STRUCTURE_CENTERRAMPART] = this[STRUCTURE_CENTERRAMPART] ?
                 this[STRUCTURE_CENTERRAMPART].add(rampart.id) : new Set([rampart.id]);
         }

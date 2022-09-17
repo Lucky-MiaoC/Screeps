@@ -111,5 +111,3 @@ export const roleHarvester = {
         }
     }
 }
-
-module.exports = roleHarvester;

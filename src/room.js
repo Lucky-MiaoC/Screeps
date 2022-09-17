@@ -33,32 +33,27 @@ Room.prototype.updateStructuresNeedTowerFix = function () {
  * 扫描房间是否有建筑工地或者墙、门是否要修，在main.js里每100tick调用一次
  */
 Room.prototype.updateIfNeedBuilderWork = function () {
-    let target;
-    // 自卫战争时期紧急修墙，停止工地建设，找血量最低的墙、门
+    let targets;
+    // 自卫战争时期紧急修墙，停止工地建设，找是否有符合的建筑
     if (this.memory.code.warOfSelfDefence) {
-        target = this.find(FIND_STRUCTURES, {
+        targets = this.find(FIND_STRUCTURES, {
             filter: (structure) => {
-                return structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART;
+                return judgeIfNeedBuilderWork(structure);
             }
-        }).sort((i, j) => {
-            return i.hits - j.hits;
-        })[0];
+        });
     }
-    // 非自卫战争时期先找建筑工地，再找血量最低的墙、门
+    // 非自卫战争时期先找建筑工地，再找是否有符合的建筑
     else {
-        target = this.find(FIND_CONSTRUCTION_SITES)[0] ||
+        targets = this.find(FIND_CONSTRUCTION_SITES) ||
             this.find(FIND_STRUCTURES, {
                 filter: (structure) => {
-                    return structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART;
+                    return judgeIfNeedBuilderWork(structure);
                 }
-            }).sort((i, j) => {
-                return i.hits - j.hits;
-            })[0];
+            });
     }
 
-    // -5000是防止血量波动tower没来得及修造成意外生产了builder浪费
-    if (target instanceof ConstructionSite ||
-        target.hits < (configs.maxHitsRepairingWallOrRampart[this.name] - 5000)) {
+    // 存在工地或者有符合的建筑（血量低于设定的墙、门）
+    if (targets.length) {
         this.memory.code.ifNeedBuilderWork = true;
     }
     else {

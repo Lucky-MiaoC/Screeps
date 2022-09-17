@@ -81,12 +81,15 @@ global.judgeIfStructureNeedTowerFix = function (structure) {
             // RAMPART血量低于5k或者低于设定血量且高于设定血量-5k则修
             case STRUCTURE_RAMPART: {
                 let rampartType = undefined;
-                switch (true) {
-                    case !!structure.pos.lookFor(LOOK_STRUCTURES).length:
-                        rampartType = 'centerRampart';
-                        break;
-                    default:
-                        rampartType = 'surroundingRampart';
+                if (structure.room.centerRampart.includes(structure)) {
+                    rampartType = 'centerRampart';
+                }
+                else if (structure.room.surroundingRampart.includes(structure)) {
+                    rampartType = 'surroundingRampart';
+                }
+                else {
+                    structure.room.updateStructureIndex(STRUCTURE_RAMPART);
+                    return global.judgeIfStructureNeedTowerFix(structure);
                 }
                 let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name];
                 return (structure.hits < 5000 || (structure.hits > hitsSetting - 5000 &&
@@ -95,6 +98,45 @@ global.judgeIfStructureNeedTowerFix = function (structure) {
             // 其他建筑掉血了就修
             default:
                 return structure.hits < structure.hitsMax ? true : false;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
+/**
+ * 判断建筑是否需要builder维修
+ *
+ * @param {Structure} structure 需要判断的建筑对象
+ * @returns {boolean} 返回true或者false
+ */
+global.judgeIfNeedBuilderWork = function (structure) {
+    if (structure instanceof Structure) {
+        switch (structure.structureType) {
+            // WALL血量少于设定血量就要维修
+            case STRUCTURE_WALL:
+                return structure.hits <
+                    configs.maxHitsRepairingWallOrRampart[STRUCTURE_WALL][structure.room.name] ? true : false;
+            // RAMPART血量少于设定血量就要维修
+            case STRUCTURE_RAMPART: {
+                let rampartType = undefined;
+                if (structure.room.centerRampart.includes(structure)) {
+                    rampartType = 'centerRampart';
+                }
+                else if (structure.room.surroundingRampart.includes(structure)) {
+                    rampartType = 'surroundingRampart';
+                }
+                else {
+                    structure.room.updateStructureIndex(STRUCTURE_RAMPART);
+                    return global.judgeIfNeedBuilderWork(structure);
+                }
+                let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name];
+                return structure.hits < hitsSetting ? true : false;
+            }
+            // 其他建筑不需要builder维修
+            default:
+                return false;
         }
     }
     else {
@@ -221,3 +263,49 @@ global.memoryInitialization = function () {
     // 重新设置内存初始化标志位
     Memory.doNotInitializeMyMemory = !Memory.doNotInitializeMyMemory;
 };
+
+/**
+ * 使用observer观测房间
+ *
+ * @param {String} targetRoomName 目标房间名称
+ * @param {String | null} sourceRoomName observer所在房间名称，为空时随机选择合适的房间的observer进行观测
+ */
+global.observeRoom = function (targetRoomName, sourceRoomName = null) {
+    if (sourceRoomName) {
+        Game.rooms[sourceRoomName].memory.roomNameNeedObserver = targetRoomName;
+        console.log(sourceRoomName + " 的observer 开始观测房间 " + targetRoomName);
+    }
+    else {
+        let roomNamesCanObserve = _fileter(Object.keys(Game.rooms), (roomName) => {
+            return Game.rooms[roomName].my && Game.rooms[roomName].observer &&
+                !Game.rooms[roomName].memory.roomNameNeedObserver;
+        })
+        if (roomNamesCanObserve.length) {
+            let i = Game.rooms[_.sample(roomNamesCanObserve)];
+            i.memory.roomNameNeedObserver = targetRoomName;
+            console.log(i + " 的observer 开始观测房间 " + targetRoomName);
+        }
+        else {
+            console.log("不好意思，无任何房间可以观测目标房间！可能是无观测者或者全部观测者已被占用或者房间太远导致！请检查")
+        }
+    }
+}
+
+/**
+ * 停止对一个房间的观测
+ *
+ * @param {String} targetRoomName 需要停止观测的房间
+ */
+global.stopObserveRoom = function (targetRoomName) {
+    let code = 0;
+    Object.keys(Game.rooms).forEach((roonName) => {
+        if (Game.rooms[roonName].memory.roomNameNeedObserver == targetRoomName) {
+            Game.rooms[roonName].memory.roomNameNeedObserver = null;
+            code = 1;
+            console.log("已停止对房间 " + targetRoomName + " 的观测！");
+        }
+    })
+    if (!code) {
+        console.log("并没有任何房间的observer在对 " + targetRoomName + " 进行观测！");
+    }
+}
