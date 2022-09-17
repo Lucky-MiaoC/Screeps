@@ -83,10 +83,10 @@ global.judgeIfStructureNeedTowerFix = function (structure) {
                 let rampartType = undefined;
                 switch (true) {
                     case !!structure.pos.lookFor(LOOK_STRUCTURES).length:
-                        rampartType = STRUCTURE_CENTERRAMPART;
+                        rampartType = 'centerRampart';
                         break;
                     default:
-                        rampartType = STRUCTURE_SURROUNDINGRAMPART;
+                        rampartType = 'surroundingRampart';
                 }
                 let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name];
                 return (structure.hits < 5000 || (structure.hits > hitsSetting - 5000 ||
@@ -144,7 +144,7 @@ global.stateScanner = function () {
  */
 global.memoryInitialization = function () {
     // 清空所有内存
-    RawMemory.set("{}");
+    // RawMemory.set("{}");
 
     // 杀死所有creep，警告：只有当该项目应用于一个非重头开始的环境时使用
     /*
@@ -157,7 +157,7 @@ global.memoryInitialization = function () {
     // 对已存在的creep进行内存初始化，依赖已存在creep的名称
     Object.keys(Game.creeps).forEach((creepName) => {
         let creepInfo = creepName.slice(1, -1).split('][');
-        let creepMemory = { 'role': creepInfo[0], 'autoControl': true, 'originalRoomName': creepInfo[1] };
+        let creepMemory = { 'role': creepInfo[0], 'autoControl': true, 'originalRoomName': creepInfo[1].toUpperCase() };
         Game.creeps[creepName].memory = creepMemory;
     })
 

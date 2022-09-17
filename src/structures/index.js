@@ -43,8 +43,8 @@
  *          room.mineralContainer   // 得到mineralContainer数组
  *
  *      rampart系列：
- *          room.centerrampart      // 得到centerRampart数组
- *          room.surroundingrampart // 得到surroundingrampart数组
+ *          room.centerRampart      // 得到centerRampart数组
+ *          room.surroundingRampart // 得到surroundingRampart数组
  *
  *  建筑缓存存放在global.structureIndex[room.name]，唯一对象存id, 复数对象存Set([id])
  *  复数建筑不存在时返回[]，唯一建筑不存在时返回undefined，linkList系列、containerList系列均返回[]（视为复数建筑）
@@ -60,8 +60,8 @@ const STRUCTURE_SOURCELINK = "sourceLink";
 const STRUCTURE_UPGRADELINK = "upgradeLink";
 const STRUCTURE_SOURCECONTAINER = "sourceContainer";
 const STRUCTURE_MINERALCONTAINER = "mineralContainer";
-const STRUCTURE_CENTERRAMPART = "centerrampart";
-const STRUCTURE_SURROUNDINGRAMPART = "surroundingrampart";
+const STRUCTURE_CENTERRAMPART = "centerRampart";
+const STRUCTURE_SURROUNDINGRAMPART = "surroundingRampart";
 
 // 复数建筑类
 const multipleList = new Set([

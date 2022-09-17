@@ -13,11 +13,11 @@ export const configs = {
 
     // 修墙、门修到的最大血量
     maxHitsRepairingWallOrRampart: {
-        [STRUCTURE_CENTERRAMPART]: {
+        'centerRampart': {
             'W59N37': 12000000,
             'W59N38': 1000
         },
-        [STRUCTURE_SURROUNDINGRAMPART]: {
+        'surroundingRampart': {
             'W59N37': 1000,
             'W59N38': 1000
         },
@@ -49,7 +49,7 @@ export const configs = {
             'warcarrier': 0, 'controllerattacker': 0, 'dismantler': 0
         },
         'W59N37': {
-            'harvester': 2, 'filler': 2, 'collecter': 0, 'centercarrier': 1, 'upgrader': 1, 'builder': 2, 'miner': 0, 'outsideharvester': 4,
+            'harvester': 2, 'filler': 2, 'collecter': 0, 'centercarrier': 1, 'upgrader': 1, 'builder': 2, 'miner': 0, 'outsideharvester': 0,
             'warcarrier': 0, 'controllerattacker': 0, 'dismantler': 0
         },
         'W59N38': {

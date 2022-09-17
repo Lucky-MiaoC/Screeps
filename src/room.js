@@ -70,7 +70,7 @@ Room.prototype.updateIfNeedBuilderWork = function () {
  * 扫描房间是否有敌人，有敌人则进入自卫战争状态，没有则退出
  */
 Room.prototype.updateHostiles = function () {
-    if (!room.memory.code.forceNotToAttack) {
+    if (!this.memory.code.forceNotToAttack) {
         let hostiles = this.find(FIND_HOSTILE_CREEPS, {
             filter: (hostile) => {
                 return !configs.whiteList[this.name].includes(hostile.owner.username);
