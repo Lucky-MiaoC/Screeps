@@ -2,6 +2,8 @@ import { configs } from "./configs";
 
 /**
  * 根据房间内矿的开采位权重来随机选择矿
+ *
+ * @returns {Resource} 返回Resource对象
  */
 Room.prototype.chooseSourceByFreeSpaceWeight = function () {
     let randomList = [];
@@ -15,7 +17,7 @@ Room.prototype.chooseSourceByFreeSpaceWeight = function () {
 };
 
 /**
- * 更新需要塔修复的建筑，在tower.js里每30tick被调用一次
+ * 更新需要塔修复的建筑，在main.js里每50tick被调用一次
  */
 Room.prototype.updateStructuresNeedTowerFix = function () {
     let structuresNeedTowerFix = [];
@@ -65,6 +67,26 @@ Room.prototype.updateIfNeedBuilderWork = function () {
 }
 
 /**
+ * 扫描房间是否有敌人，有敌人则进入自卫战争状态，没有则退出
+ */
+Room.prototype.updateHostiles = function () {
+    if (!room.memory.code.forceNotToAttack) {
+        let hostiles = this.find(FIND_HOSTILE_CREEPS, {
+            filter: (hostile) => {
+                return !configs.whiteList[this.name].includes(hostile.owner.username);
+            }
+        });
+        if (hostiles.length) {
+            this.memory.code.warOfSelfDefence = true;
+        }
+        else {
+            this.memory.code.warOfSelfDefence = false;
+            this.memory.hostileNeedToAttcak = null;
+        }
+    }
+}
+
+/**
  * 判断某一角色类型是否达到生产条件
  *
  * @param {String} creepRole 角色类型
@@ -105,7 +127,11 @@ Room.prototype.judgeIfCreepNeedSpawn = function (creepRole) {
     }
 }
 
-// 根据优先级添加room的生产队列
+/**
+ * 根据优先级添加room的生产队列
+ *
+ * @param {Array} creepRoleList 需要生产的角色名称列表
+ */
 Room.prototype.addSpawnTasks = function (creepRoleList) {
     this.memory.spawnQueue = this.memory.spawnQueue.concat(creepRoleList);
     this.memory.spawnQueue.sort((i, j) => {
@@ -116,7 +142,9 @@ Room.prototype.addSpawnTasks = function (creepRoleList) {
     });
 };
 
-// 分发生产任务到空闲Spawn
+/**
+ * 分发生产任务到空闲Spawn
+ */
 Room.prototype.distributeSpawnTasks = function () {
     let availableSpawn = _.sample(this.find(FIND_MY_SPAWNS, {
         filter: (structure) => {
@@ -139,12 +167,7 @@ Room.prototype.distributeSpawnTasks = function () {
         let testIfCanSpawn = availableSpawn.spawnCreep(creepBody, creepName, { dryRun: true });
 
         if (!testIfCanSpawn) {
-            let creepMemory = { role: creepRole, autoControl: true };
-            // 如果后续添加不属于任何一个房间的creep就把creep.memory.originalRoomName设为FREE
-            if (creepRole == 'outsideharvester' || creepRole == 'warcarrier' ||
-                creepRole == 'controllerattacker' || creepRole == 'dismantler') {
-                creepMemory['originalRoomName'] = this.name;
-            }
+            let creepMemory = { role: creepRole, autoControl: true, originalRoomName: this.name };
 
             availableSpawn.spawnCreep(creepBody, creepName,
                 { memory: creepMemory });
@@ -155,32 +178,39 @@ Room.prototype.distributeSpawnTasks = function () {
     }
 };
 
-// 更新creep内存
+/**
+ * 更新creep内存
+ */
 Room.prototype.updateCreepMemory = function () {
     for (let name in Memory.creeps) {
         if (!Game.creeps[name]) {
-            let deadCreepRole = Memory.creeps[name].role;
-            // 如果死亡creep为harvester则需要删除与source的绑定关系
-            if (deadCreepRole == 'harvester') {
-                this.memory.sourceCreepBindingRelationship.forEach((i) => {
-                    if (i.creepNames.includes(name)) {
-                        _.remove(i.creepNames, (j) => {
-                            return j == name;
-                        })
-                    }
-                })
-            };
+            let deadCreepRoomName = Memory.creeps[name].originalRoomName;
+            if (deadCreepRoomName == this.name) {
+                let deadCreepRole = Memory.creeps[name].role;
+                // 如果死亡creep为harvester则需要删除与source的绑定关系
+                if (deadCreepRole == 'harvester') {
+                    this.memory.sourceCreepBindingRelationship.forEach((i) => {
+                        if (i.creepNames.includes(name)) {
+                            _.remove(i.creepNames, (j) => {
+                                return j == name;
+                            })
+                        }
+                    })
+                };
 
-            // 只记录设定里的creep种类的数量
-            if (configs.creepRoleSetting.includes(deadCreepRole)) {
-                --this.memory.creepNumber[deadCreepRole];
+                // 只记录设定里的creep种类的数量
+                if (configs.creepRoleSetting.includes(deadCreepRole)) {
+                    --this.memory.creepNumber[deadCreepRole];
+                }
+                delete Memory.creeps[name];
             }
-            delete Memory.creeps[name];
         }
     }
 };
 
-// 更新生产队列
+/**
+ * 更新生产队列
+ */
 Room.prototype.updateSpawnQueue = function () {
     configs.creepRoleSetting.forEach((creepRole) => {
         // 设定数量不为0时

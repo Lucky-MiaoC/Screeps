@@ -19,6 +19,10 @@ import "./structures/index";
 import "./global";
 import "./room";
 
+// 全局重启的时候需要重新初始化Memory
+Memory.doNotInitializeMyStructureIndex = false;
+Memory.doNotInitializeMyMemory = false;
+
 // 主循环，每个tick调用
 module.exports.loop = errorMapper(() => {
     // 利用空闲cpu获取pixel
@@ -58,10 +62,19 @@ module.exports.loop = errorMapper(() => {
                 room.controller.safeMode ? null : room.controller.activateSafeMode();
             }
 
-            // 每隔100tick扫描一次房间是否有建筑工地或者墙、门是否要builder去修
-            // 提醒：每100t扫描一次是否需要builder，每30t扫描一次是否需要tower修复建筑，每20t扫描一次是否有敌人是否进入自卫战争
+            // 每隔100tick扫描一次房间是否有建筑工地或者墙、门需要生产builder去修
             if ((Game.time % 100)) {
                 room.updateIfNeedBuilderWork();
+            }
+
+            // 每50tick扫描一次是否需要tower修复建筑
+            if (!(Game.time % 50)) {
+                room.updateStructuresNeedTowerFix()
+            }
+
+            // 每20tick检测一次敌对creep，发现则进入自卫战争状态，否则退出自卫战争状态
+            if (!(Game.time % 20)) {
+                room.updateHostiles();
             }
 
             // 更新creep内存
@@ -93,7 +106,6 @@ module.exports.loop = errorMapper(() => {
             case 'builder': roleBuilder.run(creep); break;
             case 'outsideharvester': roleOutsideharvester.run(creep); break;
             case 'miner': roleMiner.run(creep); break;
-
             case 'warcarrier': roleWarcarrier.run(creep); break;
             default: break;
         }

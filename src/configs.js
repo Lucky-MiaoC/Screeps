@@ -5,7 +5,7 @@ export const configs = {
         'W59N38': ['PandaFlower']
     },
 
-    // 房间Centercarrier所处的中心点
+    // 房间Centercarrier所处的中心点，指导centerCarrier移动
     centerPoint: {
         'W59N37': new RoomPosition(19, 12, 'W59N37'),
         'W59N38': null

@@ -145,6 +145,22 @@ global.stateScanner = function () {
 global.memoryInitialization = function () {
     // 清空所有内存
     RawMemory.set("{}");
+
+    // 杀死所有creep，警告：只有当该项目应用于一个非重头开始的环境时使用
+    /*
+    Object.keys(Game.creeps).forEach((creepName) => {
+        let creep = Game.creeps[creepName];
+        creep.suicide();
+    })
+    */
+
+    // 对已存在的creep进行内存初始化，依赖已存在creep的名称
+    Object.keys(Game.creeps).forEach((creepName) => {
+        let creepInfo = creepName.slice(1, -1).split('][');
+        let creepMemory = { 'role': creepInfo[0], 'autoControl': true, 'originalRoomName': creepInfo[1] };
+        Game.creeps[creepName].memory = creepMemory;
+    })
+
     // 针对每个房间执行内存初始化
     Object.keys(Game.rooms).forEach((roomName) => {
         let room = Game.rooms[roomName];
@@ -160,12 +176,10 @@ global.memoryInitialization = function () {
 
             // 是否需要builder工作标志
             room.memory.code.ifNeedBuilderWork = false;
-
             // 需要塔修理的建筑名单
             room.memory.structuresNeedTowerFix = [];
             // 需要攻击的敌对creep的id
             room.memory.hostileNeedToAttcak = null;
-
             // 需要observer观测的房间名
             room.memory.roomNameNeedObserver = null;
 
@@ -174,9 +188,7 @@ global.memoryInitialization = function () {
             let spawnQueueCreepNumberInitialization = {};
             configs.creepRoleSetting.forEach((i) => {
                 creepNumberInitialization[i] = _.filter(Game.creeps, (creep) => {
-                    // 外矿creep根据creep.memory.originalRoomName来判定归属房间
-                    // 房间运营creep没有creep.memory.originalRoomName，根据所处房间判断
-                    // 如果后续添加不属于任何一个房间的一次性creep就把creep.memory.originalRoomName设为FREE
+                    // 根据creep.memory.originalRoomName来判定归属房间
                     return (creep.memory.originalRoomName ? creep.memory.originalRoomName == room.name :
                         creep.room == room) && creep.memory.role == i
                 }).length;
@@ -206,6 +218,7 @@ global.memoryInitialization = function () {
             console.log("Room：" + roomName + " 内存初始化完成！");
         }
     });
+
     // 初始化游戏状态扫描相关内存
     Memory.stats = {};
     // 重新设置内存初始化标志位

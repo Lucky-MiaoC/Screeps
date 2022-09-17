@@ -7,27 +7,6 @@ export const towerWork = {
         });
 
         if (towers.length) {
-            // 有tower才检测，每20tick检测一次敌对creep，发现则进入自卫战争状态，否则退出自卫战争状态
-            if (!(Game.time % 20) && !room.memory.code.forceNotToAttack) {
-                let hostiles = room.find(FIND_HOSTILE_CREEPS, {
-                    filter: (hostile) => {
-                        return !configs.whiteList[room.name].includes(hostile.owner.username);
-                    }
-                });
-                if (hostiles.length) {
-                    room.memory.code.warOfSelfDefence = true;
-                }
-                else {
-                    room.memory.code.warOfSelfDefence = false;
-                    room.memory.hostileNeedToAttcak = null;
-                }
-            }
-
-            // 更新需要修复的建筑，每30tick检测一次
-            if (!(Game.time % 30)) {
-                room.updateStructuresNeedTowerFix()
-            }
-
             // 非自卫战争时期，则日常维护或战后维修，不修Wall，Rampart血量低于一定百分比的时候修
             if (!room.memory.code.warOfSelfDefence || room.memory.code.forceNotToAttack) {
                 // 需要修复的建筑列表不为空
