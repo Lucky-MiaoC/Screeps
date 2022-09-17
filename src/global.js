@@ -276,14 +276,14 @@ global.observeRoom = function (targetRoomName, sourceRoomName = null) {
         console.log(sourceRoomName + " 的observer 开始观测房间 " + targetRoomName);
     }
     else {
-        let roomNamesCanObserve = _fileter(Object.keys(Game.rooms), (roomName) => {
-            return Game.rooms[roomName].my && Game.rooms[roomName].observer &&
+        let roomNamesCanObserve = _.filter(Object.keys(Game.rooms), (roomName) => {
+            return Game.rooms[roomName].controller.my && Game.rooms[roomName].observer &&
                 !Game.rooms[roomName].memory.roomNameNeedObserver;
         })
         if (roomNamesCanObserve.length) {
             let i = Game.rooms[_.sample(roomNamesCanObserve)];
             i.memory.roomNameNeedObserver = targetRoomName;
-            console.log(i + " 的observer 开始观测房间 " + targetRoomName);
+            console.log(i.name + " 的observer 开始观测房间 " + targetRoomName);
         }
         else {
             console.log("不好意思，无任何房间可以观测目标房间！可能是无观测者或者全部观测者已被占用或者房间太远导致！请检查")
