@@ -19,12 +19,19 @@ import "./structures/index";
 import "./global";
 import "./room";
 
-// 全局重启的时候需要重新初始化Memory
+// 全局重启的时候需要重新初始化StructureIndex和Memory
 Memory.doNotInitializeMyStructureIndex = false;
 Memory.doNotInitializeMyMemory = false;
 
 // 主循环，每个tick调用
 module.exports.loop = errorMapper(() => {
+    if (!Memory.doNotClearMyMemory) {
+        RawMemory.set("{}");
+        Memory.doNotClearMyMemory = true;
+        console.log("tick：" + Game.time + '清空了内存，下一tick将开始内存初始化');
+        return undefined;
+    }
+
     // 利用空闲cpu获取pixel
     if (Game.cpu.bucket == 10000) {
         Game.cpu.generatePixel();

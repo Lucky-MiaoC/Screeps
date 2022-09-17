@@ -1,8 +1,11 @@
 export const configs = {
     // 玩家白名单
     whiteList: {
-        'W59N37': ['PandaFlower'],
-        'W59N38': ['PandaFlower']
+        // 全局白名单
+        'global': ['PandaFlower'],
+        // 各个房间单独的白名单
+        'W59N37': [],
+        'W59N38': []
     },
 
     // 房间Centercarrier所处的中心点，指导centerCarrier移动

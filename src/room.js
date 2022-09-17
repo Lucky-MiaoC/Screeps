@@ -67,13 +67,13 @@ Room.prototype.updateIfNeedBuilderWork = function () {
 }
 
 /**
- * 扫描房间是否有敌人，有敌人则进入自卫战争状态，没有则退出
+ * 扫描房间是否有敌人，有敌人则进入自卫战争状态，没有则退出，在main.js里每20tick调用一次
  */
 Room.prototype.updateHostiles = function () {
     if (!this.memory.code.forceNotToAttack) {
         let hostiles = this.find(FIND_HOSTILE_CREEPS, {
             filter: (hostile) => {
-                return !configs.whiteList[this.name].includes(hostile.owner.username);
+                return !configs.whiteList['global'].concat(configs.whiteList[this.name]).includes(hostile.owner.username);
             }
         });
         if (hostiles.length) {
@@ -119,6 +119,7 @@ Room.prototype.judgeIfCreepNeedSpawn = function (creepRole) {
         }
         // outsideharvester只有有storage且有外矿房间设定时才会生产
         case "outsideharvester": { return (this.storage && configs.outsideSoucreRoomSetting[this.name].length) ? true : false; }
+        // 战争角色只有在革命战争时才生产
         case 'warcarrier':
         case 'controllerattacker':
         case 'dismantler': { return this.memory.code.warOfRevolution; }

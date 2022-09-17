@@ -89,7 +89,7 @@ global.judgeIfStructureNeedTowerFix = function (structure) {
                         rampartType = 'surroundingRampart';
                 }
                 let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name];
-                return (structure.hits < 5000 || (structure.hits > hitsSetting - 5000 ||
+                return (structure.hits < 5000 || (structure.hits > hitsSetting - 5000 &&
                     structure.hits < hitsSetting)) ? true : false;
             }
             // 其他建筑掉血了就修
@@ -133,9 +133,9 @@ global.stateScanner = function () {
         Memory.stats.Bucket = Game.cpu.bucket;
 
         // 输出至控制台
-        Object.keys(Memory.stats).forEach((key) => {
-            console.log(JSON.stringify(key + '：' + Memory.stats[key]));
-        });
+        // Object.keys(Memory.stats).forEach((key) => {
+        //     console.log(JSON.stringify(key + '：' + Memory.stats[key]));
+        // });
     }
 };
 
@@ -143,9 +143,6 @@ global.stateScanner = function () {
  * 内存初始化函数
  */
 global.memoryInitialization = function () {
-    // 清空所有内存
-    // RawMemory.set("{}");
-
     // 杀死所有creep，警告：只有当该项目应用于一个非重头开始的环境时使用
     /*
     Object.keys(Game.creeps).forEach((creepName) => {
