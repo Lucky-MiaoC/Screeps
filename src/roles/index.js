@@ -60,7 +60,7 @@ const dialogue = {
         },
     },
     // 通用双人对话包（双方在三格范围内）
-    // 骚话部分来自小兵步枪修改而来
+    // 部分骚话来自小兵步枪修改而来
     'dialogue2': {
         'twoRole': {
             'moving moving': [['哎哟，你踩到我脚了！', '应该踩你嘴！', '话说我们有脚吗？', '...'],
@@ -140,7 +140,7 @@ global.getDialogue = function () {
             // 如果3格内有其他creep则10%概率获取双人的dialogue
             let suitableCreep = creep.pos.findInRange(FIND_MY_CREEPS, 3, {
                 filter: (i) => {
-                    return !(i.memory.dialogue && i.memory.dialogue.length) && !i.pos.isEqualTo(creep.pos);
+                    return !(i.memory.dialogue && i.memory.dialogue.length) && !i.pos.isEqualTo(creep.pos) && !i.spawning;
                 }
             });
             if (suitableCreep.length && Math.random() < 0.1) {

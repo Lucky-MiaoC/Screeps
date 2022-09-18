@@ -7,7 +7,7 @@
 - [ ] *creep预定含store建筑里的资源的功能，防止creep扎堆去送资源或者资源不够的情况下还有很多creep去拿资源的情况*
 - [ ] 攻击creep组的代码构建与完善，优先完善一体机
 - [ ] 外矿creep组的代码构建与完善，尤其是预定及躲敌对creep的部分
-- [ ] **creep随机说骚话功能**
+- [x] **creep随机说骚话功能**
 
 ## Structure相关：
 - [ ] **中央物流的逻辑改进，包括Centercarrier、Storage、Factory、Terminal、Link的协作**
