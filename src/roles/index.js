@@ -138,10 +138,11 @@ global.getDialogue = function () {
                 continue;
             }
             // 如果3格内有其他creep则10%概率获取双人的dialogue
-            if (Math.random() < 0.1) {
+            if (Math.random() < 0.1 && creep.ticksToLive > 20) {
                 let suitableCreep = creep.pos.findInRange(FIND_MY_CREEPS, 3, {
                     filter: (i) => {
-                        return !(i.memory.dialogue && i.memory.dialogue.length) && !i.pos.isEqualTo(creep.pos) && !i.spawning;
+                        return !(i.memory.dialogue && i.memory.dialogue.length) &&
+                            !i.pos.isEqualTo(creep.pos) && !i.spawning && i.ticksToLive > 20;
                     }
                 });
                 if (suitableCreep.length) {
