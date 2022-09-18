@@ -10,8 +10,7 @@ export const roleFiller = {
         }
 
         // creep状态初始化
-        creep.memory.busy = true;
-        creep.memory.moving = false;
+        creep.memory.state = 'working';
 
         // 工作状态切换
         if (creep.memory.ready && creep.store.getUsedCapacity() == 0) {
@@ -95,7 +94,7 @@ export const roleFiller = {
                         creep.memory.targetChoice = null;
                     }
                     // Game.time % 5 ? null : creep.say('根本不用我动手', true);
-                    creep.memory.busy = false;
+                    creep.memory.state = 'resting';
                 }
             }
         }
@@ -112,7 +111,7 @@ export const roleFiller = {
             }
             else {
                 // Game.time % 5 ? null : creep.say('还好不用搬进搬出', true);
-                creep.memory.busy = false;
+                creep.memory.state = 'resting';
             }
         }
 
@@ -146,7 +145,7 @@ export const roleFiller = {
 
                 if (creep.transfer(target, resource) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-                    creep.memory.moving = true;
+                    creep.memory.state = 'moving';
                 }
             }
             // 身上空了
@@ -184,12 +183,12 @@ export const roleFiller = {
 
                     if (creep.withdraw(source, resource) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
-                        creep.memory.moveing = true;
+                        creep.memory.state = 'moving';
                     }
                 }
                 else {
                     // Game.time % 5 ? null : creep.say('根本没有可用资源！', true);
-                    creep.memory.busy = false;
+                    creep.memory.state = 'resting';
                 }
             }
         }

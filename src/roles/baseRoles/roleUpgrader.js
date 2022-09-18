@@ -9,8 +9,7 @@ export const roleUpgrader = {
         }
 
         // creep状态初始化
-        creep.memory.busy = true;
-        creep.memory.moving = false;
+        creep.memory.state = 'working';
 
         // 工作状态切换
         if (creep.memory.ready && creep.store[RESOURCE_ENERGY] == 0) {
@@ -36,7 +35,7 @@ export const roleUpgrader = {
             if (target) {
                 if (creep.upgradeController(target) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-                    creep.memory.moving = true;
+                    creep.memory.state = 'moving';
                 }
             }
         }
@@ -65,19 +64,19 @@ export const roleUpgrader = {
                 if (source instanceof Source) {
                     if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
-                        creep.memory.moving = true;
+                        creep.memory.state = 'moving';
                     }
                 }
                 else {
                     if (creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
-                        creep.memory.moving = true;
+                        creep.memory.state = 'moving';
                     }
                 }
             }
             else {
                 // Game.time % 5 ? null : creep.say('没能量升级了', true);
-                creep.memory.busy = false;
+                creep.memory.state = 'resting';
             }
         }
     }

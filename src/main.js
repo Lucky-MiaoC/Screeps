@@ -25,6 +25,7 @@ import { roleWarcarrier } from './roles/roleWarcarrier';
 import "./structures/index";
 import "./global";
 import "./room";
+import "./roles/index";
 
 // 全局重启的时候需要重新初始化StructureIndex和Memory
 // Memory.doNotInitializeMyStructureIndex = false;
@@ -125,6 +126,11 @@ module.exports.loop = errorMapper(() => {
             default: break;
         }
     }
+
+    // 为每个creep概率设定要说的话
+    global.getDialogue();
+    // 让每个有话说的creep说话
+    global.showDialogue();
 
     // 在内存中更新 RCL、GCL、GPL 使用情况和当前 CPU、bucket 使用情况
     global.stateScanner();

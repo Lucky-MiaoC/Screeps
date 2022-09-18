@@ -1,6 +1,6 @@
 # Screeps Script of TC-MiaoC
 
-[Screeps](https://screeps.com/a/#!/enter)是一款大型多人在线编程RTS游戏，该项目实现了在Screeps公共服务器（[shard3](https://screeps.com/a/#!/shards)）上运行的半自动化AI脚本。
+[Screeps](https://screeps.com/a/#!/enter)是一款大型多人在线编程RTS游戏，该项目实现了在Screeps公共服务器（[shard3](https://screeps.com/a/#!/shards)）上运行的半自动化AI脚本。你可以通过本项目了解 Screeps 相关的操作以及如何将 rollup 应用在 Screeps 里（本项目包含大量的中文注释）。
 
 ## 准备工作
 
@@ -73,6 +73,6 @@ npm run local
 
 本项目几乎全部代码由本人独立完成，借鉴的代码如 `./src/structures/index.js` 借鉴群里 Scorpior_gh 大佬的 `极致建筑缓存v1.4.3` 均在文件开头有所声明。
 
-注意，本项目**尚未完成**，访问[/TODO.md](TODO.md)来查看后续更新计划，你可以通过本项目了解 Screeps 相关的操作以及如何将 rollup 应用在 Screeps 里（本项目包含大量的中文注释）。
+注意，本项目**尚未完成**，访问[/TODO.md](TODO.md)来查看后续更新计划。
 
 为了尊重自己和他人的游戏体验，请不要将本项目直接部署在官方服务器上（~~不会吧不会吧，不会真的有人会用这辣鸡代码吧！？😨~~）。

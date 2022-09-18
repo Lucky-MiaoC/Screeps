@@ -11,8 +11,7 @@ export const roleBuilder = {
         }
 
         // creep状态初始化
-        creep.memory.busy = true;
-        creep.memory.moving = false;
+        creep.memory.state = 'working';
 
         // 工作状态切换
         if (creep.memory.ready && creep.store[RESOURCE_ENERGY] == 0) {
@@ -65,20 +64,20 @@ export const roleBuilder = {
                 if (target instanceof ConstructionSite) {
                     if (creep.build(target) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-                        creep.memory.moving = true;
+                        creep.memory.state = 'moving';
                     }
                 }
                 else {
                     if (creep.repair(target) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-                        creep.memory.moving = true;
+                        creep.memory.state = 'moving';
                     }
                 }
             }
             else {
                 creep.room.memory.code.ifNeedBuilderWork = false;
                 // Game.time % 5 ? null : creep.say('有能量没地方花', true);
-                creep.memory.busy = false;
+                creep.memory.state = 'resting';
             }
         }
 
@@ -111,24 +110,24 @@ export const roleBuilder = {
                     if (source instanceof Source) {
                         if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
                             creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
-                            creep.memory.moving = true;
+                            creep.memory.state = 'moving';
                         }
                     }
                     else {
                         if (creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                             creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
-                            creep.memory.moving = true;
+                            creep.memory.state = 'moving';
                         }
                     }
                 }
                 else {
                     // Game.time % 5 ? null : creep.say('卧槽没能量了', true);
-                    creep.memory.busy = false;
+                    creep.memory.state = 'resting';
                 }
             }
             else {
                 // Game.time % 5 ? null : creep.say('100t内不干活', true);
-                creep.memory.busy = false;
+                creep.memory.state = 'resting';
             }
         }
     }

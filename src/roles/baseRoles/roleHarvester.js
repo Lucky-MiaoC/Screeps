@@ -9,8 +9,7 @@ export const roleHarvester = {
         }
 
         // creep状态初始化
-        creep.memory.busy = true;
-        creep.memory.moving = false;
+        creep.memory.state = 'working';
 
         // 工作状态切换
         if (creep.memory.ready && creep.store[RESOURCE_ENERGY] == 0) {
@@ -50,7 +49,7 @@ export const roleHarvester = {
 
                 if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-                    creep.memory.moving = true;
+                    creep.memory.state = 'moving';
                 }
 
                 /*
@@ -70,7 +69,7 @@ export const roleHarvester = {
             }
             else {
                 // Game.time % 5 ? null : creep.say('没地方放能量了', true);
-                creep.memory.busy = false;
+                creep.memory.state = 'resting';
             }
         }
         // 身上能量空了，找到memory中的sourceId，如果没有则双向绑定到某矿上，记录该绑定关系，某矿选择由下面的getRelationshipToBeBind()方法确定
@@ -93,12 +92,12 @@ export const roleHarvester = {
             if (source && (source.energy > 0)) {
                 if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
-                    creep.memory.moving = true;
+                    creep.memory.state = 'moving';
                 }
             }
             else {
                 // Game.time % 5 ? null : creep.say('能量开采完了', true);
-                creep.memory.busy = false;
+                creep.memory.state = 'resting';
             }
         }
 

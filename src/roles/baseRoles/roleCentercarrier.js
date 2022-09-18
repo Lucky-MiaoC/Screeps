@@ -13,8 +13,7 @@ export const roleCentercarrier = {
         }
 
         // creep状态初始化
-        creep.memory.busy = true;
-        creep.memory.moving = false;
+        creep.memory.state = 'working';
 
         // 移动到中心位置
         if (!creep.memory.arrive && creep.pos.isEqualTo(configs.centerPoint[creep.room.name])) {
@@ -22,7 +21,7 @@ export const roleCentercarrier = {
         }
         if (!creep.memory.arrive) {
             creep.moveTo(configs.centerPoint[creep.room.name], { visualizePathStyle: { stroke: '#ffffff' } });
-            creep.memory.moving = true;
+            creep.memory.state = 'moving';
         }
 
         // 快死的时候趁着身上没能量赶紧死，否则浪费能量
@@ -72,7 +71,7 @@ export const roleCentercarrier = {
                         }
                         default:
                             // Game.time % 5 ? null : creep.say('transfer不了', true);
-                            creep.memory.busy = false;
+                            creep.memory.state = 'resting';
                             break;
                     }
                 }
@@ -83,7 +82,7 @@ export const roleCentercarrier = {
                         }
                         default:
                             // Game.time % 5 ? null : creep.say('withdraw不了', true);
-                            creep.memory.busy = false;
+                            creep.memory.state = 'resting';
                             break;
                     }
                 }
@@ -100,7 +99,7 @@ export const roleCentercarrier = {
                     }
                     else {
                         // Game.time % 5 ? null : creep.say('卧槽能量没地方放了', true);
-                        creep.memory.busy = false;
+                        creep.memory.state = 'resting';
                     }
                 }
                 else {
@@ -111,7 +110,7 @@ export const roleCentercarrier = {
                     }
                     else {
                         // Game.time % 5 ? null : creep.say('无聊啊不用搬能量', true);
-                        creep.memory.busy = false;
+                        creep.memory.state = 'resting';
                     }
                 }
             }
