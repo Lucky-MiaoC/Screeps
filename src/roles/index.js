@@ -138,35 +138,37 @@ global.getDialogue = function () {
                 continue;
             }
             // 如果3格内有其他creep则10%概率获取双人的dialogue
-            let suitableCreep = creep.pos.findInRange(FIND_MY_CREEPS, 3, {
-                filter: (i) => {
-                    return !(i.memory.dialogue && i.memory.dialogue.length) && !i.pos.isEqualTo(creep.pos) && !i.spawning;
-                }
-            });
-            if (suitableCreep.length && Math.random() < 0.1) {
-                let otherCreep = creep.pos.findClosestByRange(suitableCreep);
-
-                let state = `${creep.memory.state} ${otherCreep.memory.state}`;
-                let _texts = dialogue['dialogue2']['twoRole'][state] ?
-                    dialogue['dialogue2']['twoRole'][state].concat(dialogue['dialogue2']['twoRole']['any any']) :
-                    dialogue['dialogue2']['twoRole']['any any'];
-                let texts = _.sample(_texts);
-                let sayTime = Game.time;
-
-                // 奇数语句给creep，偶数语句给otherCreep
-                for (let i = 0; i < texts.length; i++) {
-                    if (i % 2 == 0) {
-                        let _dialogue = { 'sayTime': sayTime + 1 + i, 'text': texts[i] };
-                        creep.memory.dialogue ?
-                            creep.memory.dialogue.push(_dialogue) : (creep.memory.dialogue = [_dialogue]);
+            if (Math.random() < 0.1) {
+                let suitableCreep = creep.pos.findInRange(FIND_MY_CREEPS, 3, {
+                    filter: (i) => {
+                        return !(i.memory.dialogue && i.memory.dialogue.length) && !i.pos.isEqualTo(creep.pos) && !i.spawning;
                     }
-                    else {
-                        let _dialogue = { 'sayTime': sayTime + 1 + i, 'text': texts[i] };
-                        otherCreep.memory.dialogue ?
-                            otherCreep.memory.dialogue.push(_dialogue) : (otherCreep.memory.dialogue = [_dialogue]);
+                });
+                if (suitableCreep.length) {
+                    let otherCreep = creep.pos.findClosestByRange(suitableCreep);
+
+                    let state = `${creep.memory.state} ${otherCreep.memory.state}`;
+                    let _texts = dialogue['dialogue2']['twoRole'][state] ?
+                        dialogue['dialogue2']['twoRole'][state].concat(dialogue['dialogue2']['twoRole']['any any']) :
+                        dialogue['dialogue2']['twoRole']['any any'];
+                    let texts = _.sample(_texts);
+                    let sayTime = Game.time;
+
+                    // 奇数语句给creep，偶数语句给otherCreep
+                    for (let i = 0; i < texts.length; i++) {
+                        if (i % 2 == 0) {
+                            let _dialogue = { 'sayTime': sayTime + 1 + i, 'text': texts[i] };
+                            creep.memory.dialogue ?
+                                creep.memory.dialogue.push(_dialogue) : (creep.memory.dialogue = [_dialogue]);
+                        }
+                        else {
+                            let _dialogue = { 'sayTime': sayTime + 1 + i, 'text': texts[i] };
+                            otherCreep.memory.dialogue ?
+                                otherCreep.memory.dialogue.push(_dialogue) : (otherCreep.memory.dialogue = [_dialogue]);
+                        }
                     }
+                    continue;
                 }
-                continue;
             }
             // 2%概率获取通用单人的dialogue
             if (Math.random() < 0.02) {
