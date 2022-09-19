@@ -29,7 +29,8 @@
 ## 热更新：
 - [x] 中央防御rampart和外围防御rampart的区分
 - [ ] 添加给房间签名功能，包括无视野的房间
-- [ ] **更改builder出生逻辑，当能量高于一定量再出生**
+- [x] **更改builder出生逻辑，当能量高于一定量再出生，且当能量高于一定再工作，防止后期无限刷墙、门**
 
 ## bug修复:
+- [x] 更新centerRampart的判定bug，现在Rampart所在格子即使是Rampart本身、路Road、墙Wall也不会被判定为centerRampart
 - [ ] 可以向我反馈存在的bug
