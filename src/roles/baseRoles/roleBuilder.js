@@ -87,6 +87,14 @@ export const roleBuilder = {
                 creep.memory.targetChoice = null;
             }
 
+            // Builder在稳定后期（有storage和terminal）就不要用完能量了，保留50k而不是达到生产条件的100k防止波动
+            if (this.storage && this.terminal &&
+                this.storage.store[RESOURCE_ENERGY] + this.terminal.store[RESOURCE_ENERGY] < 50000) {
+                // Game.time % 5 ? null : creep.say('卧槽没能量了', true);
+                creep.memory.state = 'resting';
+                return undefined;
+            }
+
             if (creep.room.memory.code.ifNeedBuilderWork) {
                 // 优先选择storage，其次选择terminal，其次随机选择一个sourceContainer，最后是根据开采位权重随机选择一个source
                 let source = Game.getObjectById(creep.memory.sourceChoice) ||

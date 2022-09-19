@@ -33,6 +33,14 @@ Room.prototype.updateStructuresNeedTowerFix = function () {
  * 扫描房间是否有建筑工地或者墙、门是否要修，在main.js里每100tick调用一次
  */
 Room.prototype.updateIfNeedBuilderWork = function () {
+    // 当同时有storage和terminal时说明是稳定的后期，后期保留至少100k能量，防止刷墙、刷门把能量花光
+    // 没有storage或terminal说明是前期或被打了的紧急时期，前期靠sourceContainer和Source直接挖，紧急时期也不需要保留能量
+    if (this.storage && this.terminal &&
+        this.storage.store[RESOURCE_ENERGY] + this.terminal.store[RESOURCE_ENERGY] < 100000) {
+        this.memory.code.ifNeedBuilderWork = false;
+        return undefined;
+    }
+
     let targets;
     // 自卫战争时期紧急修墙，停止工地建设，找是否有符合的建筑
     if (this.memory.code.warOfSelfDefence) {

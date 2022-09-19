@@ -168,7 +168,12 @@ function structureIndexInitialization(room) {
     room.find(FIND_STRUCTURES, {
         filter: (structure) => { return structure.structureType == STRUCTURE_RAMPART; }
     }).forEach((rampart) => {
-        if (rampart.pos.lookFor(LOOK_STRUCTURES).length || rampart.pos.isNearTo(room.controller)) {
+        let structureUnderRampart = _.filter(rampart.pos.lookFor(LOOK_STRUCTURES), (structure) => {
+            return structure.structureType != STRUCTURE_ROAD &&
+                structure.structureType != STRUCTURE_RAMPART &&
+                structure.structureType != STRUCTURE_WALL;
+        });
+        if (structureUnderRampart.length || rampart.pos.isNearTo(room.controller)) {
             this[STRUCTURE_CENTERRAMPART] = this[STRUCTURE_CENTERRAMPART] ?
                 this[STRUCTURE_CENTERRAMPART].add(rampart.id) : new Set([rampart.id]);
         }
@@ -471,7 +476,12 @@ Room.prototype.updateStructureIndex = function (type = undefined) {
                 delete cache[STRUCTURE_CENTERRAMPART];
                 delete cache[STRUCTURE_SURROUNDINGRAMPART];
                 objects.forEach((rampart) => {
-                    if (rampart.pos.lookFor(LOOK_STRUCTURES).length) {
+                    let structureUnderRampart = _.filter(rampart.pos.lookFor(LOOK_STRUCTURES), (structure) => {
+                        return structure.structureType != STRUCTURE_ROAD &&
+                            structure.structureType != STRUCTURE_RAMPART &&
+                            structure.structureType != STRUCTURE_WALL;
+                    });
+                    if (structureUnderRampart.length || rampart.pos.isNearTo(room.controller)) {
                         cache[STRUCTURE_CENTERRAMPART] = cache[STRUCTURE_CENTERRAMPART] ?
                             cache[STRUCTURE_CENTERRAMPART].add(rampart.id) : new Set([rampart.id]);
                     }
