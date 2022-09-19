@@ -93,7 +93,6 @@ export const roleFiller = {
                     if (creep.memory.targetChoice) {
                         creep.memory.targetChoice = null;
                     }
-                    // Game.time % 5 ? null : creep.say('根本不用我动手', true);
                     creep.memory.state = 'resting';
                 }
             }
@@ -110,7 +109,6 @@ export const roleFiller = {
                 fillWork('ghodium');
             }
             else {
-                // Game.time % 5 ? null : creep.say('还好不用搬进搬出', true);
                 creep.memory.state = 'resting';
             }
         }
@@ -187,7 +185,6 @@ export const roleFiller = {
                     }
                 }
                 else {
-                    // Game.time % 5 ? null : creep.say('根本没有可用资源！', true);
                     creep.memory.state = 'resting';
                 }
             }

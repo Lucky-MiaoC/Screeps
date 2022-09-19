@@ -1,6 +1,8 @@
+> 最后更新时间：2022/09/19
+
 # Screeps Script of TC-MiaoC
 
-[Screeps](https://screeps.com/a/#!/enter)是一款大型多人在线编程RTS游戏，该项目实现了在Screeps公共服务器（[shard3](https://screeps.com/a/#!/shards)）上运行的半自动化AI脚本。你可以通过本项目了解 Screeps 相关的操作以及如何将 rollup 应用在 Screeps 里（本项目包含大量的中文注释）。
+[Screeps](https://screeps.com/a/#!/enter)是一款大型多人在线编程RTS游戏，该项目实现了在Screeps公共服务器（[shard3](https://screeps.com/a/#!/shards)）上运行的半自动化AI脚本。你可以通过本项目了解 Screeps 相关的操作以及 node.js 的使用以及如何将 rollup 应用在 Screeps 里（本项目包含大量的中文注释）。
 
 ## 准备工作
 
@@ -55,6 +57,16 @@ npm run push
 npm run local
 ```
 
+## 部署说明
+
+本项目只需修改`./src/configs.js`中相关房间配置即可直接部署到重生的房间。
+
+如果需要部署到已存在的房间（替换原代码），你可能需要先杀死所有creep，因为对已存在creep的内存初始化需要依赖creep的名字（比如确定creep对应的role等），你可能还需要修改Link的布局或相关逻辑（参考[link.js](./src/structures/link.js)，因为Link的工作与基地布局与设计息息相关，最后修改`./src/configs.js`中相关房间配置即可顺利部署。
+
+注意！部署该代码会重新初始化Memory，请事先备份需要的Memory数据！
+
+为了尊重自己和他人的游戏体验，请不要将本项目直接部署在官方服务器上。（~~不会吧不会吧，不会真的有人会用这辣鸡代码吧！？😨~~）。
+
 ## 手动控制
 
 你可以通过以下方法手动控制游戏运行：
@@ -69,10 +81,8 @@ npm run local
 
 ## 其他说明
 
-本项目的构建参考了简书上HoPGoldy大佬❤的[中文教程](https://www.jianshu.com/p/5431cb7f42d3)（~~没错这个Markdown也是参考的这位大佬写的😀~~），同时得到了[Screeps>_编程交流群](https://jq.qq.com/?_wv=1027&k=FFUue0TM)里许多大佬的帮助与解答，包括并不限于 *大猫的家*、*PandaFlower* 等等，感谢各位大佬的指导！
+本项目的入门简单参考了简书上HoPGoldy大佬❤的[中文教程](https://www.jianshu.com/p/5431cb7f42d3)（~~没错这个Markdown也是参考的这位大佬写的😀~~），同时得到了[Screeps>_编程交流群](https://jq.qq.com/?_wv=1027&k=FFUue0TM)里许多大佬的帮助与解答，包括并不限于 *大猫的家*、*PandaFlower* 等等，感谢各位大佬的指导！
 
-本项目几乎全部代码由本人独立完成，借鉴的代码如 `./src/structures/index.js` 借鉴群里 Scorpior_gh 大佬的 `极致建筑缓存v1.4.3` 均在文件开头有所声明。
+本项目几乎全部代码由本人独立完成，（目前唯一）借鉴的代码如 `./src/structures/index.js` 借鉴群里 Scorpior_gh 大佬的 `极致建筑缓存v1.4.3` 均在文件开头有所声明。
 
-注意，本项目**尚未完成**，访问[/TODO.md](TODO.md)来查看后续更新计划。
-
-为了尊重自己和他人的游戏体验，请不要将本项目直接部署在官方服务器上（~~不会吧不会吧，不会真的有人会用这辣鸡代码吧！？😨~~）。
+注意！本项目**尚未完成**，访问[/TODO.md](TODO.md)来查看后续更新计划。

@@ -75,7 +75,6 @@ export const roleUpgrader = {
                 }
             }
             else {
-                // Game.time % 5 ? null : creep.say('没能量升级了', true);
                 creep.memory.state = 'resting';
             }
         }

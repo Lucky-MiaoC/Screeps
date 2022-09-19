@@ -70,7 +70,6 @@ export const roleCentercarrier = {
                             break;
                         }
                         default:
-                            // Game.time % 5 ? null : creep.say('transfer不了', true);
                             creep.memory.state = 'resting';
                             break;
                     }
@@ -81,7 +80,6 @@ export const roleCentercarrier = {
                             break;
                         }
                         default:
-                            // Game.time % 5 ? null : creep.say('withdraw不了', true);
                             creep.memory.state = 'resting';
                             break;
                     }
@@ -98,7 +96,6 @@ export const roleCentercarrier = {
                         creep.transfer(target, RESOURCE_ENERGY);
                     }
                     else {
-                        // Game.time % 5 ? null : creep.say('卧槽能量没地方放了', true);
                         creep.memory.state = 'resting';
                     }
                 }
@@ -109,7 +106,6 @@ export const roleCentercarrier = {
                         creep.withdraw(source, RESOURCE_ENERGY);
                     }
                     else {
-                        // Game.time % 5 ? null : creep.say('无聊啊不用搬能量', true);
                         creep.memory.state = 'resting';
                     }
                 }

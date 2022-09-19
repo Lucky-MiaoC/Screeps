@@ -34,7 +34,7 @@ export const roleBuilder = {
                 target = Game.getObjectById(creep.memory.targetChoice) ||
                     creep.room.find(FIND_STRUCTURES, {
                         filter: (structure) => {
-                            return judgeIfNeedBuilderWork(structure);
+                            return judgeIfNeedBuilderFix(structure);
                         }
                     }).sort((i, j) => {
                         return i.hits - j.hits;
@@ -46,7 +46,7 @@ export const roleBuilder = {
                     creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES) ||
                     creep.room.find(FIND_STRUCTURES, {
                         filter: (structure) => {
-                            return judgeIfNeedBuilderWork(structure);
+                            return judgeIfNeedBuilderFix(structure);
                         }
                     }).sort((i, j) => {
                         return i.hits - j.hits;
@@ -75,8 +75,7 @@ export const roleBuilder = {
                 }
             }
             else {
-                creep.room.memory.code.ifNeedBuilderWork = false;
-                // Game.time % 5 ? null : creep.say('有能量没地方花', true);
+                creep.room.memory.ifNeedBuilderWork = false;
                 creep.memory.state = 'resting';
             }
         }
@@ -90,12 +89,11 @@ export const roleBuilder = {
             // Builder在稳定后期（有storage和terminal）就不要用完能量了，保留50k而不是达到生产条件的100k防止波动
             if (this.storage && this.terminal &&
                 this.storage.store[RESOURCE_ENERGY] + this.terminal.store[RESOURCE_ENERGY] < 50000) {
-                // Game.time % 5 ? null : creep.say('卧槽没能量了', true);
                 creep.memory.state = 'resting';
                 return undefined;
             }
 
-            if (creep.room.memory.code.ifNeedBuilderWork) {
+            if (creep.room.memory.ifNeedBuilderWork) {
                 // 优先选择storage，其次选择terminal，其次随机选择一个sourceContainer，最后是根据开采位权重随机选择一个source
                 let source = Game.getObjectById(creep.memory.sourceChoice) ||
                     ((creep.room.storage && creep.room.storage.store[RESOURCE_ENERGY] >
@@ -129,12 +127,10 @@ export const roleBuilder = {
                     }
                 }
                 else {
-                    // Game.time % 5 ? null : creep.say('卧槽没能量了', true);
                     creep.memory.state = 'resting';
                 }
             }
             else {
-                // Game.time % 5 ? null : creep.say('100t内不干活', true);
                 creep.memory.state = 'resting';
             }
         }

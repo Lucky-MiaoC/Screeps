@@ -46,7 +46,6 @@ export const roleMiner = {
                 }
             }
             else {
-                // Game.time % 5 ? null : creep.say('没地方放矿了', true);
                 creep.memory.state = 'resting';
             }
         }
@@ -67,7 +66,6 @@ export const roleMiner = {
                 }
             }
             else {
-                // Game.time % 5 ? null : creep.say('矿干了，等吧', true);
                 creep.memory.state = 'resting';
             }
         }

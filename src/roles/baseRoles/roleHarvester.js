@@ -58,17 +58,18 @@ export const roleHarvester = {
                 if (target instanceof StructureContainer && target.hits / target.hitsMax < 0.1) {
                     if (creep.repair(target) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+                        creep.memory.state = 'moving';
                     }
                 }
                 else {
                     if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+                        creep.memory.state = 'moving';
                     }
                 }
                 */
             }
             else {
-                // Game.time % 5 ? null : creep.say('没地方放能量了', true);
                 creep.memory.state = 'resting';
             }
         }
@@ -96,7 +97,6 @@ export const roleHarvester = {
                 }
             }
             else {
-                // Game.time % 5 ? null : creep.say('能量开采完了', true);
                 creep.memory.state = 'resting';
             }
         }

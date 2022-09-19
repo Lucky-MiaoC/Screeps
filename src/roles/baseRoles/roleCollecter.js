@@ -76,13 +76,11 @@ export const roleCollecter = {
                     }
                 }
                 else {
-                    // Game.time % 5 ? null : creep.say('没东西要收集的', true);
                     creep.memory.state = 'resting';
                 }
             }
         }
         else {
-            // Game.time % 5 ? null : creep.say('都TM装满了', true);
             creep.memory.state = 'resting';
         }
     }

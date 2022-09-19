@@ -21,7 +21,7 @@ Source.prototype.getFreeSpaceNumber = function () {
 };
 
 /**
- * 从能量角度评估当前RCL所处等级，用于指导creepBody的选择
+ * 从能量角度评估当前RCL所处等级，大部分用于指导creepBody的选择
  *
  * rcl四级及以下时，缺少filler或harvester均使用当前可用能量来评估RCL等级
  * rcl四级以上时，缺失filler才使用当前可用能量来评估RCL等级
@@ -111,7 +111,7 @@ global.judgeIfStructureNeedTowerFix = function (structure) {
  * @param {Structure} structure 需要判断的建筑对象
  * @returns {boolean} 返回true或者false
  */
-global.judgeIfNeedBuilderWork = function (structure) {
+global.judgeIfNeedBuilderFix = function (structure) {
     if (structure instanceof Structure) {
         switch (structure.structureType) {
             // WALL血量少于设定血量就要维修
@@ -129,7 +129,7 @@ global.judgeIfNeedBuilderWork = function (structure) {
                 }
                 else {
                     structure.room.updateStructureIndex(STRUCTURE_RAMPART);
-                    return global.judgeIfNeedBuilderWork(structure);
+                    return global.judgeIfNeedBuilderFix(structure);
                 }
                 let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name];
                 return structure.hits < hitsSetting - 5000 ? true : false;
@@ -182,22 +182,44 @@ global.stateScanner = function () {
 };
 
 /**
+ * 只会被玩家在控制台调用的函数，用来显示内存中 RCL、GCL、GPL 使用情况和当前 CPU、bucket 使用情况
+ */
+global.showStateScannerInfo = function () {
+    if (Memory.stats && Object.keys(Memory.stats).length) {
+        Object.keys(Memory.stats).forEach((key) => {
+            console.log(JSON.stringify(key + '：' + Memory.stats[key]));
+        });
+    }
+    else {
+        console.log('暂时还没收集到 RCL、GCL、GPL 使用情况和当前 CPU、bucket 使用情况，请等待一段时间后重试！');
+    }
+}
+
+/**
+ * 杀死所有creep！该命令风险极高！需要手动更改false为true！
+*/
+global.killAllMyCreeps = function (confirmation = 'false') {
+    if (confirmation === 'true') {
+        console.log('开始杀死所有creep...');
+        Object.values(Game.creeps).forEach((creep) => {
+            creep.suicide();
+        })
+        console.log('杀死所有creep完成！');
+    }
+}
+
+/**
  * 内存初始化函数
  */
 global.memoryInitialization = function () {
-    // 杀死所有creep，警告：只有当该项目应用于一个非重头开始的环境时使用
-    /*
-    Object.keys(Game.creeps).forEach((creepName) => {
-        let creep = Game.creeps[creepName];
-        creep.suicide();
-    })
-    */
-
     // 对已存在的creep进行内存初始化，依赖已存在creep的名称
+    // 需要初始化已存在的creep的role、autoControl、originalRoomName，正是由于该段代码，导致脚本通用性变差
     Object.keys(Game.creeps).forEach((creepName) => {
+        console.log("Creep内存初始化开始...");
         let creepInfo = creepName.slice(1, -1).split('][');
         let creepMemory = { 'role': creepInfo[0], 'autoControl': true, 'originalRoomName': creepInfo[1].toUpperCase() };
         Game.creeps[creepName].memory = creepMemory;
+        console.log("Creep内存初始化完成！");
     })
 
     // 针对每个房间执行内存初始化
@@ -205,22 +227,19 @@ global.memoryInitialization = function () {
         let room = Game.rooms[roomName];
         if (room.controller && room.controller.my) {
             console.log("Room：" + roomName + " 内存初始化开始...");
-            // 初始化内存标志位
-            room.memory.code = {};
 
             // 初始化战争时期标志，分为自卫战争和革命战争，自卫战争被动触发，革命战争主动发起，另外还有一个强制不进入自卫战争的标志位
+            room.memory.code = {};
             room.memory.code.warOfSelfDefence = false;
             room.memory.code.warOfRevolution = false;
             room.memory.code.forceNotToAttack = false;
 
             // 是否需要builder工作标志
-            room.memory.code.ifNeedBuilderWork = false;
-            // 需要塔修理的建筑名单
-            room.memory.structuresNeedTowerFix = [];
+            room.memory.ifNeedBuilderWork = false;
             // 需要攻击的敌对creep的id
             room.memory.hostileNeedToAttcak = null;
-            // 需要observer观测的房间名
-            room.memory.roomNameNeedObserver = null;
+            // 需要塔修理的建筑名单
+            room.memory.structuresNeedTowerFix = [];
 
             // 初始化当前房间的中央搬运任务队列
             room.memory.centerCarryTask = [];
@@ -243,6 +262,7 @@ global.memoryInitialization = function () {
             room.memory.spawnQueueCreepNumber = spawnQueueCreepNumberInitialization;
 
             // 初始化矿-harvester绑定关系
+            // 注意：一点要用creepNames而不是creep.id来绑定，因为生产中的creep没有id只有name！
             room.memory.sourceCreepBindingRelationship = [];
             room[LOOK_SOURCES].forEach((i) => {
                 let bindingRelationship = { 'sourceId': i.id, 'creepNames': [] }
@@ -263,52 +283,4 @@ global.memoryInitialization = function () {
 
     // 初始化游戏状态扫描相关内存
     Memory.stats = {};
-    // 重新设置内存初始化标志位
-    Memory.doNotInitializeMyMemory = !Memory.doNotInitializeMyMemory;
 };
-
-/**
- * 使用observer观测房间
- *
- * @param {string} targetRoomName 目标房间名称
- * @param {string | null} sourceRoomName observer所在房间名称，为空时随机选择合适的房间的observer进行观测
- */
-global.observeRoom = function (targetRoomName, sourceRoomName = null) {
-    if (sourceRoomName) {
-        Game.rooms[sourceRoomName].memory.roomNameNeedObserver = targetRoomName;
-        console.log(sourceRoomName + " 的observer 开始观测房间 " + targetRoomName);
-    }
-    else {
-        let roomNamesCanObserve = _.filter(Object.keys(Game.rooms), (roomName) => {
-            return Game.rooms[roomName].controller.my && Game.rooms[roomName].observer &&
-                !Game.rooms[roomName].memory.roomNameNeedObserver;
-        })
-        if (roomNamesCanObserve.length) {
-            let i = Game.rooms[_.sample(roomNamesCanObserve)];
-            i.memory.roomNameNeedObserver = targetRoomName;
-            console.log(i.name + " 的observer 开始观测房间 " + targetRoomName);
-        }
-        else {
-            console.log("不好意思，无任何房间可以观测目标房间！可能是无观测者或者全部观测者已被占用或者房间太远导致！请检查")
-        }
-    }
-}
-
-/**
- * 停止对一个房间的观测
- *
- * @param {string} targetRoomName 需要停止观测的房间
- */
-global.stopObserveRoom = function (targetRoomName) {
-    let code = 0;
-    Object.keys(Game.rooms).forEach((roonName) => {
-        if (Game.rooms[roonName].memory.roomNameNeedObserver == targetRoomName) {
-            Game.rooms[roonName].memory.roomNameNeedObserver = null;
-            code = 1;
-            console.log("已停止对房间 " + targetRoomName + " 的观测！");
-        }
-    })
-    if (!code) {
-        console.log("并没有任何房间的observer在对 " + targetRoomName + " 进行观测！");
-    }
-}

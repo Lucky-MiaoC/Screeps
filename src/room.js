@@ -37,7 +37,7 @@ Room.prototype.updateIfNeedBuilderWork = function () {
     // 没有storage或terminal说明是前期或被打了的紧急时期，前期靠sourceContainer和Source直接挖，紧急时期也不需要保留能量
     if (this.storage && this.terminal &&
         this.storage.store[RESOURCE_ENERGY] + this.terminal.store[RESOURCE_ENERGY] < 100000) {
-        this.memory.code.ifNeedBuilderWork = false;
+        this.memory.ifNeedBuilderWork = false;
         return undefined;
     }
 
@@ -46,7 +46,7 @@ Room.prototype.updateIfNeedBuilderWork = function () {
     if (this.memory.code.warOfSelfDefence) {
         targets = this.find(FIND_STRUCTURES, {
             filter: (structure) => {
-                return judgeIfNeedBuilderWork(structure);
+                return judgeIfNeedBuilderFix(structure);
             }
         });
     }
@@ -55,17 +55,17 @@ Room.prototype.updateIfNeedBuilderWork = function () {
         targets = this.find(FIND_CONSTRUCTION_SITES) ||
             this.find(FIND_STRUCTURES, {
                 filter: (structure) => {
-                    return judgeIfNeedBuilderWork(structure);
+                    return judgeIfNeedBuilderFix(structure);
                 }
             });
     }
 
     // 存在工地或者有符合的建筑（血量低于设定的墙、门）
     if (targets.length) {
-        this.memory.code.ifNeedBuilderWork = true;
+        this.memory.ifNeedBuilderWork = true;
     }
     else {
-        this.memory.code.ifNeedBuilderWork = false;
+        this.memory.ifNeedBuilderWork = false;
     }
 }
 
@@ -86,48 +86,6 @@ Room.prototype.updateHostiles = function () {
             this.memory.code.warOfSelfDefence = false;
             this.memory.hostileNeedToAttcak = null;
         }
-    }
-}
-
-/**
- * 判断某一角色类型是否达到生产条件
- *
- * @param {string} creepRole 角色类型
- * @returns {boolean} 返回true或者false
- */
-Room.prototype.judgeIfCreepNeedSpawn = function (creepRole) {
-    switch (creepRole) {
-        // harvester一直都需要生产
-        case "harvester": { return true; }
-        // filler只有在有storage或者sourceContainer时才需要生产
-        case "filler": { return (this.storage || this.sourceContainer.length) ? true : false; }
-        // collecter只有在有storage和sourceContainer、mineralContainer任意一种
-        // 同时storage有空余、mineralContainer快满了时才需要生产
-        case "collecter": {
-            return (this.storage && this.storage.store.getFreeCapacity() > 100000 &&
-                (this.sourceContainer.length ||
-                    (this.mineralContainer.length && this.mineralContainer[0].store.getFreeCapacity() < 200))) ? true : false;
-        }
-        // centercarrier只有在有storage和centerLink时才需要生产
-        case "centercarrier": { return (this.storage && this.centerLink.length) ? true : false; }
-        // upgrader一直都需要生产
-        case "upgrader": { return true; }
-        // builder只有在需要builder工作时才需要生产
-        case "builder": { return this.memory.code.ifNeedBuilderWork; }
-        // miner只有在有extractor和mineralContainer且storage有空余且矿余量不为0时才会生产
-        case "miner": {
-            return (this.extractor && this.mineralContainer.length &&
-                this.storage && this.storage.store.getFreeCapacity() > 100000 &&
-                this.mineral.mineralAmount > 0) ? true : false;
-        }
-        // outsideharvester只有有storage且有外矿房间设定时才会生产
-        case "outsideharvester": { return (this.storage && configs.outsideSoucreRoomSetting[this.name].length) ? true : false; }
-        // 战争角色只有在革命战争时才生产
-        case 'warcarrier':
-        case 'controllerattacker':
-        case 'dismantler': { return this.memory.code.warOfRevolution; }
-        // 其他角色一律放行
-        default: { return true; }
     }
 }
 

@@ -54,13 +54,22 @@
  *  更新时实际是更新global.structureIndex上的缓存内容
  */
 
-// 自定义的特殊建筑种类，它们都是现有建筑的子类
+/**
+ * 自定义的特殊建筑种类，它们都是现有建筑的子类
+ */
+// centerLink：非sourceLink和upgradeLink的Link（由于兼容性，不采取‘房间中心’一定范围内的Link的定义方式，后续可能改为Storage一定范围内的Link
 const STRUCTURE_CENTERLINK = "centerLink";
+// sourceLink：Source 2格范围内内的Link
 const STRUCTURE_SOURCELINK = "sourceLink";
+// upgradeLink：Controller 2格范围内的Link（暂时用不到）
 const STRUCTURE_UPGRADELINK = "upgradeLink";
+// sourceContainer：Source 2格范围内内的Container
 const STRUCTURE_SOURCECONTAINER = "sourceContainer";
+// mineralContainer：Mineral 2格范围内内的Container
 const STRUCTURE_MINERALCONTAINER = "mineralContainer";
+// centerRampart：覆盖着非Road、Wall的建筑的Rampart以及Controller 1格范围内的Rampart
 const STRUCTURE_CENTERRAMPART = "centerRampart";
+// 非centerRampart的Rampart
 const STRUCTURE_SURROUNDINGRAMPART = "surroundingRampart";
 
 // 复数建筑类
