@@ -132,7 +132,7 @@ global.judgeIfNeedBuilderWork = function (structure) {
                     return global.judgeIfNeedBuilderWork(structure);
                 }
                 let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name];
-                return structure.hits < hitsSetting ? true : false;
+                return structure.hits < hitsSetting - 5000 ? true : false;
             }
             // 其他建筑不需要builder维修
             default:
