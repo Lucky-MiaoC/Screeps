@@ -31,12 +31,14 @@
 - [x] **将注释改为TS风格注释**
 - [ ] **解耦写死在代码中的一些参数设置**
 - [x] **解耦一些功能代码块（如centerCarryTask模块）方便后期添加新功能和重构**
+- [ ] *中央搬运任务拓展到整体任务制（很可能不会采取）*
 - [ ] *为代码分区，每个区使用Try-Catch来防止、调试代码bug*
 - [ ] *将代码改为TS代码*
 
 ## 热更新：
 - [x] 中央防御rampart和外围防御rampart的区分
 - [x] 更改builder出生逻辑，当能量高于一定量再出生，且当能量高于一定再工作，防止后期无限刷Wall、Rampart
+- [ ] **完成.temp中的未完成代码（未公开）**
 
 ## bug修复:
 - [x] 更新centerRampart的判定bug，现在Rampart所在格子即使是Rampart本身、路Road、墙Wall也不会被判定为centerRampart

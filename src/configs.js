@@ -1,3 +1,7 @@
+const baseRoles = ['filler', 'harvester', 'collecter', 'centercarrier', 'upgrader', 'builder', 'miner'];
+const warRoles = [];
+const remoteRoles = [];
+
 export const configs = {
     // 玩家白名单
     whiteList: {
@@ -34,11 +38,11 @@ export const configs = {
     // 说明：creepRoleSetting暗含了creepRole的生产优先级，creepRoleSetting中索引越小的角色生产优先级越高
     // baseRoles生产优先级 > warRoles生产优先级 > remoteRoles生产优先级
     // 如果对生产优先级有特殊要求的可以修改room.js中addSpawnTasks排序方法
-    baseRoles: ['filler', 'harvester', 'collecter', 'centercarrier', 'upgrader', 'builder', 'miner'],
-    warRoles: [],
-    remoteRoles: [],
-    // creepRoleSetting: [...baseRoles, ...warRoles, ...remoteRoles,],
-    creepRoleSetting: ['filler', 'harvester', 'collecter', 'centercarrier', 'upgrader', 'builder', 'miner'],
+    // creepRoleSetting无法直接调用baseRoles、warRoles、remoteRoles，因此将它们移出configs定义
+    baseRoles: baseRoles,
+    warRoles: warRoles,
+    remoteRoles: remoteRoles,
+    creepRoleSetting: [...baseRoles, ...warRoles, ...remoteRoles],
 
     // creep数量设定表
     // 提醒：是否生产某一角色取决于角色数量设定以及该角色是否达到房间生产条件

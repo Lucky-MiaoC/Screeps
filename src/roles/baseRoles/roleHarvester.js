@@ -15,7 +15,7 @@ export const roleHarvester = {
         if (creep.memory.ready && creep.store[RESOURCE_ENERGY] == 0) {
             creep.memory.ready = false;
         }
-        if (!creep.memory.ready && creep.store[RESOURCE_ENERGY] >= 48) {
+        if (!creep.memory.ready && creep.store.getFreeCapacity() <= 2) {
             creep.memory.ready = true;
         }
 

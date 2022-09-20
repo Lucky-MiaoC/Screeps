@@ -11,11 +11,11 @@ export const roleMiner = {
         // creep状态初始化
         creep.memory.state = 'working';
 
-        // 工作状态切换
+        // 工作状态切换，由于miner隔很长时间才会挖一下，因此只要挖一次就放进mineralContainer里
         if (creep.memory.ready && creep.store.getUsedCapacity() == 0) {
             creep.memory.ready = false;
         }
-        if (!creep.memory.ready && creep.store.getUsedCapacity() >= creep.getActiveBodyparts(WORK)) {
+        if (!creep.memory.ready && creep.store.getUsedCapacity() > 0) {
             creep.memory.ready = true;
         }
 
