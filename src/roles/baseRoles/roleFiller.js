@@ -34,7 +34,7 @@ export const roleFiller = {
                     return i.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
                 })) ||
                 creep.pos.findClosestByRange(_.filter(creep.room.tower, (i) => {
-                    return i.store.getFreeCapacity(RESOURCE_ENERGY) > 100;
+                    return i.store.getFreeCapacity(RESOURCE_ENERGY) > 200;
                 })) ||
                 ((creep.room.powerSpawn && creep.room.powerSpawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ? creep.room.powerSpawn : null)
                 || ((creep.room.nuker && creep.room.nuker.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ? creep.room.nuker : null)
@@ -67,7 +67,7 @@ export const roleFiller = {
                 return i.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
             })) ||
                 creep.pos.findClosestByRange(_.filter(creep.room.tower, (i) => {
-                    return i.store.getFreeCapacity(RESOURCE_ENERGY) > 100;
+                    return i.store.getFreeCapacity(RESOURCE_ENERGY) > 200;
                 })) ||
                 ((creep.room.powerSpawn && creep.room.powerSpawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ? creep.room.powerSpawn : null)
                 || ((creep.room.nuker && creep.room.nuker.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ? creep.room.nuker : null);
@@ -163,12 +163,11 @@ export const roleFiller = {
                             return container.store[resource] > creep.getActiveBodyparts(CARRY) * 50
                         }))
                 }
+                // Power和G有就拿去送，毕竟稀有可能经常拿不满身体（但都是能拿多少拿多少，反正多的会送回来）
                 else {
                     source = Game.getObjectById(creep.memory.sourceChoice)
-                        || ((creep.room.storage && creep.room.storage.store[resource] >
-                            creep.getActiveBodyparts(CARRY) * 50) ? creep.room.storage : null)
-                        || ((creep.room.terminal && creep.room.terminal.store[resource] >
-                            creep.getActiveBodyparts(CARRY) * 50) ? creep.room.terminal : null);
+                        || ((creep.room.storage && creep.room.storage.store[resource] > 0) ? creep.room.storage : null)
+                        || ((creep.room.terminal && creep.room.terminal.store[resource] > 0) ? creep.room.terminal : null);
                 }
 
                 if (source) {

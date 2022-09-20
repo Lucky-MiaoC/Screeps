@@ -12,6 +12,8 @@ import "./room";
 import { towerWork } from "./structures/tower";
 import { linkWork } from "./structures/link";
 import { labWork } from "./structures/lab";
+import "./structures/powerSpawn";
+import "./structures/nuker";
 
 // 导入基础角色
 import { roleHarvester } from "./roles/baseRoles/roleHarvester";
@@ -128,6 +130,10 @@ module.exports.loop = errorMapper(() => {
             towerWork.work(room);
             linkWork.work(room);
             labWork.work(room);
+            // PowerSpawn、Nuker是个体工作，因此使用原型拓展比较好
+            if (room.powerSpawn) {
+                room.powerSpawn.work();
+            }
         }
     });
 
