@@ -20,8 +20,8 @@ export const roleCollecter = {
             creep.memory.ready = true;
         }
 
-        // 快死的时候趁着身上没能量赶紧死，否则浪费能量
-        if (creep.ticksToLive < 30 && creep.store[RESOURCE_ENERGY] == 0) {
+        // 快死的时候趁着身上没资源赶紧死，否则浪费资源
+        if (creep.ticksToLive < 30 && creep.getUsedCapacity() == 0) {
             creep.suicide();
         }
 

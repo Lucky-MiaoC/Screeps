@@ -20,8 +20,8 @@ export const roleFiller = {
             creep.memory.ready = true;
         }
 
-        // 快死的时候趁着身上没能量赶紧死，否则浪费能量
-        if (creep.ticksToLive < 30 && creep.store[RESOURCE_ENERGY] == 0) {
+        // 快死的时候趁着身上没资源赶紧死，否则浪费资源
+        if (creep.ticksToLive < 30 && creep.getUsedCapacity() == 0) {
             creep.suicide();
         }
 
@@ -36,7 +36,7 @@ export const roleFiller = {
                 creep.pos.findClosestByRange(_.filter(creep.room.tower, (i) => {
                     return i.store.getFreeCapacity(RESOURCE_ENERGY) > 200;
                 })) ||
-                ((creep.room.powerSpawn && creep.room.powerSpawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ? creep.room.powerSpawn : null)
+                ((creep.room.powerSpawn && creep.room.powerSpawn.store.getFreeCapacity(RESOURCE_ENERGY) > 500) ? creep.room.powerSpawn : null)
                 || ((creep.room.nuker && creep.room.nuker.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ? creep.room.nuker : null)
                 || ((creep.room.storage && creep.room.storage.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ? creep.room.storage : null)
                 || ((creep.room.terminal && creep.room.terminal.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ? creep.room.terminal : null)
@@ -48,7 +48,7 @@ export const roleFiller = {
         // 如果creep手上拿着power，就做填充power工作
         else if (creep.store[RESOURCE_POWER] > 0) {
             target = Game.getObjectById(creep.memory.targetChoice)
-                || ((creep.room.powerSpawn && creep.room.powerSpawn.store.getFreeCapacity(RESOURCE_POWER) > 0) ? creep.room.powerSpawn : null)
+                || ((creep.room.powerSpawn && creep.room.powerSpawn.store.getFreeCapacity(RESOURCE_POWER) > 10) ? creep.room.powerSpawn : null)
                 || ((creep.room.storage && creep.room.storage.store.getFreeCapacity(RESOURCE_POWER) > 0) ? creep.room.storage : null)
                 || ((creep.room.terminal && creep.room.terminal.store.getFreeCapacity(RESOURCE_POWER) > 0) ? creep.room.terminal : null);
             creep.memory.fillTask = 'power';
@@ -69,14 +69,14 @@ export const roleFiller = {
                 creep.pos.findClosestByRange(_.filter(creep.room.tower, (i) => {
                     return i.store.getFreeCapacity(RESOURCE_ENERGY) > 200;
                 })) ||
-                ((creep.room.powerSpawn && creep.room.powerSpawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ? creep.room.powerSpawn : null)
+                ((creep.room.powerSpawn && creep.room.powerSpawn.store.getFreeCapacity(RESOURCE_ENERGY) > 500) ? creep.room.powerSpawn : null)
                 || ((creep.room.nuker && creep.room.nuker.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ? creep.room.nuker : null);
             // 如果有非Storage或Container或terminal的能量型目标，做填充能量工作
             if (target) {
                 creep.memory.fillTask = 'energy';
             }
             else {
-                target = ((creep.room.powerSpawn && creep.room.powerSpawn.store.getFreeCapacity(RESOURCE_POWER) > 0) ? creep.room.powerSpawn : null)
+                target = ((creep.room.powerSpawn && creep.room.powerSpawn.store.getFreeCapacity(RESOURCE_POWER) > 10) ? creep.room.powerSpawn : null)
                     || ((creep.room.nuker && creep.room.nuker.store.getFreeCapacity(RESOURCE_GHODIUM) > 0) ? creep.room.nuker : null);
                 if (target) {
                     // 如果有power型目标，做填充power工作
@@ -137,8 +137,15 @@ export const roleFiller = {
                 if (creep.memory.sourceChoice) {
                     creep.memory.sourceChoice = null;
                 }
-                if (target.store.getFreeCapacity(resource) == 0) {
-                    creep.memory.targetChoice = null;
+                if (target instanceof StructurePowerSpawn) {
+                    if (target.store.getFreeCapacity(resource) < 10) {
+                        creep.memory.targetChoice = null;
+                    }
+                }
+                else {
+                    if (target.store.getFreeCapacity(resource) == 0) {
+                        creep.memory.targetChoice = null;
+                    }
                 }
 
                 if (creep.transfer(target, resource) == ERR_NOT_IN_RANGE) {

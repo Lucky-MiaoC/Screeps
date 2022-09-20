@@ -19,7 +19,7 @@ export const roleMiner = {
             creep.memory.ready = true;
         }
 
-        // 快死的时候趁着身上没能量赶紧死，否则浪费能量
+        // 快死的时候趁着身上没资源赶紧死，否则浪费资源
         if (creep.ticksToLive < 10 && creep.store.getUsedCapacity() == 0) {
             creep.suicide();
         }
