@@ -1,5 +1,5 @@
 /**
- * 注意：Link的工作与基地布局与设计息息相关，你可能需要修改Link的布局或相关逻辑
+ * 注意：Link的工作与子类设计息息相关，你可能需要修改Link的子类设计或相关逻辑
  * 本人目前只使用到了Source旁边的sourceLink（多个）和中央集群的centerLink（单个）
  * 本人在index.js中只设计了sourceLink、centerLink、upgradeLink三种子类（都返回数组），如果需要其他种类的Link，你可能需要修改index.js的建筑索引
  */

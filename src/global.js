@@ -91,7 +91,7 @@ global.judgeIfStructureNeedTowerFix = function (structure) {
                     structure.room.updateStructureIndex(STRUCTURE_RAMPART);
                     return global.judgeIfStructureNeedTowerFix(structure);
                 }
-                let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name];
+                let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name] || 0;
                 return (structure.hits < 5000 || (structure.hits > hitsSetting - 5000 &&
                     structure.hits < hitsSetting)) ? true : false;
             }
@@ -117,7 +117,7 @@ global.judgeIfNeedBuilderFix = function (structure) {
             // WALL血量少于设定血量就要维修
             case STRUCTURE_WALL:
                 return structure.hits <
-                    configs.maxHitsRepairingWallOrRampart[STRUCTURE_WALL][structure.room.name] ? true : false;
+                    (configs.maxHitsRepairingWallOrRampart[STRUCTURE_WALL][structure.room.name] || 0) ? true : false;
             // RAMPART血量少于设定血量就要维修
             case STRUCTURE_RAMPART: {
                 let rampartType = undefined;
@@ -131,7 +131,7 @@ global.judgeIfNeedBuilderFix = function (structure) {
                     structure.room.updateStructureIndex(STRUCTURE_RAMPART);
                     return global.judgeIfNeedBuilderFix(structure);
                 }
-                let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name];
+                let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name] || 0;
                 return structure.hits < hitsSetting - 5000 ? true : false;
             }
             // 其他建筑不需要builder维修
@@ -213,14 +213,20 @@ global.killAllMyCreeps = function (confirmation = 'false') {
  */
 global.memoryInitialization = function () {
     // 对已存在的creep进行内存初始化，依赖已存在creep的名称
-    // 需要初始化已存在的creep的role、autoControl、originalRoomName，正是由于该段代码，导致脚本通用性变差
-    Object.keys(Game.creeps).forEach((creepName) => {
+    // 需要初始化已存在的creep的role、autoControl、originalRoomName
+    try {
         console.log("Creep内存初始化开始...");
-        let creepInfo = creepName.slice(1, -1).split('][');
-        let creepMemory = { 'role': creepInfo[0], 'autoControl': true, 'originalRoomName': creepInfo[1].toUpperCase() };
-        Game.creeps[creepName].memory = creepMemory;
+        Object.keys(Game.creeps).forEach((creepName) => {
+            let creepInfo = creepName.slice(1, -1).split('][');
+            let creepMemory = { 'role': creepInfo[0], 'autoControl': true, 'originalRoomName': creepInfo[1].toUpperCase() };
+            Game.creeps[creepName].memory = creepMemory;
+        })
         console.log("Creep内存初始化完成！");
-    })
+    }
+    catch {
+        console.log("未能执行Creep内存初始化！可能是Creep名称格式不符！");
+        console.log("已存在Creep将无法执行工作！");
+    }
 
     // 针对每个房间执行内存初始化
     Object.keys(Game.rooms).forEach((roomName) => {

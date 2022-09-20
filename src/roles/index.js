@@ -1,8 +1,43 @@
 import { dialogue } from "./dialogue";
+import { configs } from "../configs";
 
-const baseRoles = ['harvester', 'filler', 'collecter', 'centercarrier', 'upgrader', 'builder', 'miner'];
-const remoteRoles = [];
-const warRoles = [];
+/**
+ * 判断某一角色类型是否达到生产条件
+ *
+ * @param {string} creepRole 角色类型
+ * @returns {boolean} 返回true或者false
+ */
+Room.prototype.judgeIfCreepNeedSpawn = function (creepRole) {
+    switch (creepRole) {
+        // harvester一直都需要生产
+        case "harvester": { return true; }
+        // filler只有在有storage或者terminal或者sourceContainer时才需要生产
+        case "filler": { return (this.storage || this.terminal || this.sourceContainer.length) ? true : false; }
+        // collecter只有在同时有[storage或者terminal]和[sourceContainer或者mineralContainer]
+        // 同时storage或者terminal有空余，mineralContainer快满了时才需要生产
+        case "collecter": {
+            let freeCapacity = (this.storage ? this.storage.store.getFreeCapacity() : 0) +
+                (this.terminal ? this.terminal.store.getFreeCapacity() : 0);
+            return (freeCapacity > 200000 && (this.sourceContainer.length ||
+                (this.mineralContainer.length && this.mineralContainer[0].store.getFreeCapacity() < 200))) ? true : false;
+        }
+        // centercarrier只有在有[storage或者terminal]和[centerLink]和[集群中心时]才需要生产
+        case "centercarrier": { return ((this.storage || this.terminal) && this.centerLink.length && configs.centerPoint[this.name]) ? true : false; }
+        // upgrader一直都需要生产
+        case "upgrader": { return true; }
+        // builder只有在需要builder工作时才需要生产
+        case "builder": { return this.memory.ifNeedBuilderWork; }
+        // miner只有在有[Extractor和mineralContainer]同时[storage或者terminal]有空余且[矿余量不为0]时才会生产
+        case "miner": {
+            let freeCapacity = (this.storage ? this.storage.store.getFreeCapacity() : 0) +
+                (this.terminal ? this.terminal.store.getFreeCapacity() : 0);
+            return (this.extractor && this.mineralContainer.length && freeCapacity > 200000 &&
+                this.mineral.mineralAmount > 0) ? true : false;
+        }
+        // 其他角色一律放行
+        default: { return true; }
+    }
+}
 
 /**
  * 为每个creep概率设定要说的话，由于双人对话涉及不同的creep，因此采取全局函数而不是creep原型拓展的设计
@@ -26,7 +61,7 @@ global.getDialogue = function () {
             if (creep.room.memory.code && creep.room.memory.code.warOfSelfDefence &&
                 creep.pos.findInRange(FIND_HOSTILE_CREEPS, 3, {
                     filter: (hostile) => {
-                        return !configs.whiteList['global'].concat(configs.whiteList[creep.room.name]).includes(hostile.owner.username);
+                        return !configs.whiteList['global'].concat(configs.whiteList[creep.room.name] || []).includes(hostile.owner.username);
                     }
                 }).length && Math.random() >= 0.1) {
                 let text = _.sample(dialogue['dialogue1']['anyRloe']['hostile']);

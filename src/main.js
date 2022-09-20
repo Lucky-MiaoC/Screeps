@@ -2,8 +2,9 @@
 import { errorMapper } from './modules/errorMapper';
 
 // 导入全局依赖和原型拓展
-import "./roles/index";
 import "./structures/index";
+import "./roles/index";
+import "./roles/task";
 import "./global";
 import "./room";
 

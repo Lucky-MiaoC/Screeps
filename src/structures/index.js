@@ -57,7 +57,6 @@
 /**
  * 自定义的特殊建筑种类，它们都是现有建筑的子类
  */
-// centerLink：非sourceLink和upgradeLink的Link（由于兼容性，不采取‘房间中心’一定范围内的Link的定义方式，后续可能改为Storage一定范围内的Link
 const STRUCTURE_CENTERLINK = "centerLink";
 // sourceLink：Source 2格范围内内的Link
 const STRUCTURE_SOURCELINK = "sourceLink";
@@ -71,6 +70,7 @@ const STRUCTURE_MINERALCONTAINER = "mineralContainer";
 const STRUCTURE_CENTERRAMPART = "centerRampart";
 // 非centerRampart的Rampart
 const STRUCTURE_SURROUNDINGRAMPART = "surroundingRampart";
+// centerLink：非sourceLink和upgradeLink的Link（由于兼容性，不采取‘房间中心’一定范围内的Link的定义方式，后续可能改为Storage一定范围内的Link
 
 // 复数建筑类
 const multipleList = new Set([
