@@ -16,12 +16,15 @@ export const roleCentercarrier = {
         creep.memory.state = 'working';
 
         // 移动到中心位置
-        if (!creep.memory.arrive && creep.pos.isEqualTo(configs.centerPoint[creep.room.name])) {
-            creep.memory.arrive = true;
-        }
-        if (!creep.memory.arrive) {
-            creep.moveTo(configs.centerPoint[creep.room.name], { visualizePathStyle: { stroke: '#ffffff' } });
-            creep.memory.state = 'moving';
+        if (!creep.memory.arrive && configs.centerPoint[creep.room.name]) {
+            if (creep.pos.isEqualTo(configs.centerPoint[creep.room.name])) {
+                creep.memory.arrive = true;
+            }
+            else {
+                creep.moveTo(configs.centerPoint[creep.room.name], { visualizePathStyle: { stroke: '#ffffff' } });
+                creep.memory.state = 'moving';
+            }
+
         }
 
         // 快死的时候趁着身上没能量赶紧死，否则浪费能量
@@ -51,20 +54,21 @@ export const roleCentercarrier = {
 
             // 执行中央搬运任务
             if (creep.memory.doTask) {
-                let id = creep.room.memory.centerCarryTask[0].id;
-                let source = Game.getObjectById(creep.room.memory.centerCarryTask[0].sourceId);
-                let target = Game.getObjectById(creep.room.memory.centerCarryTask[0].targetId);
-                let resourceType = creep.room.memory.centerCarryTask[0].resourceType;
-                let resourceNumber = (creep.room.memory.centerCarryTask[0].resourceNumber >
-                    creep.getActiveBodyparts(CARRY) * 50) ? creep.getActiveBodyparts(CARRY) * 50 :
-                    creep.room.memory.centerCarryTask[0].resourceNumber;
+                let task = creep.room.memory.centerCarryTask[0];
+                let id = task.id;
+                let source = Game.getObjectById(task.sourceId);
+                let target = Game.getObjectById(task.targetId);
+                let resourceType = task.resourceType;
+                let resourceNumber = task.resourceNumber;
+                let progress = task.progress;
+                let amount = resourceNumber - progress > creep.getActiveBodyparts(CARRY) * 50 ?
+                    creep.getActiveBodyparts(CARRY) * 50 : resourceNumber - progress;
 
                 if (creep.memory.ready) {
-                    switch (creep.transfer(target, resourceType, resourceNumber)) {
+                    switch (creep.transfer(target, resourceType, amount)) {
                         case OK: {
-                            creep.room.memory.centerCarryTask[0].resourceNumber =
-                                creep.room.memory.centerCarryTask[0].resourceNumber - resourceNumber;
-                            if (creep.room.memory.centerCarryTask[0].resourceNumber == 0) {
+                            task.progress += amount;
+                            if (task.resourceNumber == task.progress) {
                                 creep.room.cancelCenterCarryTask(id);
                             }
                             break;
@@ -75,7 +79,7 @@ export const roleCentercarrier = {
                     }
                 }
                 else {
-                    switch (creep.withdraw(source, resourceType, resourceNumber)) {
+                    switch (creep.withdraw(source, resourceType, amount)) {
                         case OK: {
                             break;
                         }
