@@ -74,7 +74,7 @@ export const roleCentercarrier = {
                         case OK: {
                             task.progress += amount;
                             if (task.resourceNumber == task.progress) {
-                                console.log(`成功完成房间${_room.name}中id为${taskId}的中央搬运任务！`);
+                                console.log(`成功完成房间${creep.room.name}中id为${id}的中央搬运任务！`);
                                 creep.room.cancelCenterCarryTask(id);
                             }
                             break;
