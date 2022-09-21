@@ -25,7 +25,7 @@ export const roleHarvester = {
         }
 
         // 快死的时候趁着身上没能量赶紧死，否则浪费能量
-        if (creep.ticksToLive < 10 && creep.store[RESOURCE_ENERGY] == 0) {
+        if (creep.ticksToLive < 10 && creep.store.getUsedCapacity() == 0) {
             creep.suicide();
         }
 
