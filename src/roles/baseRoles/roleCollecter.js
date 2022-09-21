@@ -4,6 +4,11 @@
  */
 export const roleCollecter = {
     run: function (creep) {
+        // 生产中的creep不执行操作
+        if (creep.spawning) {
+            return undefined;
+        }
+
         // 手动控制
         if (!creep.memory.autoControl) {
             return undefined;

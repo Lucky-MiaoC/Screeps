@@ -3,6 +3,11 @@
  */
 export const roleHarvester = {
     run: function (creep) {
+        // 生产中的creep不执行操作
+        if (creep.spawning) {
+            return undefined;
+        }
+
         // 手动控制
         if (!creep.memory.autoControl) {
             return undefined;
@@ -12,7 +17,7 @@ export const roleHarvester = {
         creep.memory.state = 'working';
 
         // 工作状态切换
-        if (creep.memory.ready && creep.store[RESOURCE_ENERGY] == 0) {
+        if (creep.memory.ready && creep.store.getUsedCapacity() == 0) {
             creep.memory.ready = false;
         }
         if (!creep.memory.ready && creep.store.getFreeCapacity() <= 2) {
