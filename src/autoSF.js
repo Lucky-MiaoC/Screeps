@@ -19,7 +19,7 @@ const _config = {
  */
 export const autoSF = {
     work: function () {
-        // 每10tick检查一次建筑受损情况，直接摧毁建筑不会触发SF，可以放心自己拆除建筑
+        // 每10tick检查一次建筑受损情况，直接摧毁建筑不会触发SF，可以放心自己拆除自己建筑
         if (!(Game.time % 10)) {
             _.filter(Game.structures, (structure) => {
                 return _config.structureTypes.includes(structure.structureType) &&

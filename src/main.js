@@ -1,15 +1,15 @@
 // 导入错误处理程序
 import { errorMapper } from './modules/errorMapper';
 
+// 导入功能模块
+import { autoSF } from './autoSF';
+
 // 导入全局依赖和原型拓展
 import "./structures/index";
 import "./roles/index";
 import "./roles/task";
 import "./global";
 import "./room";
-
-// 导入功能模块
-import { autoSF } from './autoSF';
 
 // 导入建筑
 import { towerWork } from "./structures/tower";
@@ -110,7 +110,7 @@ module.exports.loop = errorMapper(() => {
             room.updateCreepMemory();
             // 更新creep生产队列
             room.updateSpawnQueue();
-            // 检查房间生产队列，如果有，则向随机Spawn分发生产任务，如果想优化可只能Spawn生产对应角色的creep
+            // 检查房间生产队列，如果有，则向随机Spawn分发生产任务
             if (room.memory.spawnQueue.length) {
                 room.distributeSpawnTasks();
             }
