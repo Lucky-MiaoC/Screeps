@@ -228,11 +228,11 @@ global.memoryInitialization = function () {
         console.log("已存在Creep将无法执行工作！");
     }
 
+    console.log("Room内存初始化开始...");
     // 针对每个房间执行内存初始化
     Object.keys(Game.rooms).forEach((roomName) => {
         let room = Game.rooms[roomName];
         if (room.controller && room.controller.my) {
-            console.log("Room：" + roomName + " 内存初始化开始...");
 
             // 初始化战争时期标志，分为自卫战争和革命战争，自卫战争被动触发，革命战争主动发起，另外还有一个强制不进入自卫战争的标志位
             room.memory.code = {};
@@ -282,10 +282,9 @@ global.memoryInitialization = function () {
                     delete creep.memory.sourceId;
                 }
             }
-
-            console.log("Room：" + roomName + " 内存初始化完成！");
         }
     });
+    console.log("Room内存初始化完成！");
 
     // 初始化游戏状态扫描相关内存
     Memory.stats = {};
