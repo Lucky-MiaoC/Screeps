@@ -1,71 +1,92 @@
 import { configs } from "../configs";
 
+// 各房间tower内存初始化
+let towerMemory = {}
+Object.values(Game.rooms).forEach((room) => {
+    towerMemory[room.name] = { 'Repair': [], 'Attack': null };
+})
+
 export const towerWork = {
     work: function (room) {
+        // 每50tick扫描一次是否存在需要tower修复的建筑，用于指导tower修理建筑
+        if (!(Game.time % 50)) {
+            let structuresNeedTowerRepair = [];
+            room.find(FIND_STRUCTURES).forEach((structure) => {
+                if (judgeIfStructureNeedTowerRepair(structure)) {
+                    structuresNeedTowerRepair.push(structure);
+                }
+            })
+            towerMemory[room.name]['Repair'] = structuresNeedTowerRepair;
+        }
+
+        // 所有tower统一处理
         let towers = _.filter(room.tower, (i) => {
             return i.store[RESOURCE_ENERGY] >= 10;
         });
+        if (!towers.length) { return undefined; }
 
-        if (towers.length) {
-            // 非自卫战争时期，则日常维护或战后维修建筑
-            if (!room.memory.code.warOfSelfDefence || room.memory.code.forceNotToAttack) {
-                // 需要修复的建筑列表不为空
-                if (room.memory.structuresNeedTowerFix.length) {
-                    // 由于需要修复的建筑列表是50tick扫描一次，所以每tick需要对该列表进行清洗，除去建筑不在了的，除去修好不需要再修的
-                    _.remove(room.memory.structuresNeedTowerFix, (i) => {
-                        return (!Game.getObjectById(i) || !global.judgeIfStructureNeedTowerFix(Game.getObjectById(i)));
-                    })
-                    let structures = _.map(room.memory.structuresNeedTowerFix, (i) => {
-                        return Game.getObjectById(i);
-                    });
-                    towers.forEach((tower) => {
-                        // 日常维护及战后维修留一半能量以防万一，从距离最近的修起
-                        if (tower.store[RESOURCE_ENERGY] > 500 && structures.length) {
-                            let closestDamagedStructure = tower.pos.findClosestByRange(structures);
-                            tower.repair(closestDamagedStructure);
-                        }
-                    })
-                }
+        // 非自卫战争时期，则日常维护或战后维修建筑
+        if (!room.memory.period.warOfSelfDefence && !room.memory.period.forceNotToAttack) {
+            // 需要修复的建筑列表不为空
+            if (towerMemory[room.name]['Repair'].length) {
+                // 由于需要修复的建筑列表是50tick扫描一次，所以每tick需要对该列表进行清洗，除去建筑不在了的，除去修好不需要再修的
+                _.remove(towerMemory[room.name]['Repair'], (structure) => {
+                    return (!judgeIfStructureNeedTowerRepair(structure));
+                })
+
+                towers.forEach((tower) => {
+                    // 日常维护及战后维修留一半能量以防万一，从距离最近的修起
+                    if (tower.store[RESOURCE_ENERGY] > 500) {
+                        let closestDamagedStructure = tower.pos.findClosestByRange(towerMemory[room.name]['Repair']);
+                        tower.repair(closestDamagedStructure);
+                    }
+                })
             }
-            // 自卫战争时期，所有塔按照敌方creep的bodypart的构成以及射杀优先级集火射杀敌方creep
-            // 射杀优先级[CLAIM, WORK, RANGED_ATTACK, ATTACK, HEAL]排名越靠前数量越多越优先射杀
-            else {
-                if (room.memory.code.forceNotToAttack) {
-                    room.memory.code.warOfSelfDefence = false;
-                }
-                else {
-                    let hostile = Game.getObjectById(room.memory.hostileNeedToAttcak) || room.find(FIND_HOSTILE_CREEPS, {
-                        filter: (hostile) => {
-                            return !configs.whiteList['global'].concat(configs.whiteList[room.name] || []).includes(hostile.owner.username);
-                        }
-                    }).sort((i, j) => {
-                        for (let Bodypart of [CLAIM, WORK, RANGED_ATTACK, ATTACK, HEAL]) {
-                            if (i.getActiveBodyparts(Bodypart) > j.getActiveBodyparts(Bodypart)) {
-                                return 1;
-                            }
-                            else if (i.getActiveBodyparts(Bodypart) < j.getActiveBodyparts(Bodypart)) {
-                                return -1;
-                            }
-                            else {
-                                continue;
-                            }
-                        }
-                        return 0;
-                    })[0];
+        }
+        // 自卫战争时期，所有塔按照敌方creep的bodypart的构成以及射杀优先级集火射杀敌方creep
+        // 射杀优先级[CLAIM, WORK, RANGED_ATTACK, ATTACK, HEAL]排名越靠前数量越多越优先射杀
+        else {
+            // 获取hostile缓存
+            let hostile = towerMemory[room.name]['Attack'];
 
-                    if (hostile) {
-                        if (!Game.getObjectById(room.memory.hostileNeedToAttcak)) {
-                            room.memory.hostileNeedToAttcak = hostile.id;
-                        }
-                        towers.forEach((tower) => {
-                            tower.attack(hostile);
-                        })
+            // 验证target缓存
+            if (!hostile) {
+                hostile = null;
+                towerMemory[room.name]['Attack'] = null;
+            }
+
+            // 获取hostile
+            hostile = hostile || room.find(FIND_HOSTILE_CREEPS, {
+                filter: (hostile) => {
+                    return !configs.whiteList['global'].concat(configs.whiteList[room.name] || []).includes(hostile.owner.username);
+                }
+            }).sort((i, j) => {
+                for (let Bodypart of [CLAIM, WORK, RANGED_ATTACK, ATTACK, HEAL]) {
+                    if (i.getActiveBodyparts(Bodypart) > j.getActiveBodyparts(Bodypart)) {
+                        return 1;
+                    }
+                    else if (i.getActiveBodyparts(Bodypart) < j.getActiveBodyparts(Bodypart)) {
+                        return -1;
                     }
                     else {
-                        room.memory.hostileNeedToAttcak = null;
+                        continue;
                     }
                 }
+                return 0;
+            })[0];
+
+            // 验证hostile
+            if (!hostile) { return undefined; }
+
+            // 缓存hostile
+            if (!towerMemory[room.name]['Attack']) {
+                towerMemory[room.name]['Attack'] = hostile;
             }
+
+            // 攻击hostile
+            towers.forEach((tower) => {
+                tower.attack(hostile);
+            });
         }
     }
 }

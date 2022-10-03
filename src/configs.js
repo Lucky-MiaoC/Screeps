@@ -17,7 +17,7 @@ export const configs = {
         // 'W59N38': null
     },
 
-    // 修Wall、Rampart修到的目标血量，没有也不会报错，会在内部将其设为0，放心builder受到资源的限制不会无限修
+    // Wall、Rampart的目标血量，没有也不会报错，会在内部将其设为0
     maxHitsRepairingWallOrRampart: {
         'centerRampart': {
             'W59N37': 12000000,
@@ -37,7 +37,6 @@ export const configs = {
     // creep角色设定表
     // 说明：creepRoleSetting暗含了creepRole的生产优先级，creepRoleSetting中索引越小的角色生产优先级越高
     // baseRoles生产优先级 > warRoles生产优先级 > remoteRoles生产优先级
-    // 如果对生产优先级有特殊要求的可以修改room.js中addSpawnTasks排序方法
     // creepRoleSetting无法直接调用baseRoles、warRoles、remoteRoles，因此将它们移出configs定义
     baseRoles: baseRoles,
     warRoles: warRoles,
@@ -48,7 +47,7 @@ export const configs = {
     // 提醒：是否生产某一角色取决于角色数量设定以及该角色是否达到房间生产条件
     creepNumberSetting: {
         'W59N37': {
-            'baseRoles': { 'harvester': 2, 'filler': 2, 'collecter': 1, 'upgrader': 1, 'builder': 2, 'centercarrier': 1, 'miner': 0 },
+            'baseRoles': { 'harvester': 2, 'filler': 2, 'collecter': 0, 'upgrader': 1, 'builder': 1, 'centercarrier': 1, 'miner': 0 },
             'warRoles': {},
             'remoteRoles': {},
         },

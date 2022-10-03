@@ -1,77 +1,87 @@
-/**
- * miner是矿工，采取挖运分离，它的任务很简单，生产它的条件却很复杂
- */
 export const roleMiner = {
     run: function (creep) {
-        // 生产中的creep不执行操作
-        if (creep.spawning) {
+        // 生产中的creep不执行代码
+        if (creep.spawning) { return undefined; }
+
+        // 快死的时候趁着身上没资源赶紧死，否则浪费资源
+        if (creep.ticksToLive < 10 && creep.store.getUsedCapacity() == 0) {
+            creep.suicide();
             return undefined;
         }
 
         // 手动控制
         if (!creep.memory.autoControl) {
+            // WRITE YOUR CODE WHEN CREEP IS NOT AUTOCONTROL
             return undefined;
         }
 
-        // creep状态初始化
-        creep.memory.state = 'working';
-
-        // 工作状态切换，由于miner隔很长时间才会挖一下，因此只要挖一次就放进mineralContainer里
+        // 工作状态切换
         if (creep.memory.ready && creep.store.getUsedCapacity() == 0) {
             creep.memory.ready = false;
+            creep.memory.targetId = null;
         }
         if (!creep.memory.ready && creep.store.getUsedCapacity() > 0) {
             creep.memory.ready = true;
+            // creep.memory.sourceId = null;
         }
 
-        // 快死的时候趁着身上没资源赶紧死，否则浪费资源
-        if (creep.ticksToLive < 10 && creep.store.getUsedCapacity() == 0) {
-            creep.suicide();
+        // 获取target缓存
+        let target = Game.getObjectById(creep.memory.targetId);
+
+        // 验证target缓存
+        if (!target || target.store.getFreeCapacity() == 0) {
+            target = null;
+            creep.memory.targetId = null;
         }
 
-        // 身上矿满了，选择mineralContainer作为目标
-        if (creep.memory.ready) {
-            let target = Game.getObjectById(creep.memory.targetChoice) || _.sample(_.filter(creep.room.mineralContainer, (container) => {
-                return container.store.getFreeCapacity() > 0;
-            }));
+        // 获取target
+        target = target || _.sample(_.filter(creep.room.mineralContainer, (container) => {
+            return container.store.getFreeCapacity() > 0;
+        }));
 
-            if (target) {
-                if (!Game.getObjectById(creep.memory.targetChoice)) {
-                    creep.memory.targetChoice = target.id;
-                }
-                if (target.store.getFreeCapacity() == 0) {
-                    creep.memory.targetChoice = null;
-                }
+        // 验证target
+        if (!target) { return undefined; }
 
-                for (let resourceType in creep.store) {
-                    if (creep.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-                        creep.memory.state = 'moving';
-                    }
-                }
+        // 缓存target
+        if (!creep.memory.targetId) {
+            creep.memory.targetId = target.id;
+        }
+
+        // 工作逻辑代码
+        if (!creep.memory.ready) {
+            // 获取source缓存
+            let source = Game.getObjectById(creep.memory.sourceId);
+
+            // 验证source缓存
+            if (!source || !creep.room.extractor || creep.room.extractor.cooldown || source.mineralAmount == 0) {
+                source = null;
+                // creep.memory.sourceId = null;
             }
-            else {
-                creep.memory.state = 'resting';
-            }
-        }
-        // 身上矿空了，选择矿藏作为来源
-        else {
-            let source = Game.getObjectById(creep.memory.sourceId) || creep.room.mineral;
+
+            // 获取source
+            source = source || ((creep.room.mineral && creep.room.mineral.mineralAmount > 0
+                && creep.room.extractor && !creep.room.extractor.cooldown) ? creep.room.mineral : null);
+
+            // 验证source
+            if (!source) { return undefined; }
+
+            // 缓存source
             if (!creep.memory.sourceId) {
                 creep.memory.sourceId = source.id;
             }
-            if (creep.memory.targetChoice) {
-                creep.memory.targetChoice = null;
-            }
 
-            if (source && (source.mineralAmount > 0) && creep.room.extractor && !creep.room.extractor.cooldown) {
-                if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
-                    creep.memory.state = 'moving';
-                }
+            // source交互
+            if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
             }
-            else {
-                creep.memory.state = 'resting';
+        }
+        else {
+            // target交互
+            for (let resourceType in creep.store) {
+                if (creep.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+                    break;
+                }
             }
         }
     }

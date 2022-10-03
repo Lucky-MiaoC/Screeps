@@ -21,32 +21,36 @@ export const autoSF = {
     work: function () {
         // 每10tick检查一次建筑受损情况，直接摧毁建筑不会触发SF，可以放心自己拆除自己建筑
         if (!(Game.time % 10)) {
-            _.filter(Game.structures, (structure) => {
+            let structures = _.filter(Game.structures, (structure) => {
                 return _config.structureTypes.includes(structure.structureType) &&
                     _config.roomNames.includes(structure.room.name) &&
                     structure.room.controller.level >= _config.level;
-            }).forEach((structure) => {
+            });
+
+            for (let structure of structures) {
                 if ((structure.hits / structure.hitsMax < 0.7) && !(structure.room.controller.safeMode)) {
                     structure.room.controller.activateSafeMode();
                     if (_config.ifNotify) {
                         Game.notify(`Room：${structure.room.name} 的 ${structure.structureType} 被攻击！！已开启SF！！`);
                     }
+                    break;
                 }
-            })
+            }
         }
 
         // 如果controller一格范围内有敌人判断为controller马上被攻击，直接开SF
         // 建议：controller周围一格用rampart围起来，防止敌人靠近（敌人攻击controller将导致无法使用SF）
-        _config.roomNames.forEach((roomName) => {
+        for (let roomName of _config.roomNames) {
             let room = Game.rooms[roomName];
-            if (room.controller.level >= _config.level) {
-                if (room.controller.pos.findInRange(FIND_HOSTILE_CREEPS, 1).length && !(room.controller.safeMode)) {
+            if (room.controller.level >= _config.level && !(room.controller.safeMode)) {
+                if (room.controller.pos.findInRange(FIND_HOSTILE_CREEPS, 1).length) {
                     room.controller.activateSafeMode();
                     if (_config.ifNotify) {
                         Game.notify(`Room：${room.name} 的Controller被攻击！！已开启SF！！`);
                     }
+                    break;
                 }
             }
-        })
+        }
     }
 }

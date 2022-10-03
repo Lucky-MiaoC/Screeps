@@ -3,12 +3,13 @@ import { errorMapper } from './modules/errorMapper';
 
 // 导入功能模块
 import { autoSF } from './autoSF';
+import './roles/dialogue';
 
 // 导入全局依赖和原型拓展
 import "./structures/index";
+import "./global";
 import "./roles/index";
 import "./roles/task";
-import "./global";
 import "./room";
 
 // 导入建筑
@@ -17,6 +18,8 @@ import { linkWork } from "./structures/link";
 import { labWork } from "./structures/lab";
 import "./structures/powerSpawn";
 import "./structures/nuker";
+import "./structures/factory";
+import "./structures/observer";
 
 // 导入基础角色
 import { roleHarvester } from "./roles/baseRoles/roleHarvester";
@@ -34,7 +37,7 @@ import { roleMiner } from "./roles/baseRoles/roleMiner";
 // 杀死所有creep！
 // 注意：该命令风险极高！只有当已存在名称不同于本人命名风格的Creep时使用！
 // 注意：该命令需要手动更改false为true以确认操作！
-// killAllMyCreeps('false');
+// killAllMyCreeps(false);
 
 // 设置初始化的相关标志位
 let doNotClearMyMemory = false;
@@ -88,42 +91,26 @@ module.exports.loop = errorMapper(() => {
     Object.values(Game.rooms).forEach((room) => {
         // 判断属于自己的房间，注意需要先判断room.controller，因为过道没有controller，不判断将导致过道有视野时报错
         if (room.controller && room.controller.my) {
-            // 每隔100tick扫描一次房间是否有建筑工地或者Wall、Rampart需要builder去修建，用于指导builder的生成与工作
-            // 该方法会更新room.memory.ifNeedBuilderWork的布尔值
-            if ((Game.time % 100)) {
-                room.updateIfNeedBuilderWork();
-            }
-
-            // 每50tick扫描一次是否存在需要tower修复的建筑，用于指导tower修理建筑
-            // 该方法会更新room.memory.structuresNeedTowerFix的建筑列表
-            if (!(Game.time % 50)) {
-                room.updateStructuresNeedTowerFix()
-            }
-
             // 每20tick扫描一次是否存在敌对creep（排除了白名单中的玩家的creep），发现则进入自卫战争状态，否则退出自卫战争状态
-            // 该方法会更新room.memory.code.warOfSelfDefence的布尔值
+            // 该方法会更新room.memory.period.warOfSelfDefence的布尔值
             if (!(Game.time % 20)) {
-                room.updateHostiles();
+                room.scanHostiles();
             }
 
             // 更新creep内存（清理死亡creep内存）
             room.updateCreepMemory();
-            // 更新creep生产队列
-            room.updateSpawnQueue();
-            // 检查房间生产队列，如果有，则向随机Spawn分发生产任务
-            if (room.memory.spawnQueue.length) {
-                room.distributeSpawnTasks();
-            }
+            // 更新spawn生产任务
+            room.updateSpawnTasks();
 
-            // 房间内建筑工作，由于Tower、Link、Lab在相同房间内相同个体之间是协同作用的，因此需要将它们看成一个整体同一处理
-            // 这也是不使用建筑原型拓展的原因
+            // 房间内建筑工作
+            // 由于Tower、Link、Lab在相同房间内相同个体之间是协同作用的，因此需要将它们看成一个整体同一处理，因此不使用建筑原型拓展
             towerWork.work(room);
             linkWork.work(room);
             labWork.work(room);
-            // PowerSpawn、Nuker是个体工作，因此使用原型拓展比较好
-            if (room.powerSpawn) {
-                room.powerSpawn.work();
-            }
+            // PowerSpawn、Nuker、Observer、Factory是个体工作，因此使用原型拓展比较好
+            if (room.powerSpawn) { room.powerSpawn.work(); }
+            if (room.factory) { room.factory.work(); }
+            if (room.observer) { room.observer.work(); }
         }
     });
 
@@ -141,8 +128,8 @@ module.exports.loop = errorMapper(() => {
         }
     })
 
-    // 为每个creep概率设定要说的话
-    global.getDialogue();
+    // 为每个creep设定要说的话
+    global.setDialogue();
     // 让每个有话说的creep说话
     global.showDialogue();
 

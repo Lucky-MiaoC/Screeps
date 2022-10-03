@@ -41,21 +41,19 @@ Room.prototype.creatCenterCarryTask = function (source, target, resourceType, re
     }
 
     if (_source.room != this.name) {
-        console.log("创建中央搬运任务失败，source、target与房间不匹配！");
+        console.log("创建中央搬运任务失败，source、target与当前房间不匹配！");
         return undefined;
     }
 
-    if (this.memory.centerCarryTask.some((task) => {
-        return task.id == Game.time;
-    })) {
-        console.log("创建中央搬运任务失败，同一tick一个Room只能创建一份中央搬运任务，请下一tick之后重试");
+    if (this.memory.centerCarryTask) {
+        console.log("创建中央搬运任务失败，当前房间中央搬运任务尚未完成，请取消当前房间中央搬运任务或等待其完成！");
         return undefined;
     }
 
     let _task = new CenterCarryTask(Game.time, _source, _starget, resourceType, resourceNumber);
-    this.memory.centerCarryTask.push(_task);
+    this.memory.centerCarryTask = _task;
     console.log(`成功在房间${this.name}创建以下中央搬运任务：`);
-    console.log(`id：${_task.id} | sourceType：${Game.getObjectById(_task.sourceId).structureType} | targetType：${Game.getObjectById(_task.targetId).structureType} | resourceType：${_task.resourceType} | resourceNumber：${_task.resourceNumber} | progress：${_task.progress}`);
+    console.log(`tick：${_task.id} | sourceType：${Game.getObjectById(_task.sourceId).structureType} | targetType：${Game.getObjectById(_task.targetId).structureType} | resourceType：${_task.resourceType} | resourceNumber：${_task.resourceNumber} | progress：${_task.progress}`);
 }
 
 /**
@@ -86,35 +84,27 @@ global.creatCenterCarryTask = function (source, target, resourceType, resourceNu
     }
 
     let room = _source.room;
-    if (room.memory.centerCarryTask.some((task) => {
-        return task.id == Game.time;
-    })) {
-        console.log("创建中央搬运任务失败，同一tick一个Room只能创建一份中央搬运任务，请下一tick之后重试");
+    if (room.memory.centerCarryTask) {
+        console.log("创建中央搬运任务失败，当前房间中央搬运任务尚未完成，请取消当前房间中央搬运任务或等待其完成！");
         return undefined;
     }
 
     let _task = new CenterCarryTask(Game.time, _source, _starget, resourceType, resourceNumber);
-    room.memory.centerCarryTask.push(_task);
+    room.memory.centerCarryTask = _task;
     console.log(`成功在房间${room.name}创建以下中央搬运任务：`);
-    console.log(`id：${_task.id} | sourceType：${Game.getObjectById(_task.sourceId).structureType} | targetType：${Game.getObjectById(_task.targetId).structureType} | resourceType：${_task.resourceType} | resourceNumber：${_task.resourceNumber} | progress：${_task.progress}`);
+    console.log(`tick：${_task.id} | sourceType：${Game.getObjectById(_task.sourceId).structureType} | targetType：${Game.getObjectById(_task.targetId).structureType} | resourceType：${_task.resourceType} | resourceNumber：${_task.resourceNumber} | progress：${_task.progress}`);
 }
 
 /**
  * 取消已存在的中央搬运任务，Room原型拓展版本
- *
- * @param {number} taskId 需要取消的中央搬运任务的id
  */
-Room.prototype.cancelCenterCarryTask = function (taskId) {
-    if (this.memory.centerCarryTask.some((task) => {
-        return task.id == taskId;
-    })) {
-        _.remove(this.memory.centerCarryTask, (task) => {
-            return task.id == taskId;
-        });
-        console.log(`成功移除房间${this.name}中id为${taskId}的中央搬运任务`);
+Room.prototype.cancelCenterCarryTask = function () {
+    if (this.memory.centerCarryTask) {
+        delete this.memory.centerCarryTask;
+        console.log(`成功取消房间${this.name}的中央搬运任务`);
     }
     else {
-        console.log(`房间${this.name}不存在id为${taskId}的中央搬运任务，请检查id是否正确！`);
+        console.log(`房间${this.name}当前并不存在中央搬运任务！`);
     }
 }
 
@@ -122,11 +112,10 @@ Room.prototype.cancelCenterCarryTask = function (taskId) {
  * 取消已存在的中央搬运任务，global全局函数版本
  *
  * @param {Room | string} room 需要取消的中央搬运任务的房间对象或房间名称
- * @param {number} taskId 需要取消的中央搬运任务的id
  */
-global.cancelCenterCarryTask = function (room, taskId) {
-    if (!room || !taskId) {
-        console.log('请提供两个参数：room和taskId');
+global.cancelCenterCarryTask = function (room) {
+    if (!room) {
+        console.log('请提供room参数！');
         return undefined;
     }
 
@@ -137,40 +126,23 @@ global.cancelCenterCarryTask = function (room, taskId) {
         return undefined;
     }
 
-    if (_room.memory.centerCarryTask.some((task) => {
-        return task.id == taskId;
-    })) {
-        _.remove(_room.memory.centerCarryTask, (task) => {
-            return task.id == taskId;
-        });
-        console.log(`成功移除房间${_room.name}中id为${taskId}的中央搬运任务`);
+    if (_room.memory.centerCarryTask) {
+        delete _room.memory.centerCarryTask;
+        console.log(`成功取消房间${_room.name}的中央搬运任务`);
     }
     else {
-        console.log(`房间${_room.name}不存在id为${taskId}的中央搬运任务，请检查id是否正确！`);
+        console.log(`房间${_room.name}当前并不存在中央搬运任务！`);
     }
 }
 
 /**
  * 在控制台显示当前存在的中央搬运任务，Room原型拓展版本
- *
- * @param {number | null} taskId 当提供id时只显示对应中央搬运任务，当不提供参数时，显示所有中央搬运任务
  */
-Room.prototype.showCenterCarryTask = function (taskId = null) {
-    if (taskId) {
-        let task = this.memory.centerCarryTask.find((t) => {
-            return t.id == taskId;
-        })
-        if (task) {
-            console.log(`id：${task.id} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
-        }
-        else {
-            console.log(`房间${this.name}不存在id为${taskId}的中央搬运任务`);
-        }
-    }
-    else {
-        this.memory.centerCarryTask.forEach((task) => {
-            console.log(`id：${task.id} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
-        });
+Room.prototype.showCenterCarryTask = function () {
+    if (this.memory.centerCarryTask) {
+        let task = this.memory.centerCarryTask;
+        console.log(`房间${room.name}：`);
+        console.log(`id：${task.id} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
     }
 }
 
@@ -178,9 +150,8 @@ Room.prototype.showCenterCarryTask = function (taskId = null) {
  * 在控制台显示当前存在的中央搬运任务，global全局函数版本
  *
  * @param {number | null} room 当提供room时只显示对应房间的中央搬运任务，当不提供参数时，显示所有房间的中央搬运任务
- * @param {number | null} taskId 当提供id时只显示对应中央搬运任务，当不提供参数时，显示所有中央搬运任务
  */
-global.showCenterCarryTask = function (room = null, taskId = null) {
+global.showCenterCarryTask = function (room = null) {
     if (room) {
         let _room = (typeof room == 'string') ? Game.rooms[room] : room;
 
@@ -189,67 +160,29 @@ global.showCenterCarryTask = function (room = null, taskId = null) {
             return undefined;
         }
 
-        if (taskId) {
-            let task = _room.memory.centerCarryTask.find((t) => {
-                return t.id == taskId;
-            })
-            if (task) {
-                console.log(`在房间${_room.name}中：`);
-                console.log(`id：${task.id} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
-            }
-            else {
-                console.log(`房间${_room.name}不存在id为${taskId}的中央搬运任务！请检查id是否正确！`);
-            }
+        if (_room.memory.centerCarryTask) {
+            console.log(`房间${_room.name}：`);
+            let task = _room.memory.centerCarryTask;
+            console.log(`id：${task.id} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
         }
         else {
-            if (_room.memory.centerCarryTask.length) {
-                console.log(`在房间${_room.name}中：`);
-                _room.memory.centerCarryTask.forEach((task) => {
-                    console.log(`id：${task.id} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
-                });
-            }
-            else {
-                console.log(`房间${_room.name}中不存在中央搬运任务！`);
-            }
+            console.log(`房间${_room.name}当前并不存在中央搬运任务！`);
         }
     }
     else {
-        if (taskId) {
-            let i = 1;
-            Object.values(Game.rooms).forEach((room) => {
-                if (room.controller && room.controller.my) {
-                    let task = room.memory.centerCarryTask.find((t) => {
-                        return t.id == taskId;
-                    })
-                    if (task) {
-                        i = 0;
-                        console.log(`在房间${room.name}中找到id为${taskId}的中央搬运任务：`);
-                        console.log(`id：${task.id} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
-                    }
+        let flag = 1;
+        Object.values(Game.rooms).forEach((room) => {
+            if (room.controller && room.controller.my) {
+                if (room.memory.centerCarryTask) {
+                    let task = room.memory.centerCarryTask;
+                    console.log(`房间${room.name}：`);
+                    console.log(`id：${task.id} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
+                    flag = 0;
                 }
-            })
-            if (i) {
-                console.log(`任何房间都不存在id为${taskId}的中央搬运任务！请检查id是否正确！`);
             }
-        }
-        else {
-            let j = 1;
-            let k = 1;
-            Object.values(Game.rooms).forEach((room) => {
-                if (room.controller && room.controller.my) {
-                    room.memory.centerCarryTask.forEach((task) => {
-                        if (j == 1) {
-                            console.log(`在房间${room.name}中：`);
-                            j = 0;
-                            k = 0;
-                        }
-                        console.log(`id：${task.id} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
-                    });
-                }
-            })
-            if (k) {
-                console.log(`任何房间都不存在中央搬运任务！`);
-            }
+        })
+        if (flag) {
+            console.log(`任何房间都不存在中央搬运任务！`);
         }
     }
 }

@@ -1,55 +1,65 @@
-/**
- * upgrader是升级者，它的任务是最简单的
- */
 export const roleUpgrader = {
     run: function (creep) {
-        // 生产中的creep不执行操作
-        if (creep.spawning) {
+        // 生产中的creep不执行代码
+        if (creep.spawning) { return undefined; }
+
+        // 快死的时候趁着身上没资源赶紧死，否则浪费资源
+        if (creep.ticksToLive < 20 && creep.store.getUsedCapacity() == 0) {
+            creep.suicide();
             return undefined;
         }
 
         // 手动控制
         if (!creep.memory.autoControl) {
+            // WRITE YOUR CODE WHEN CREEP IS NOT AUTOCONTROL
             return undefined;
         }
-
-        // creep状态初始化
-        creep.memory.state = 'working';
 
         // 工作状态切换
         if (creep.memory.ready && creep.store.getUsedCapacity() == 0) {
             creep.memory.ready = false;
+            creep.memory.targetId = null;
         }
         if (!creep.memory.ready && creep.store.getFreeCapacity() == 0) {
             creep.memory.ready = true;
+            creep.memory.sourceId = null;
         }
 
-        // 快死的时候趁着身上没能量赶紧死，否则浪费能量
-        if (creep.ticksToLive < 20 && creep.store.getUsedCapacity() == 0) {
-            creep.suicide();
+        // 获取target缓存
+        let target = Game.getObjectById(creep.memory.targetId);
+
+        // 验证target缓存
+        if (!target) {
+            target = null;
+            creep.memory.targetId = null;
         }
 
-        // 身上能量满了，选择Controller作为目标
-        if (creep.memory.ready) {
-            if (creep.memory.sourceChoice) {
-                creep.memory.sourceChoice = null;
+        // 获取target
+        target = target || creep.room.controller;
+
+        // 验证target
+        if (!target) { return undefined; }
+
+        // 缓存target
+        if (!creep.memory.targetId) {
+            creep.memory.targetId = target.id;
+        }
+
+        // 工作逻辑代码
+        if (!creep.memory.ready) {
+            // 获取source缓存
+            let source = Game.getObjectById(creep.memory.sourceId);
+
+            // 验证source缓存
+            if (!source || (source instanceof Structure && source.store[RESOURCE_ENERGY] == 0)
+                || (source instanceof Source && source.energy == 0)) {
+                source = null;
+                creep.memory.sourceId = null;
             }
 
-            let target = creep.room.controller;
-
-            if (target) {
-                if (creep.upgradeController(target) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-                    creep.memory.state = 'moving';
-                }
-            }
-        }
-
-        // 身上能量空了，优先选择storage，其次是terminal，再者随机选择一个sourceContainer，最后是根据开采位权重随机选择一个source
-        else {
-            let source = Game.getObjectById(creep.memory.sourceChoice)
-                || ((creep.room.storage && creep.room.storage.store[RESOURCE_ENERGY] >
-                    creep.getActiveBodyparts(CARRY) * 50) ? creep.room.storage : null)
+            // 获取source
+            source = source || ((creep.room.storage && creep.room.storage.store[RESOURCE_ENERGY] >
+                creep.getActiveBodyparts(CARRY) * 50) ? creep.room.storage : null)
                 || ((creep.room.terminal && creep.room.terminal.store[RESOURCE_ENERGY] >
                     creep.getActiveBodyparts(CARRY) * 50) ? creep.room.terminal : null)
                 || _.sample(_.filter(creep.room.sourceContainer, (container) => {
@@ -58,29 +68,30 @@ export const roleUpgrader = {
                 || ((creep.room.sourceContainer.length || creep.room.sourceLink.length)
                     ? null : creep.room.chooseSourceByFreeSpaceWeight());
 
-            if (source) {
-                if ((!(source instanceof Source)) && source.store[RESOURCE_ENERGY] == 0) {
-                    creep.memory.sourceChoice = null;
-                }
-                if (!Game.getObjectById(creep.memory.sourceChoice)) {
-                    creep.memory.sourceChoice = source.id;
-                }
+            // 验证source
+            if (!source) { return undefined; }
 
-                if (source instanceof Source) {
-                    if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
-                        creep.memory.state = 'moving';
-                    }
-                }
-                else {
-                    if (creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
-                        creep.memory.state = 'moving';
-                    }
+            // 缓存source
+            if (!creep.memory.sourceId) {
+                creep.memory.sourceId = source.id;
+            }
+
+            // source交互
+            if (source instanceof Source) {
+                if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
                 }
             }
             else {
-                creep.memory.state = 'resting';
+                if (creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
+                }
+            }
+        }
+        else {
+            // target交互
+            if (creep.upgradeController(target) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
             }
         }
     }

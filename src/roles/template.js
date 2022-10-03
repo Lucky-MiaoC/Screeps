@@ -3,19 +3,20 @@
  */
 export const roleRole = {
     run: function (creep) {
-        // 生产中的creep不执行操作
-        if (creep.spawning) {
+        // 生产中的creep不执行代码
+        if (creep.spawning) { return undefined; }
+
+        // 快死的时候趁着身上没资源赶紧死，否则浪费资源
+        if (creep.ticksToLive < TIME_YOU_WANT && creep.store.getUsedCapacity() == 0) {
+            creep.suicide();
             return undefined;
         }
 
         // 手动控制
         if (!creep.memory.autoControl) {
-            // YOUR CODE WHEN CREEP IS NOT AUTOCONTROL
+            // WRITE YOUR CODE WHEN CREEP IS NOT AUTOCONTROL
             return undefined;
         }
-
-        // creep状态初始化
-        creep.memory.state = 'working' || 'moving' || 'resting';
 
         // 工作状态切换
         if (creep.memory.ready && creep.store.getUsedCapacity() == 0) {
@@ -25,16 +26,12 @@ export const roleRole = {
             creep.memory.ready = true;
         }
 
-        // 快死的时候趁着身上没资源赶紧死，否则浪费资源
-        if (creep.ticksToLive < TIME_YOU_WANT && creep.store.getUsedCapacity() == 0) {
-            creep.suicide();
-        }
-
-        if (creep.memory.ready) {
-            // YOUR READY CODE
+        // 工作逻辑代码
+        if (!creep.memory.ready) {
+            // WRITE YOUR CODE WHEN CREEP IS NOT READY
         }
         else {
-            // YOUR NOT READY CODE
+            // WRITE YOUR CODE WHEN CREEP IS READY
         }
     }
 }
