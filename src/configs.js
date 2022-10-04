@@ -45,6 +45,7 @@ export const configs = {
 
     // creep数量设定表
     // 提醒：是否生产某一角色取决于角色数量设定以及该角色是否达到房间生产条件
+    // 提醒：为了减少判断生产条件的cpu花费，可以将长期确定不胜生产的角色数量设置为0
     creepNumberSetting: {
         'W59N37': {
             'baseRoles': { 'harvester': 2, 'filler': 2, 'collecter': 0, 'upgrader': 1, 'builder': 1, 'centercarrier': 1, 'miner': 0 },
