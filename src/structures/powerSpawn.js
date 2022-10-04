@@ -16,8 +16,13 @@ StructurePowerSpawn.prototype.startProcessPower = function () {
  * 停止烧power
  */
 StructurePowerSpawn.prototype.stopProcessPower = function () {
-    processPowerFlag[this.room.name] = false;
-    console.log(`注意：Room ${this.room.name} 中的 PowerSpawn 停止 ProcessPower！`);
+    if (processPowerFlag[this.room.name]) {
+        processPowerFlag[this.room.name] = false;
+        console.log(`注意：Room ${this.room.name} 中的 PowerSpawn 停止 ProcessPower！`);
+    }
+    else {
+        console.log(`失败！Room ${this.room.name} 中的 PowerSpawn 并未在 ProcessPower！`);
+    }
 }
 
 /**

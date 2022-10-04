@@ -29,7 +29,8 @@ export const roleBuilder = {
         let target = Game.getObjectById(creep.memory.targetId);
 
         // 验证target缓存
-        if (!target && (target instanceof Structure && !judgeIfStructureNeedBuilderRepair(target))) {
+        if (!target ||
+            (target instanceof Structure && creep.store[RESOURCE_ENERGY] == 0 && !judgeIfStructureNeedBuilderRepair(target))) {
             target = null;
             creep.memory.targetId = null;
         }

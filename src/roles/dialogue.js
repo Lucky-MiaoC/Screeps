@@ -214,8 +214,8 @@ global.setDialogue = function () {
                 }
             }
 
-            // 5%概率获取通用单人的dialogue
-            if (_chance > 0.95) {
+            // 3%概率获取通用单人的dialogue
+            if (_chance > 0.97) {
                 let text = _.sample(dialogue['dialogue1']['any']);
                 let sayTime = Game.time;
                 let _dialogue = { 'sayTime': sayTime + 1, 'text': text };

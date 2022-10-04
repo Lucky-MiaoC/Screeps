@@ -19,7 +19,7 @@ StructureFactory.prototype.startProduce = function (resourceType) {
     // 检查工厂等级是否足够
     let factoryLevel = this.level || 0;
     let productLevel = COMMODITIES[resourceType].level || 0;
-    if (!(productLevel == 0 && factoryLevel == productLevel)) {
+    if (productLevel != 0 && factoryLevel != productLevel) {
         console.log(`失败：工厂等级不足！无法生产该商品！`);
     }
 
@@ -32,8 +32,14 @@ StructureFactory.prototype.startProduce = function (resourceType) {
  */
 StructureFactory.prototype.stopProduce = function () {
     let _resourceType = productInfo[this.room.name];
-    productInfo[this.room.name] = null;
-    console.log(`注意：Room ${this.room.name} 中的 Factory 停止生产商品 ${_resourceType}！`);
+    if (_resourceType) {
+        productInfo[this.room.name] = null;
+        console.log(`注意：Room ${this.room.name} 中的 Factory 停止生产商品 ${_resourceType}！`);
+    }
+    else {
+        console.log(`失败！Room ${this.room.name} 中的 Factory 并未在生产商品！`);
+    }
+
 }
 
 /**

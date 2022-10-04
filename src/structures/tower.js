@@ -26,7 +26,7 @@ export const towerWork = {
         if (!towers.length) { return undefined; }
 
         // 非自卫战争时期，则日常维护或战后维修建筑
-        if (!room.memory.period.warOfSelfDefence && !room.memory.period.forceNotToAttack) {
+        if (!room.memory.period.warOfSelfDefence || room.memory.period.forceNotToAttack) {
             // 需要修复的建筑列表不为空
             if (towerMemory[room.name]['Repair'].length) {
                 // 由于需要修复的建筑列表是50tick扫描一次，所以每tick需要对该列表进行清洗，除去建筑不在了的，除去修好不需要再修的
@@ -47,7 +47,7 @@ export const towerWork = {
         // 射杀优先级[CLAIM, WORK, RANGED_ATTACK, ATTACK, HEAL]排名越靠前数量越多越优先射杀
         else {
             // 获取hostile缓存
-            let hostile = towerMemory[room.name]['Attack'];
+            let hostile = Game.getObjectById(towerMemory[room.name]['Attack']);
 
             // 验证target缓存
             if (!hostile) {
@@ -80,7 +80,7 @@ export const towerWork = {
 
             // 缓存hostile
             if (!towerMemory[room.name]['Attack']) {
-                towerMemory[room.name]['Attack'] = hostile;
+                towerMemory[room.name]['Attack'] = hostile.id;
             }
 
             // 攻击hostile
