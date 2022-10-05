@@ -185,7 +185,7 @@ global.setDialogue = function () {
 
             let _chance = Math.random();
 
-            // 如果3格内有其他creep则5%概率获取双人的dialogue
+            // 如果2格内有其他creep则5%概率获取双人的dialogue
             if (_chance < 0.05 && creep.ticksToLive > 20) {
                 let suitableCreep = creep.pos.findInRange(FIND_MY_CREEPS, 2, {
                     filter: (i) => {

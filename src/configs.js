@@ -48,14 +48,16 @@ export const configs = {
     // 提醒：为了减少判断生产条件的cpu花费，可以将长期确定不胜生产的角色数量设置为0
     creepNumberSetting: {
         'W59N37': {
-            'baseRoles': { 'harvester': 2, 'filler': 2, 'collecter': 0, 'upgrader': 1, 'builder': 1, 'centercarrier': 1, 'miner': 0 },
-            'warRoles': {},
-            'remoteRoles': {},
+            // baseRoles
+            'harvester': 2, 'filler': 2, 'collecter': 0, 'upgrader': 1, 'builder': 1, 'centercarrier': 1, 'miner': 0,
+            // warRoles
+            // remoteRoles
         },
         'W59N38': {
-            'baseRoles': { 'harvester': 2, 'filler': 2, 'collecter': 1, 'upgrader': 4, 'builder': 2, 'centercarrier': 1, 'miner': 0 },
-            'warRoles': {},
-            'remoteRoles': {},
+            // baseRoles
+            'harvester': 2, 'filler': 2, 'collecter': 1, 'upgrader': 4, 'builder': 2, 'centercarrier': 1, 'miner': 0,
+            // warRoles
+            // remoteRoles
         }
     },
 

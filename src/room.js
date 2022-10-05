@@ -112,10 +112,8 @@ Room.prototype.updateSpawnTasks = function () {
 
     // 收集当前tick需要生产的creepRole，为防止命名冲突，同一tick只分发一个相同角色的creep的生产，故采用Set
     let creepRoleSet = new Set();
-
-    let creepNumberSettings = Object.assign(...Object.values(configs.creepNumberSetting[this.name]))
     for (let creepRole of configs.creepRoleSetting) {
-        let creepNumberSetting = creepNumberSettings[creepRole];
+        let creepNumberSetting = configs.creepNumberSetting[this.name][creepRole];
         let creepNumber = this.memory.creepNumber[creepRole];
 
         // 判断数量

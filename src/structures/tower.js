@@ -12,7 +12,7 @@ export const towerWork = {
         if (!(Game.time % 50)) {
             let structuresNeedTowerRepair = [];
             room.find(FIND_STRUCTURES).forEach((structure) => {
-                if (judgeIfStructureNeedTowerRepair(structure)) {
+                if (global.judgeIfStructureNeedTowerRepair(structure)) {
                     structuresNeedTowerRepair.push(structure);
                 }
             })
@@ -31,7 +31,7 @@ export const towerWork = {
             if (towerMemory[room.name]['Repair'].length) {
                 // 由于需要修复的建筑列表是50tick扫描一次，所以每tick需要对该列表进行清洗，除去建筑不在了的，除去修好不需要再修的
                 _.remove(towerMemory[room.name]['Repair'], (structure) => {
-                    return (!judgeIfStructureNeedTowerRepair(structure));
+                    return (!global.judgeIfStructureNeedTowerRepair(structure));
                 })
 
                 towers.forEach((tower) => {

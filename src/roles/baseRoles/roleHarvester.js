@@ -25,7 +25,8 @@ export const roleHarvester = {
             // creep.memory.sourceId = null;
         }
 
-        // harvester特殊，需要先获取creep.memory.sourceId，从而定位target，这段代码先这样写着，以后可能会改来让风格统一
+        // harvester特殊，需要先获取creep.memory.sourceId，从而定位target，并且不清除creep.memory.sourceId
+        // 这段代码先这样写着，以后可能会改来让风格统一
         if (!creep.memory.sourceId) {
             creep.memory.sourceId = creep.pos.findClosestByRange(_.filter(creep.room.source, (source) => {
                 return creep.room.memory.sourceInfo[source.id] == 'unreserved';
@@ -68,28 +69,30 @@ export const roleHarvester = {
             let source = Game.getObjectById(creep.memory.sourceId);
 
             // 验证source缓存
-            if (!source || source.energy == 0) {
-                source = null;
-                // creep.memory.sourceId = null;
-            }
+            // if (!source) {
+            //     source = null;
+            //     // creep.memory.sourceId = null;
+            // }
 
             // 获取source
-            source = source || creep.pos.findClosestByRange(_.filter(creep.room.source, (source) => {
-                return creep.room.memory.sourceInfo[source.id] == 'unreserved';
-            }));
+            // source = source || creep.pos.findClosestByRange(_.filter(creep.room.source, (source) => {
+            //     return creep.room.memory.sourceInfo[source.id] == 'unreserved';
+            // }));
 
             // 验证source
             if (!source) { return undefined; }
 
             // 缓存source
-            if (!creep.memory.sourceId) {
-                creep.memory.sourceId = source.id;
-                creep.room.memory.sourceInfo[source.id] = 'reserved';
-            }
+            // if (!creep.memory.sourceId) {
+            //     creep.memory.sourceId = source.id;
+            //     creep.room.memory.sourceInfo[source.id] = 'reserved';
+            // }
 
             // source交互
-            if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
+            if (source.energy != 0) {
+                if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
+                }
             }
         }
         else {

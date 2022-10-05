@@ -37,7 +37,7 @@ export const autoSF = {
                 });
 
                 for (let structure of structures) {
-                    if ((structure.hits / structure.hitsMax < 0.7)) {
+                    if ((structure.hits / structure.hitsMax < 0.9)) {
                         structure.room.controller.activateSafeMode();
                         if (_config.ifNotify) {
                             Game.notify(`Room：${structure.room.name} 的 ${structure.structureType} 被攻击！！已开启SF！！`);
