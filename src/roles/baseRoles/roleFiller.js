@@ -57,7 +57,7 @@ export const roleFiller = {
                 || ((creep.room.storage && creep.room.storage.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ? creep.room.storage : null)
                 || ((creep.room.terminal && creep.room.terminal.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ? creep.room.terminal : null)
                 || _.sample(_.filter(creep.room.sourceContainer, (container) => {
-                    return container.getFreeCapacity(RESOURCE_ENERGY) > 0;
+                    return container.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
                 }));
             creep.memory.fillTask = 'energy';
         }
@@ -155,7 +155,7 @@ export const roleFiller = {
                         || ((creep.room.terminal && creep.room.terminal.store[resourceType] >
                             creep.getActiveBodyparts(CARRY) * 50) ? creep.room.terminal : null)
                         || _.sample(_.filter(creep.room.sourceContainer, (container) => {
-                            return container.store[resourceType] > creep.getActiveBodyparts(CARRY) * 50
+                            return container.store[resourceType] > 0;
                         }));
                 }
                 // Power和G有就拿去送，毕竟稀有可能经常拿不满身体（但都是能拿多少拿多少，反正多的会送回来）

@@ -88,9 +88,9 @@ export const roleBuilder = {
                 || ((creep.room.terminal && creep.room.terminal.store[RESOURCE_ENERGY] >
                     50000) ? creep.room.terminal : null)
                 || _.sample(_.filter(creep.room.sourceContainer, (container) => {
-                    return container.store[RESOURCE_ENERGY] > creep.getActiveBodyparts(CARRY) * 50
+                    return container.store[RESOURCE_ENERGY] > 250;
                 }))
-                || ((creep.room.sourceContainer.length || creep.room.sourceLink.length)
+                || ((creep.room.controller > 3 && (creep.room.sourceContainer.length || creep.room.sourceLink.length))
                     ? null : creep.room.chooseSourceByFreeSpaceWeight());
 
             // 验证source

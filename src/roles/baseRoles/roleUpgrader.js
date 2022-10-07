@@ -63,9 +63,9 @@ export const roleUpgrader = {
                 || ((creep.room.terminal && creep.room.terminal.store[RESOURCE_ENERGY] >
                     creep.getActiveBodyparts(CARRY) * 50) ? creep.room.terminal : null)
                 || _.sample(_.filter(creep.room.sourceContainer, (container) => {
-                    return container.store[RESOURCE_ENERGY] > creep.getActiveBodyparts(CARRY) * 50;
+                    return container.store[RESOURCE_ENERGY] > 200;
                 }))
-                || ((creep.room.sourceContainer.length || creep.room.sourceLink.length)
+                || ((creep.room.controller > 3 && (creep.room.sourceContainer.length || creep.room.sourceLink.length))
                     ? null : creep.room.chooseSourceByFreeSpaceWeight());
 
             // 验证source

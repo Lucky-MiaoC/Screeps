@@ -232,7 +232,7 @@ global.memoryInitialization = function () {
                 'role': creepInfo[0],
                 'autoControl': true,
                 'originalRoomName': creepInfo[1].toUpperCase(),
-                'ready': false,
+                'ready': Game.creeps[creepName].store.getUsedCapacity() > 0 ? true : false,
             };
             Game.creeps[creepName].memory = creepMemory;
         })
