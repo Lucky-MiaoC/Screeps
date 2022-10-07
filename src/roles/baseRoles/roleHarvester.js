@@ -50,7 +50,8 @@ export const roleHarvester = {
             || _.filter(Game.getObjectById(creep.memory.sourceId).pos.findInRange(creep.room.sourceContainer, 2), (container) => {
                 return container.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
             })[0]
-            || ((creep.room.sourceLink.length || creep.room.sourceContainer.length) ? null :
+            || ((Game.getObjectById(creep.memory.sourceId).pos.findInRange(creep.room.sourceLink, 2).length ||
+                Game.getObjectById(creep.memory.sourceId).pos.findInRange(creep.room.sourceContainer, 2).length) ? null :
                 creep.pos.findClosestByPath(_.filter(creep.room.spawn.concat(creep.room.extension), (i) => {
                     return i.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
                 })));

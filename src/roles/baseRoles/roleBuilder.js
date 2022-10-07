@@ -40,7 +40,8 @@ export const roleBuilder = {
         if (creep.room.memory.period.warOfSelfDefence) {
             target = target || creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {
-                    return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART)
+                    return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
+                        || structure.structureType == STRUCTURE_CONTAINER)
                         && judgeIfStructureNeedBuilderRepair(structure);
                 }
             }).sort((i, j) => {
@@ -52,7 +53,8 @@ export const roleBuilder = {
             target = target || creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES) ||
                 creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
-                        return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART)
+                        return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
+                            || structure.structureType == STRUCTURE_CONTAINER)
                             && judgeIfStructureNeedBuilderRepair(structure);
                     }
                 }).sort((i, j) => {

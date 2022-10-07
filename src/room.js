@@ -10,7 +10,7 @@ Room.prototype.chooseSourceByFreeSpaceWeight = function (flag = true) {
     let randomList = [];
     this.source.forEach((i) => {
         if (!(flag && i.energy == 0)) {
-            let j = i.getFreeSpaceNumber();
+            let j = i.getFreeSpaceNumber() - 1;
             while (j--) {
                 randomList.push(i.id);
             }

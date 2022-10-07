@@ -61,7 +61,8 @@ Room.prototype.ifNeedBuilderWork = function () {
     if (this.memory.period.warOfSelfDefence) {
         targets = this.find(FIND_STRUCTURES, {
             filter: (structure) => {
-                return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART)
+                return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
+                    || structure.structureType == STRUCTURE_CONTAINER)
                     && judgeIfStructureNeedBuilderRepair(structure);
             }
         });
@@ -71,7 +72,8 @@ Room.prototype.ifNeedBuilderWork = function () {
         targets = this.find(FIND_CONSTRUCTION_SITES) ||
             this.find(FIND_STRUCTURES, {
                 filter: (structure) => {
-                    return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART)
+                    return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
+                        || structure.structureType == STRUCTURE_CONTAINER)
                         && judgeIfStructureNeedBuilderRepair(structure);
                 }
             });

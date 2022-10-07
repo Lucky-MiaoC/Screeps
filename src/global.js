@@ -114,6 +114,9 @@ global.judgeIfStructureNeedTowerRepair = function (structure) {
 global.judgeIfStructureNeedBuilderRepair = function (structure) {
     if (structure instanceof Structure) {
         switch (structure.structureType) {
+            // Container在没有Tower（前期）且血量低于70 % 再修
+            case STRUCTURE_CONTAINER:
+                return (!structure.room.tower.length && structure.hits / structure.hitsMax < 0.7) ? true : false;
             // WALL血量少于设定血量就要维修
             case STRUCTURE_WALL:
                 return structure.hits <
