@@ -129,9 +129,9 @@ module.exports.loop = errorMapper(() => {
     })
 
     // 为每个creep设定要说的话
-    global.setDialogue();
+    // global.setDialogue();
     // 让每个有话说的creep说话
-    global.showDialogue();
+    // global.showDialogue();
 
     // 自动开启SF模块工作
     autoSF.work();
