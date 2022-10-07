@@ -18,7 +18,7 @@ export const roleUpgrader = {
         // 工作状态切换
         if (creep.memory.ready && creep.store.getUsedCapacity() == 0) {
             creep.memory.ready = false;
-            creep.memory.targetId = null;
+            // creep.memory.targetId = null;
         }
         if (!creep.memory.ready && creep.store.getFreeCapacity() == 0) {
             creep.memory.ready = true;
@@ -29,10 +29,11 @@ export const roleUpgrader = {
         let target = Game.getObjectById(creep.memory.targetId);
 
         // 验证target缓存
-        if (!target) {
-            target = null;
-            creep.memory.targetId = null;
-        }
+        // Upgrader的target属于必定存在、条件不足也不会更换的对象，因此可以省略验证缓存部分
+        // if (!target) {
+        //     target = null;
+        //     creep.memory.targetId = null;
+        // }
 
         // 获取target
         target = target || creep.room.controller;

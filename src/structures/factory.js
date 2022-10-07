@@ -2,7 +2,7 @@
 let productInfo = {}
 Object.values(Game.rooms).forEach((room) => {
     productInfo[room.name] = null;
-})
+});
 
 
 /**

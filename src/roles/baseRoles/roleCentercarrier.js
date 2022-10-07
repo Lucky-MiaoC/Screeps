@@ -26,6 +26,13 @@ export const roleCentercarrier = {
                 creep.memory.arrive = true;
             }
             else {
+                // 如果中心位置有人，对穿
+                if (creep.pos.isNearTo(configs.centerPoint[creep.room.name])) {
+                    let otherCreep = configs.centerPoint[creep.room.name].lookFor(LOOK_CREEPS)[0];
+                    if (otherCreep) {
+                        otherCreep.moveTo(creep, { visualizePathStyle: { stroke: '#ffffff' } });
+                    }
+                }
                 creep.moveTo(configs.centerPoint[creep.room.name], { visualizePathStyle: { stroke: '#ffffff' } });
                 creep.memory.arrive = false;
             }

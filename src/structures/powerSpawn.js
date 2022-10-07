@@ -2,7 +2,7 @@
 let processPowerFlag = {}
 Object.values(Game.rooms).forEach((room) => {
     processPowerFlag[room.name] = false;
-})
+});
 
 /**
  * 开始烧power

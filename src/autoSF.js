@@ -20,13 +20,13 @@ const _config = {
 export const autoSF = {
     work: function () {
         for (let room of _config.rooms) {
-            // 不符合条件的房间跳过
-            if (room.controller.level < _config.level || room.controller.safeMode) { continue; }
-
             // 检查自卫战争时期标志，只有有room.memory.period才会检查，没有的话也不报错，但cpu消耗变高
             if (room.memory.period && !room.memory.period.warOfSelfDefence && !room.memory.period.forceNotToAttack) {
                 continue;
             }
+
+            // 不符合条件的房间跳过
+            if (room.controller.level < _config.level || room.controller.safeMode) { continue; }
 
             // 每10tick检查一次建筑受损情况，直接摧毁建筑不会触发SF，可以放心自己拆除自己建筑
             if (!(Game.time % 10)) {

@@ -8,6 +8,12 @@ Object.values(Game.rooms).forEach((room) => {
 
 export const towerWork = {
     work: function (room) {
+        // 所有tower统一处理
+        let towers = _.filter(room.tower, (i) => {
+            return i.store[RESOURCE_ENERGY] >= 10;
+        });
+        if (!towers.length) { return undefined; }
+
         // 每50tick扫描一次是否存在需要tower修复的建筑，用于指导tower修理建筑
         if (!(Game.time % 50)) {
             let structuresNeedTowerRepair = [];
@@ -18,12 +24,6 @@ export const towerWork = {
             })
             towerMemory[room.name]['Repair'] = structuresNeedTowerRepair;
         }
-
-        // 所有tower统一处理
-        let towers = _.filter(room.tower, (i) => {
-            return i.store[RESOURCE_ENERGY] >= 10;
-        });
-        if (!towers.length) { return undefined; }
 
         // 非自卫战争时期，则日常维护或战后维修建筑
         if (!room.memory.period.warOfSelfDefence || room.memory.period.forceNotToAttack) {

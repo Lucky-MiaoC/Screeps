@@ -53,10 +53,11 @@ export const roleMiner = {
             let source = Game.getObjectById(creep.memory.sourceId);
 
             // 验证source缓存
-            if (!source || !creep.room.extractor || creep.room.extractor.cooldown || source.mineralAmount == 0) {
-                source = null;
-                // creep.memory.sourceId = null;
-            }
+            // Miner的source属于必定存在、条件不足也不会更换的对象，因此可以省略验证缓存部分，将条件判断放到source交互去
+            // if (!source || !creep.room.extractor || creep.room.extractor.cooldown || source.mineralAmount == 0) {
+            //     source = null;
+            //     // creep.memory.sourceId = null;
+            // }
 
             // 获取source
             source = source || ((creep.room.mineral && creep.room.mineral.mineralAmount > 0
@@ -71,8 +72,10 @@ export const roleMiner = {
             }
 
             // source交互
-            if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
+            if (creep.room.extractor && !creep.room.extractor.cooldown && source.mineralAmount != 0) {
+                if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
+                }
             }
         }
         else {

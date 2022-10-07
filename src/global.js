@@ -74,10 +74,13 @@ global.judgeIfStructureNeedTowerRepair = function (structure) {
             // 不需要修墙，修墙是builder的活
             case STRUCTURE_WALL:
                 return false;
-            // Road和Container血量低于90%再修，防止修理溢出浪费
+            // Road血量低于90%再修，防止修理溢出浪费
             case STRUCTURE_ROAD:
-            case STRUCTURE_CONTAINER:
                 return structure.hits / structure.hitsMax < 0.9 ? true : false;
+            // Container血量低于90%且大于70%再修，再低就是要builder来修
+            case STRUCTURE_CONTAINER:
+                return (structure.hits / structure.hitsMax >= 0.7 &&
+                    structure.hits / structure.hitsMax < 0.9) ? true : false;
             // Rampart血量低于5k或者低于设定血量且高于设定血量-5k则修
             case STRUCTURE_RAMPART: {
                 let rampartType = undefined;
@@ -92,7 +95,7 @@ global.judgeIfStructureNeedTowerRepair = function (structure) {
                     return global.judgeIfStructureNeedTowerRepair(structure);
                 }
                 let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name] || 0;
-                return (structure.hits < 5000 || (structure.hits > hitsSetting - 5000 &&
+                return (structure.hits < 5000 || (structure.hits >= hitsSetting - 5000 &&
                     structure.hits < hitsSetting)) ? true : false;
             }
             // 其他建筑掉血了就修
