@@ -29,6 +29,12 @@ export const towerWork = {
         if (!room.memory.period.warOfSelfDefence || room.memory.period.forceNotToAttack) {
             // 需要修复的建筑列表不为空
             if (towerMemory[room.name]['Repair'].length) {
+                // 由于需要修复的建筑列表是50tick扫描一次，所以每tick需要对该列表进行清洗，除去建筑不在了的，除去修好不需要再修的
+                _.remove(towerMemory[room.name]['Repair'], (structureId) => {
+                    return (!Game.getObjectById(structureId) ||
+                        !global.judgeIfStructureNeedTowerRepair(Game.getObjectById(structureId)));
+                });
+
                 let DamagedStructures = towerMemory[room.name]['Repair'].map((structureId) => {
                     return Game.getObjectById(structureId);
                 });
@@ -38,12 +44,6 @@ export const towerWork = {
                         let closestDamagedStructure = tower.pos.findClosestByRange(DamagedStructures);
                         tower.repair(closestDamagedStructure);
                     }
-                });
-
-                // 由于需要修复的建筑列表是50tick扫描一次，所以每tick需要对该列表进行清洗，除去建筑不在了的，除去修好不需要再修的
-                _.remove(towerMemory[room.name]['Repair'], (structureId) => {
-                    return (!Game.getObjectById(structureId) ||
-                        !global.judgeIfStructureNeedTowerRepair(Game.getObjectById(structureId)));
                 });
             }
         }

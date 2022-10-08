@@ -491,7 +491,7 @@ Room.prototype.updateStructureIndex = function (type = undefined) {
                             structure.structureType != STRUCTURE_RAMPART &&
                             structure.structureType != STRUCTURE_WALL;
                     });
-                    if (structureUnderRampart.length || rampart.pos.isNearTo(room.controller)) {
+                    if (structureUnderRampart.length || rampart.pos.isNearTo(this.controller)) {
                         cache[STRUCTURE_CENTERRAMPART] = cache[STRUCTURE_CENTERRAMPART] ?
                             cache[STRUCTURE_CENTERRAMPART].add(rampart.id) : new Set([rampart.id]);
                     }

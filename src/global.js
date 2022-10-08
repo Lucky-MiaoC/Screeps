@@ -92,10 +92,20 @@ global.judgeIfStructureNeedTowerRepair = function (structure) {
                 }
                 else {
                     structure.room.updateStructureIndex(STRUCTURE_RAMPART);
-                    return global.judgeIfStructureNeedTowerRepair(structure);
+                    let structureUnderRampart = _.filter(structure.pos.lookFor(LOOK_STRUCTURES), (i) => {
+                        return i.structureType != STRUCTURE_ROAD &&
+                            i.structureType != STRUCTURE_RAMPART &&
+                            i.structureType != STRUCTURE_WALL;
+                    });
+                    if (structureUnderRampart.length || structure.pos.isNearTo(structure.room.controller)) {
+                        rampartType = 'centerRampart';
+                    }
+                    else {
+                        rampartType = 'surroundingRampart';
+                    }
                 }
                 let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name] || 0;
-                return (structure.hits < 5000 || (structure.hits >= hitsSetting - 5000 &&
+                return (structure.hits < 2000 || (structure.hits >= hitsSetting - 3000 &&
                     structure.hits < hitsSetting)) ? true : false;
             }
             // 其他建筑掉血了就修
@@ -135,10 +145,20 @@ global.judgeIfStructureNeedBuilderRepair = function (structure) {
                 }
                 else {
                     structure.room.updateStructureIndex(STRUCTURE_RAMPART);
-                    return global.judgeIfStructureNeedBuilderRepair(structure);
+                    let structureUnderRampart = _.filter(structure.pos.lookFor(LOOK_STRUCTURES), (i) => {
+                        return i.structureType != STRUCTURE_ROAD &&
+                            i.structureType != STRUCTURE_RAMPART &&
+                            i.structureType != STRUCTURE_WALL;
+                    });
+                    if (structureUnderRampart.length || structure.pos.isNearTo(structure.room.controller)) {
+                        rampartType = 'centerRampart';
+                    }
+                    else {
+                        rampartType = 'surroundingRampart';
+                    }
                 }
                 let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name] || 0;
-                return structure.hits < hitsSetting - 5000 ? true : false;
+                return structure.hits < hitsSetting - 3000 ? true : false;
             }
             // 其他建筑不需要builder维修
             default:

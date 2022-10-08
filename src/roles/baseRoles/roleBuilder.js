@@ -30,7 +30,7 @@ export const roleBuilder = {
 
         // 验证target缓存
         if (!target ||
-            (target instanceof Structure && creep.store[RESOURCE_ENERGY] == 0 && !judgeIfStructureNeedBuilderRepair(target))) {
+            (target instanceof Structure && !judgeIfStructureNeedBuilderRepair(target))) {
             target = null;
             creep.memory.targetId = null;
         }
