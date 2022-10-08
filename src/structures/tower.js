@@ -19,7 +19,7 @@ export const towerWork = {
             let structuresNeedTowerRepair = [];
             room.find(FIND_STRUCTURES).forEach((structure) => {
                 if (global.judgeIfStructureNeedTowerRepair(structure)) {
-                    structuresNeedTowerRepair.push(structure);
+                    structuresNeedTowerRepair.push(structure.id);
                 }
             })
             towerMemory[room.name]['Repair'] = structuresNeedTowerRepair;
@@ -29,18 +29,22 @@ export const towerWork = {
         if (!room.memory.period.warOfSelfDefence || room.memory.period.forceNotToAttack) {
             // 需要修复的建筑列表不为空
             if (towerMemory[room.name]['Repair'].length) {
-                // 由于需要修复的建筑列表是50tick扫描一次，所以每tick需要对该列表进行清洗，除去建筑不在了的，除去修好不需要再修的
-                _.remove(towerMemory[room.name]['Repair'], (structure) => {
-                    return (!global.judgeIfStructureNeedTowerRepair(structure));
-                })
-
+                let DamagedStructures = towerMemory[room.name]['Repair'].map((structureId) => {
+                    return Game.getObjectById(structureId);
+                });
                 towers.forEach((tower) => {
                     // 日常维护及战后维修留一半能量以防万一，从距离最近的修起
                     if (tower.store[RESOURCE_ENERGY] > 500) {
-                        let closestDamagedStructure = tower.pos.findClosestByRange(towerMemory[room.name]['Repair']);
+                        let closestDamagedStructure = tower.pos.findClosestByRange(DamagedStructures);
                         tower.repair(closestDamagedStructure);
                     }
-                })
+                });
+
+                // 由于需要修复的建筑列表是50tick扫描一次，所以每tick需要对该列表进行清洗，除去建筑不在了的，除去修好不需要再修的
+                _.remove(towerMemory[room.name]['Repair'], (structureId) => {
+                    return (!Game.getObjectById(structureId) ||
+                        !global.judgeIfStructureNeedTowerRepair(Game.getObjectById(structureId)));
+                });
             }
         }
         // 自卫战争时期，所有塔按照敌方creep的bodypart的构成以及射杀优先级集火射杀敌方creep
