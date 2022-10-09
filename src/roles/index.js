@@ -36,8 +36,8 @@ Room.prototype.judgeIfCreepNeedSpawn = function (creepRole) {
             return (this.extractor && this.mineralContainer.length && freeCapacity > 200000 &&
                 this.mineral.mineralAmount > 0) ? true : false;
         }
-        // builder只有在需要builder工作时才需要生产
-        case "builder": { return this.ifNeedBuilderWork(); }
+        // builder只有在需要builder工作时才需要生产，并且为了节约cpu50tick扫描一次
+        case "builder": { return !(Game.time % 50) ? this.ifNeedBuilderWork() : false; }
         // 其他角色一律放行
         default: { return true; }
     }
@@ -56,25 +56,25 @@ Room.prototype.ifNeedBuilderWork = function () {
         return false;
     }
 
-    let targetsFlag;
+    let targetFlag;
     // 自卫战争时期停止工地建设，找是否有符合的建筑
     if (this.memory.period.warOfSelfDefence) {
-        targetsFlag = this.find(FIND_STRUCTURES).some((structure) => {
+        targetFlag = this.find(FIND_STRUCTURES).some((structure) => {
             return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
                 || structure.structureType == STRUCTURE_CONTAINER)
-                && judgeIfStructureNeedBuilderRepair(structure);
+                && judgeIfStructureNeedBuilderRepair(structure, true);
         });
     }
     // 非自卫战争时期先找建筑工地，再找是否有符合的建筑
     else {
-        targetsFlag = !!this.find(FIND_CONSTRUCTION_SITES).length ||
+        targetFlag = !!this.find(FIND_CONSTRUCTION_SITES).length ||
             this.find(FIND_STRUCTURES).some((structure) => {
                 return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
                     || structure.structureType == STRUCTURE_CONTAINER)
-                    && judgeIfStructureNeedBuilderRepair(structure);
+                    && judgeIfStructureNeedBuilderRepair(structure, true);
             });
     }
 
     // 存在工地或者有符合的建筑（血量低于设定的Wall、Rampart）
-    return targetsFlag;
+    return targetFlag;
 }

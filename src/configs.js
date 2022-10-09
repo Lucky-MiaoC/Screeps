@@ -24,11 +24,11 @@ export const configs = {
             // 'W59N38': 10000
         },
         'surroundingRampart': {
-            'W59N37': 10000,
+            'W59N37': 50000,
             // 'W59N38': 10000
         },
         [STRUCTURE_WALL]: {
-            'W59N37': 2000,
+            'W59N37': 50000,
             // 'W59N38': 10000
         }
     },
@@ -49,7 +49,7 @@ export const configs = {
     creepNumberSetting: {
         'W59N37': {
             // baseRoles
-            'harvester': 2, 'filler': 2, 'collecter': 0, 'upgrader': 1, 'builder': 1, 'centercarrier': 1, 'miner': 0,
+            'harvester': 2, 'filler': 2, 'collecter': 0, 'upgrader': 1, 'builder': 2, 'centercarrier': 1, 'miner': 0,
             // warRoles
             // remoteRoles
         },
@@ -163,13 +163,13 @@ export const configs = {
         },
         // RCL_8: 12000 + 900
         'RCL_8': {
-            'maxcost': 3000,
+            'maxcost': 2500,
             // baseRoles
             'harvester': { [WORK]: 10, [CARRY]: 2, [MOVE]: 5 },
             'filler': { [CARRY]: 20, [MOVE]: 20 },
             'collecter': { [CARRY]: 10, [MOVE]: 10 },
             'upgrader': { [WORK]: 10, [CARRY]: 5, [MOVE]: 15 },
-            'builder': { [WORK]: 15, [CARRY]: 15, [MOVE]: 15 },
+            'builder': { [WORK]: 10, [CARRY]: 5, [MOVE]: 15 },
             'centercarrier': { [CARRY]: 40, [MOVE]: 10 },
             'miner': { [WORK]: 20, [CARRY]: 1, [MOVE]: 10 },
             // warRoles
