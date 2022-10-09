@@ -56,29 +56,25 @@ Room.prototype.ifNeedBuilderWork = function () {
         return false;
     }
 
-    let targets;
+    let targetsFlag;
     // 自卫战争时期停止工地建设，找是否有符合的建筑
     if (this.memory.period.warOfSelfDefence) {
-        targets = this.find(FIND_STRUCTURES, {
-            filter: (structure) => {
-                return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
-                    || structure.structureType == STRUCTURE_CONTAINER)
-                    && judgeIfStructureNeedBuilderRepair(structure);
-            }
+        targetsFlag = this.find(FIND_STRUCTURES).some((structure) => {
+            return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
+                || structure.structureType == STRUCTURE_CONTAINER)
+                && judgeIfStructureNeedBuilderRepair(structure);
         });
     }
     // 非自卫战争时期先找建筑工地，再找是否有符合的建筑
     else {
-        targets = this.find(FIND_CONSTRUCTION_SITES) ||
-            this.find(FIND_STRUCTURES, {
-                filter: (structure) => {
-                    return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
-                        || structure.structureType == STRUCTURE_CONTAINER)
-                        && judgeIfStructureNeedBuilderRepair(structure);
-                }
+        targetsFlag = !!this.find(FIND_CONSTRUCTION_SITES).length ||
+            this.find(FIND_STRUCTURES).some((structure) => {
+                return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
+                    || structure.structureType == STRUCTURE_CONTAINER)
+                    && judgeIfStructureNeedBuilderRepair(structure);
             });
     }
 
     // 存在工地或者有符合的建筑（血量低于设定的Wall、Rampart）
-    return targets.length ? true : false;
+    return targetsFlag;
 }

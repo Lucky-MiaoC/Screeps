@@ -48,18 +48,16 @@ export const roleBuilder = {
                 return i.hits - j.hits;
             })[0];
         }
-        // 非自卫战争时期先找建筑工地，再找血量最低的需要维修的Wall、Rampart
+        // 非自卫战争时期先找建筑工地，再找最近的需要维修的Wall、Rampart
         else {
             target = target || creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES) ||
-                creep.room.find(FIND_STRUCTURES, {
+                creep.pos.findClosestByRange(FIND_STRUCTURES, {
                     filter: (structure) => {
                         return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
                             || structure.structureType == STRUCTURE_CONTAINER)
                             && judgeIfStructureNeedBuilderRepair(structure);
                     }
-                }).sort((i, j) => {
-                    return i.hits - j.hits;
-                })[0];
+                });
         }
 
         // 验证target

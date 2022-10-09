@@ -24,11 +24,11 @@ export const configs = {
             // 'W59N38': 10000
         },
         'surroundingRampart': {
-            'W59N37': 50000,
+            'W59N37': 10000,
             // 'W59N38': 10000
         },
         [STRUCTURE_WALL]: {
-            'W59N37': 20000,
+            'W59N37': 2000,
             // 'W59N38': 10000
         }
     },
