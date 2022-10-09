@@ -21,15 +21,15 @@ export const configs = {
     maxHitsRepairingWallOrRampart: {
         'centerRampart': {
             'W59N37': 12000000,
-            // 'W59N38': 10000
+            'W59N38': 5000
         },
         'surroundingRampart': {
             'W59N37': 50000,
-            // 'W59N38': 10000
+            'W59N38': 5000
         },
         [STRUCTURE_WALL]: {
             'W59N37': 50000,
-            // 'W59N38': 10000
+            'W59N38': 10000
         }
     },
 
@@ -55,7 +55,7 @@ export const configs = {
         },
         'W59N38': {
             // baseRoles
-            'harvester': 2, 'filler': 2, 'collecter': 1, 'upgrader': 4, 'builder': 2, 'centercarrier': 1, 'miner': 0,
+            'harvester': 2, 'filler': 3, 'collecter': 0, 'upgrader': 15, 'builder': 4, 'centercarrier': 0, 'miner': 0,
             // warRoles
             // remoteRoles
         }
@@ -169,7 +169,7 @@ export const configs = {
             'filler': { [CARRY]: 20, [MOVE]: 20 },
             'collecter': { [CARRY]: 10, [MOVE]: 10 },
             'upgrader': { [WORK]: 10, [CARRY]: 5, [MOVE]: 15 },
-            'builder': { [WORK]: 10, [CARRY]: 5, [MOVE]: 15 },
+            'builder': { [WORK]: 14, [CARRY]: 7, [MOVE]: 21 },
             'centercarrier': { [CARRY]: 40, [MOVE]: 10 },
             'miner': { [WORK]: 20, [CARRY]: 1, [MOVE]: 10 },
             // warRoles
