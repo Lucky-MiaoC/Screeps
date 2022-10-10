@@ -54,7 +54,7 @@ export const roleCollecter = {
             let source = Game.getObjectById(creep.memory.sourceId);
 
             // 验证source缓存
-            if (!source || source.store.getFreeCapacity() == 0) {
+            if (!source || source.store[RESOURCE_ENERGY] == 0) {
                 source = null;
                 creep.memory.sourceId = null;
             }
