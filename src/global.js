@@ -91,6 +91,7 @@ global.judgeIfStructureNeedTowerWork = function (structure) {
                 else if (structure.room.surroundingRampart.includes(structure)) {
                     rampartType = 'surroundingRampart';
                 }
+                /* 刷新建筑在builder里实现了
                 else {
                     structure.room.updateStructureIndex(STRUCTURE_RAMPART);
                     let structureUnderRampart = _.filter(structure.pos.lookFor(LOOK_STRUCTURES), (i) => {
@@ -105,6 +106,7 @@ global.judgeIfStructureNeedTowerWork = function (structure) {
                         rampartType = 'surroundingRampart';
                     }
                 }
+                */
                 if (rampartType == 'centerRampart') {
                     let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name] || 0;
                     return (structure.hits < 1500 || (structure.hits >= hitsSetting - 5000 &&
@@ -169,6 +171,7 @@ global.judgeIfStructureNeedBuilderWork = function (structure, flag) {
                 else if (structure.room.surroundingRampart.includes(structure)) {
                     rampartType = 'surroundingRampart';
                 }
+                /* 刷新建筑在builder里实现了
                 else {
                     structure.room.updateStructureIndex(STRUCTURE_RAMPART);
                     let structureUnderRampart = _.filter(structure.pos.lookFor(LOOK_STRUCTURES), (i) => {
@@ -183,6 +186,7 @@ global.judgeIfStructureNeedBuilderWork = function (structure, flag) {
                         rampartType = 'surroundingRampart';
                     }
                 }
+                */
                 let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name] || 0;
                 switch (flag) {
                     case 0: return structure.hits < hitsSetting * 0.8 ? true : false;

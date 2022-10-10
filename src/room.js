@@ -52,7 +52,24 @@ Room.prototype.updateCreepMemory = function () {
             if (Memory.creeps[name].sourceId) {
                 this.memory.sourceInfo[Memory.creeps[name].sourceId] = 'unreserved';
             }
-        };
+        }
+        // 如果死亡creep为builder需要检测是否已刷新建筑缓存
+        else if (deadCreepRole == 'builder') {
+            // 刷新建筑缓存
+            if (Memory.creeps[name].targetPos) {
+                let pos =
+                    new RoomPosition(Memory.creeps[name].targetPos.x, Memory.creeps[name].targetPos.y, Memory.creeps[name].targetPos.roomName);
+                let newStructure = pos.lookFor(LOOK_STRUCTURES);
+                if (newStructure.length) {
+                    newStructure.forEach((i) => {
+                        if (!creep.room[i.structureType] ||
+                            (creep.room[i.structureType].length && !creep.room[i.structureType].includes(i))) {
+                            creep.room.updateStructureIndex(i.structureType);
+                        }
+                    })
+                }
+            }
+        }
 
         // 更新Memory的creep数量
         if (configs.creepRoleSetting.includes(deadCreepRole)) {

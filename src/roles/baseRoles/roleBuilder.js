@@ -31,6 +31,20 @@ export const roleBuilder = {
         // 验证target缓存
         if (!target ||
             (target instanceof Structure && judgeIfStructureNeedBuilderWork(target, 2))) {
+            // 刷新建筑缓存，极端情况未刷新建筑缓存creep死去，清理死亡creep内存方法里会有检查
+            if (creep.memory.targetPos) {
+                let pos = new RoomPosition(creep.memory.targetPos.x, creep.memory.targetPos.y, creep.memory.targetPos.roomName);
+                let newStructure = pos.lookFor(LOOK_STRUCTURES);
+                if (newStructure.length) {
+                    newStructure.forEach((i) => {
+                        if (!creep.room[i.structureType] ||
+                            (creep.room[i.structureType].length && !creep.room[i.structureType].includes(i))) {
+                            creep.room.updateStructureIndex(i.structureType);
+                        }
+                    })
+                }
+                delete creep.memory.targetPos;
+            }
             target = null;
             creep.memory.targetId = null;
         }
@@ -66,6 +80,9 @@ export const roleBuilder = {
         // 缓存target
         if (!creep.memory.targetId) {
             creep.memory.targetId = target.id;
+            if (target instanceof ConstructionSite) {
+                creep.memory.targetPos = target.pos;
+            }
         }
 
         // 工作逻辑代码

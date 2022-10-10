@@ -55,7 +55,7 @@ export const configs = {
         },
         'W59N38': {
             // baseRoles
-            'harvester': 2, 'filler': 3, 'collecter': 0, 'upgrader': 15, 'builder': 4, 'centercarrier': 0, 'miner': 0,
+            'harvester': 2, 'filler': 2, 'collecter': 0, 'upgrader': 10, 'builder': 3, 'centercarrier': 0, 'miner': 0,
             // warRoles
             // remoteRoles
         }
