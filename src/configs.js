@@ -21,15 +21,15 @@ export const configs = {
     maxHitsRepairingWallOrRampart: {
         'centerRampart': {
             'W59N37': 12000000,
-            'W59N38': 5000
+            'W59N38': 10000,
         },
         'surroundingRampart': {
-            'W59N37': 50000,
-            'W59N38': 5000
+            'W59N37': 200000,
+            'W59N38': 10000,
         },
         [STRUCTURE_WALL]: {
-            'W59N37': 50000,
-            'W59N38': 10000
+            'W59N37': 200000,
+            'W59N38': 10000,
         }
     },
 

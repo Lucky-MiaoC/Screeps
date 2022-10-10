@@ -30,7 +30,7 @@ export const roleBuilder = {
 
         // 验证target缓存
         if (!target ||
-            (target instanceof Structure && judgeIfStructureNeedBuilderRepair(target, false))) {
+            (target instanceof Structure && judgeIfStructureNeedBuilderWork(target, 2))) {
             target = null;
             creep.memory.targetId = null;
         }
@@ -42,7 +42,7 @@ export const roleBuilder = {
                 filter: (structure) => {
                     return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
                         || structure.structureType == STRUCTURE_CONTAINER)
-                        && judgeIfStructureNeedBuilderRepair(structure, true);
+                        && judgeIfStructureNeedBuilderWork(structure, 1);
                 }
             }).sort((i, j) => {
                 return i.hits - j.hits;
@@ -55,7 +55,7 @@ export const roleBuilder = {
                     filter: (structure) => {
                         return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
                             || structure.structureType == STRUCTURE_CONTAINER)
-                            && judgeIfStructureNeedBuilderRepair(structure, true);
+                            && judgeIfStructureNeedBuilderWork(structure, 1);
                     }
                 });
         }

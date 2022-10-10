@@ -68,7 +68,7 @@ global.assessRCL = function (room) {
  * @param {Structure} structure 需要判断的建筑对象
  * @returns {boolean} 返回true或者false
  */
-global.judgeIfStructureNeedTowerRepair = function (structure) {
+global.judgeIfStructureNeedTowerWork = function (structure) {
     if (structure instanceof Structure) {
         switch (structure.structureType) {
             // 不需要修墙，修墙是builder的活
@@ -81,7 +81,7 @@ global.judgeIfStructureNeedTowerRepair = function (structure) {
             case STRUCTURE_CONTAINER:
                 return (structure.hits / structure.hitsMax >= 0.7 &&
                     structure.hits / structure.hitsMax < 0.8) ? true : false;
-            // centerRampart血量低于1.5k或者低于设定血量且高于设定血量-3k则修
+            // centerRampart血量低于1.5k或者低于设定血量且高于设定血量-5k则修
             // surroundingRampart血量低于1.5k则修
             case STRUCTURE_RAMPART: {
                 let rampartType = undefined;
@@ -107,7 +107,7 @@ global.judgeIfStructureNeedTowerRepair = function (structure) {
                 }
                 if (rampartType == 'centerRampart') {
                     let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name] || 0;
-                    return (structure.hits < 1500 || (structure.hits >= hitsSetting - 3000 &&
+                    return (structure.hits < 1500 || (structure.hits >= hitsSetting - 5000 &&
                         structure.hits < hitsSetting)) ? true : false;
                 }
                 else {
@@ -129,35 +129,38 @@ global.judgeIfStructureNeedTowerRepair = function (structure) {
  * 判断建筑是否需要builder维修
  *
  * @param {Structure} structure 需要判断的建筑对象
- * @param {boolean} flag 判断开始维修或结束维修的标志，为true时是开始维修条件，默认为false是结束维修条件
+ * @param {number} flag 0：生产条件 | 1：获取条件 | 2：停止条件
  * @returns {boolean} 返回true或者false
  */
-global.judgeIfStructureNeedBuilderRepair = function (structure, flag = false) {
+global.judgeIfStructureNeedBuilderWork = function (structure, flag) {
     if (structure instanceof Structure) {
         switch (structure.structureType) {
-            // Container在没有Tower（前期）且血量低于50%开始生产builder、开始维修
+            // Container在没有Tower（前期）且血量低于50%开始生产builder
+            // Container在没有Tower（前期）且血量低于80%开始维修
             // Container在没有Tower（前期）且血量高于80%结束维修
-            case STRUCTURE_CONTAINER:
-                if (flag) {
-                    return (structure.hits / structure.hitsMax < 0.5) ? true : false;
+            case STRUCTURE_CONTAINER: {
+                switch (flag) {
+                    case 0: return (structure.hits / structure.hitsMax < 0.5) ? true : false;
+                    case 1: return (structure.hits / structure.hitsMax <= 0.8) ? true : false;
+                    case 2: return (structure.hits / structure.hitsMax > 0.8) ? true : false;
                 }
-                else {
-                    return (structure.hits / structure.hitsMax > 0.8) ? true : false;
-                }
-            // WALL血量低于设定血量80%开始生产builder、开始维修
+            }
+            // WALL血量低于设定血量80%开始生产builder
+            // WALL血量低于设定血量开始维修
             // WALL血量高于设定血量结束维修
             case STRUCTURE_WALL: {
-                if (flag) {
-                    return structure.hits <
+                switch (flag) {
+                    case 0: return structure.hits <
                         (configs.maxHitsRepairingWallOrRampart[STRUCTURE_WALL][structure.room.name] || 0) * 0.8 ? true : false;
-                }
-                else {
-                    return structure.hits >
+                    case 1: return structure.hits <
+                        (configs.maxHitsRepairingWallOrRampart[STRUCTURE_WALL][structure.room.name] || 0) ? true : false;
+                    case 2: return structure.hits >=
                         (configs.maxHitsRepairingWallOrRampart[STRUCTURE_WALL][structure.room.name] || 0) ? true : false;
                 }
             }
-            // RAMPART血量低于于设定血量80%开始生产builder、开始维修
-            // RAMPART血量高于设定血量就要builder结束维修
+            // RAMPART血量低于于设定血量80%开始生产builder
+            // RAMPART血量高于设定血量-5k开始维修
+            // RAMPART血量高于设定血量结束维修
             case STRUCTURE_RAMPART: {
                 let rampartType = undefined;
                 if (structure.room.centerRampart.includes(structure)) {
@@ -180,23 +183,29 @@ global.judgeIfStructureNeedBuilderRepair = function (structure, flag = false) {
                         rampartType = 'surroundingRampart';
                     }
                 }
-                if (flag) {
-                    let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name] || 0;
-                    return structure.hits < hitsSetting * 0.8 ? true : false;
-                }
-                else {
-                    let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name] || 0;
-                    return structure.hits > hitsSetting ? true : false;
+                let hitsSetting = configs.maxHitsRepairingWallOrRampart[rampartType][structure.room.name] || 0;
+                switch (flag) {
+                    case 0: return structure.hits < hitsSetting * 0.8 ? true : false;
+                    case 1: return structure.hits < hitsSetting - 5000 ? true : false;
+                    case 2: return structure.hits >= hitsSetting ? true : false;
                 }
             }
-            // 其他建筑不需要开始维修，直接停止维修
+            // 其他建筑不需要生产builder，不需要开始维修，如果开始了直接停止维修
             default:
-                return flag ? false : true;
+                switch (flag) {
+                    case 0: return false;
+                    case 1: return false;
+                    case 2: return true;
+                }
         }
     }
-    // 非建筑不需要开始维修，直接停止维修
+    // 非建筑不需要生产builder，不需要开始维修，如果开始了直接停止维修
     else {
-        return flag ? false : true;
+        switch (flag) {
+            case 0: return false;
+            case 1: return false;
+            case 2: return true;
+        }
     }
 }
 

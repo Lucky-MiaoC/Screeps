@@ -62,7 +62,7 @@ Room.prototype.ifNeedBuilderWork = function () {
         targetFlag = this.find(FIND_STRUCTURES).some((structure) => {
             return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
                 || structure.structureType == STRUCTURE_CONTAINER)
-                && judgeIfStructureNeedBuilderRepair(structure, true);
+                && judgeIfStructureNeedBuilderWork(structure, 0);
         });
     }
     // 非自卫战争时期先找建筑工地，再找是否有符合的建筑
@@ -71,7 +71,7 @@ Room.prototype.ifNeedBuilderWork = function () {
             this.find(FIND_STRUCTURES).some((structure) => {
                 return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
                     || structure.structureType == STRUCTURE_CONTAINER)
-                    && judgeIfStructureNeedBuilderRepair(structure, true);
+                    && judgeIfStructureNeedBuilderWork(structure, 0);
             });
     }
 
