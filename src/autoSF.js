@@ -21,7 +21,7 @@ export const autoSF = {
     work: function () {
         for (let room of _config.rooms) {
             // 检查自卫战争时期标志，只有有room.memory.period才会检查，没有的话也不报错，但cpu消耗变高
-            if (room.memory.period && !room.memory.period.warOfSelfDefence && !room.memory.period.forceNotToAttack) {
+            if (room.memory.period && !room.memory.period.warOfSelfDefence) {
                 continue;
             }
 

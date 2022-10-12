@@ -1,3 +1,7 @@
+/**
+ * 废案，为了节约cpu不再让creep说话
+ */
+
 import { configs } from "../configs";
 
 /**

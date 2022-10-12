@@ -8,6 +8,7 @@ import './roles/dialogue';
 // 导入全局依赖和原型拓展
 import "./structures/index";
 import "./global";
+import "./creep";
 import "./roles/index";
 import "./roles/task";
 import "./room";
@@ -127,11 +128,6 @@ module.exports.loop = errorMapper(() => {
             default: break;
         }
     })
-
-    // 为每个creep设定要说的话
-    // global.setDialogue();
-    // 让每个有话说的creep说话
-    // global.showDialogue();
 
     // 自动开启SF模块工作
     autoSF.work();

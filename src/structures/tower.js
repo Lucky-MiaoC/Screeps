@@ -26,7 +26,7 @@ export const towerWork = {
         }
 
         // 非自卫战争时期，则日常维护或战后维修建筑
-        if (!room.memory.period.warOfSelfDefence || room.memory.period.forceNotToAttack) {
+        if (!room.memory.period.warOfSelfDefence) {
             // 需要修复的建筑列表不为空
             if (towerMemory[room.name]['Repair'].length) {
                 // 由于需要修复的建筑列表是50tick扫描一次，所以每tick需要对该列表进行清洗，除去建筑不在了的，除去修好不需要再修的

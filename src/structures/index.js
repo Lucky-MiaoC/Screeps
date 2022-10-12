@@ -36,11 +36,12 @@
  *      link系列:
  *          room.centerLink         // 得到centerLink数组
  *          room.sourceLink         // 得到sourceLink数组
- *          room.upgradeLink        // 得到sourceLink数组
+ *          room.upgradeLink        // 得到upgradeLink数组
  *
  *      container系列:
  *          room.sourceContainer    // 得到sourceContainer数组
  *          room.mineralContainer   // 得到mineralContainer数组
+ *          room.upgradeContainer   // 得到upgradeContainer数组
  *
  *      rampart系列：
  *          room.centerRampart      // 得到centerRampart数组
@@ -68,6 +69,8 @@ const STRUCTURE_UPGRADELINK = "upgradeLink";
 const STRUCTURE_SOURCECONTAINER = "sourceContainer";
 // mineralContainer：Mineral 2格范围内的Container
 const STRUCTURE_MINERALCONTAINER = "mineralContainer";
+// upgradeContainer：Controller 3格范围内的Container（暂时用不到）
+const STRUCTURE_UPGRADECONTAINER = "upgradeContainer"
 // centerRampart：覆盖着非Road、Wall的建筑的Rampart以及Controller 1格范围内的Rampart
 const STRUCTURE_CENTERRAMPART = "centerRampart";
 // surroundingRampart：非centerRampart的Rampart
@@ -99,7 +102,7 @@ const linkList = new Set([
 
 // container系列
 const containerList = new Set([
-    STRUCTURE_SOURCECONTAINER, STRUCTURE_MINERALCONTAINER,
+    STRUCTURE_SOURCECONTAINER, STRUCTURE_MINERALCONTAINER, STRUCTURE_UPGRADECONTAINER,
 ])
 
 // rampart系列
@@ -168,9 +171,13 @@ function structureIndexInitialization(room) {
             this[STRUCTURE_SOURCECONTAINER] = this[STRUCTURE_SOURCECONTAINER] ?
                 this[STRUCTURE_SOURCECONTAINER].add(container.id) : new Set([container.id]);
         }
-        else {
+        else if (container.pos.findInRange(FIND_MINERALS, 2).length) {
             this[STRUCTURE_MINERALCONTAINER] = this[STRUCTURE_MINERALCONTAINER] ?
                 this[STRUCTURE_MINERALCONTAINER].add(container.id) : new Set([container.id]);
+        }
+        else if (container.pos.inRangeTo(room.controller, 2)) {
+            this[STRUCTURE_UPGRADECONTAINER] = this[STRUCTURE_UPGRADECONTAINER] ?
+                this[STRUCTURE_UPGRADECONTAINER].add(container.id) : new Set([container.id]);
         }
     });
 
@@ -467,9 +474,13 @@ Room.prototype.updateStructureIndex = function (type = undefined) {
                         cache[STRUCTURE_SOURCECONTAINER] = cache[STRUCTURE_SOURCECONTAINER] ?
                             cache[STRUCTURE_SOURCECONTAINER].add(container.id) : new Set([container.id]);
                     }
-                    else {
+                    else if (container.pos.findInRange(FIND_MINERALS, 2).length) {
                         cache[STRUCTURE_MINERALCONTAINER] = cache[STRUCTURE_MINERALCONTAINER] ?
                             cache[STRUCTURE_MINERALCONTAINER].add(container.id) : new Set([container.id]);
+                    }
+                    else if (container.pos.inRangeTo(room.controller, 2)) {
+                        cache[STRUCTURE_UPGRADECONTAINER] = cache[STRUCTURE_UPGRADECONTAINER] ?
+                            cache[STRUCTURE_UPGRADECONTAINER].add(container.id) : new Set([container.id]);
                     }
                 });
             }
