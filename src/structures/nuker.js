@@ -14,7 +14,7 @@ StructureNuker.prototype.testLaunchNuke = function (pos) {
     console.log(`测试发射距离...${Game.map.getRoomLinearDistance(this.room.name, _pos.roomName) <= 10 ? '通过！' : (flag = 1, '未通过！')}`);
     console.log(`测试目标房间开发状态...${Game.map.getRoomStatus(_pos.roomName).status == 'normal' ? '通过！' : (flag = 1, '未通过！')}`);
     return flag ? '未通过测试！' : '通过测试！';
-}
+};
 
 /**
  * 发射核弹，简化了参数输入
@@ -42,4 +42,4 @@ StructureNuker.prototype.launchMyNuke = function (x, y, targetRoomName) {
         this.launchNuke(pos);
         console.log('成功发射核弹！');
     }
-}
+};

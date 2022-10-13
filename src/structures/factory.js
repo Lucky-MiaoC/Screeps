@@ -1,10 +1,3 @@
-// 各房间生产商品信息初始化
-let productInfo = {}
-Object.values(Game.rooms).forEach((room) => {
-    productInfo[room.name] = null;
-});
-
-
 /**
  * 开始生产商品
  *
@@ -23,30 +16,29 @@ StructureFactory.prototype.startProduce = function (resourceType) {
         console.log(`失败：工厂等级不足！无法生产该商品！`);
     }
 
-    productInfo[this.room.name] = resourceType;
+    this.room.memory.structure.factory = resourceType;
     console.log(`注意：Room ${this.room.name} 中的 Factory 开始生产商品 ${resourceType}！`);
-}
+};
 
 /**
  * 停止生产商品
  */
 StructureFactory.prototype.stopProduce = function () {
-    let _resourceType = productInfo[this.room.name];
+    let _resourceType = this.room.memory.structure.factory;
     if (_resourceType) {
-        productInfo[this.room.name] = null;
+        this.room.memory.structure.factory = null;
         console.log(`注意：Room ${this.room.name} 中的 Factory 停止生产商品 ${_resourceType}！`);
     }
     else {
         console.log(`失败！Room ${this.room.name} 中的 Factory 并未在生产商品！`);
     }
-
-}
+};
 
 /**
  * Factory工作
  */
 StructureFactory.prototype.work = function () {
-    let resourceType = productInfo[this.room.name];
+    let resourceType = this.room.memory.structure.factory;
     if (resourceType && !this.cooldown) {
         // 检查底物是否足够
         let flag = 0;
@@ -71,4 +63,4 @@ StructureFactory.prototype.work = function () {
             }
         }
     }
-}
+};

@@ -1,11 +1,5 @@
 import { configs } from "../configs";
 
-// 各房间tower内存初始化
-let towerMemory = {};
-Object.values(Game.rooms).forEach((room) => {
-    towerMemory[room.name] = { 'Repair': [], 'Attack': null };
-});
-
 export const towerWork = {
     work: function (room) {
         // 所有tower统一处理
@@ -21,21 +15,21 @@ export const towerWork = {
                 if (judgeIfStructureNeedTowerWork(structure)) {
                     structuresNeedTowerRepair.push(structure.id);
                 }
-            })
-            towerMemory[room.name]['Repair'] = structuresNeedTowerRepair;
+            });
+            room.memory.structure.tower['repair'] = structuresNeedTowerRepair;
         }
 
         // 非自卫战争时期，则日常维护或战后维修建筑
         if (!room.memory.period.warOfSelfDefence) {
             // 需要修复的建筑列表不为空
-            if (towerMemory[room.name]['Repair'].length) {
+            if (room.memory.structure.tower['repair'].length) {
                 // 由于需要修复的建筑列表是50tick扫描一次，所以每tick需要对该列表进行清洗，除去建筑不在了的，除去修好不需要再修的
-                _.remove(towerMemory[room.name]['Repair'], (structureId) => {
+                _.remove(room.memory.structure.tower['repair'], (structureId) => {
                     return (!Game.getObjectById(structureId) ||
                         !judgeIfStructureNeedTowerWork(Game.getObjectById(structureId)));
                 });
 
-                let DamagedStructures = towerMemory[room.name]['Repair'].map((structureId) => {
+                let DamagedStructures = room.memory.structure.tower['repair'].map((structureId) => {
                     return Game.getObjectById(structureId);
                 });
                 towers.forEach((tower) => {
@@ -51,12 +45,12 @@ export const towerWork = {
         // 射杀优先级[CLAIM, WORK, RANGED_ATTACK, ATTACK, HEAL]排名越靠前数量越多越优先射杀
         else {
             // 获取hostile缓存
-            let hostile = Game.getObjectById(towerMemory[room.name]['Attack']);
+            let hostile = Game.getObjectById(room.memory.structure.tower['attack']);
 
-            // 验证target缓存
+            // 验证hostile缓存
             if (!hostile) {
                 hostile = null;
-                towerMemory[room.name]['Attack'] = null;
+                room.memory.structure.tower['attack'] = null;
             }
 
             // 获取hostile
@@ -83,8 +77,8 @@ export const towerWork = {
             if (!hostile) { return undefined; }
 
             // 缓存hostile
-            if (!towerMemory[room.name]['Attack']) {
-                towerMemory[room.name]['Attack'] = hostile.id;
+            if (!room.memory.structure.tower['attack']) {
+                room.memory.structure.tower['attack'] = hostile.id;
             }
 
             // 攻击hostile
