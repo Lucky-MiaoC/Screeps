@@ -447,7 +447,7 @@ Room.prototype.updateStructureIndex = function (type = undefined) {
                         cache[STRUCTURE_SOURCELINK] = cache[STRUCTURE_SOURCELINK] ?
                             cache[STRUCTURE_SOURCELINK].add(link.id) : new Set([link.id]);
                     }
-                    else if (link.pos.inRangeTo(room.controller, 2)) {
+                    else if (link.pos.inRangeTo(this.controller, 2)) {
                         cache[STRUCTURE_UPGRADELINK] = cache[STRUCTURE_UPGRADELINK] ?
                             cache[STRUCTURE_UPGRADELINK].add(link.id) : new Set([link.id]);
                     }
@@ -478,7 +478,7 @@ Room.prototype.updateStructureIndex = function (type = undefined) {
                         cache[STRUCTURE_MINERALCONTAINER] = cache[STRUCTURE_MINERALCONTAINER] ?
                             cache[STRUCTURE_MINERALCONTAINER].add(container.id) : new Set([container.id]);
                     }
-                    else if (container.pos.inRangeTo(room.controller, 2)) {
+                    else if (container.pos.inRangeTo(this.controller, 2)) {
                         cache[STRUCTURE_UPGRADECONTAINER] = cache[STRUCTURE_UPGRADECONTAINER] ?
                             cache[STRUCTURE_UPGRADECONTAINER].add(container.id) : new Set([container.id]);
                     }

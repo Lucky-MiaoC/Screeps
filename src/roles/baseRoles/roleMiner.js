@@ -53,7 +53,6 @@ export const roleMiner = {
             let source = Game.getObjectById(creep.memory.sourceId);
 
             // 验证source缓存
-            // Miner的source属于必定存在、条件不足也不会更换的对象，因此可以省略验证缓存部分，将条件判断放到source交互去
             // if (!source || !creep.room.extractor || creep.room.extractor.cooldown || source.mineralAmount == 0) {
             //     source = null;
             //     // creep.memory.sourceId = null;
@@ -88,4 +87,4 @@ export const roleMiner = {
             }
         }
     }
-}
+};

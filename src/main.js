@@ -1,14 +1,13 @@
 // 导入错误处理程序
-import { errorMapper } from './modules/errorMapper';
+import { ErrorMapper } from './error';
 
 // 导入功能模块
 import { autoSF } from './autoSF';
-import './roles/dialogue';
 
 // 导入全局依赖和原型拓展
 import "./structures/index";
 import "./global";
-import "./creep";
+import "./roles/creep";
 import "./roles/index";
 import "./roles/task";
 import "./room";
@@ -25,7 +24,6 @@ import "./structures/observer";
 // 导入基础角色
 import { roleHarvester } from "./roles/baseRoles/roleHarvester";
 import { roleFiller } from "./roles/baseRoles/roleFiller";
-import { roleCollecter } from "./roles/baseRoles/roleCollecter";
 import { roleCentercarrier } from "./roles/baseRoles/roleCentercarrier";
 import { roleUpgrader } from "./roles/baseRoles/roleUpgrader";
 import { roleBuilder } from "./roles/baseRoles/roleBuilder";
@@ -50,7 +48,7 @@ let doNotInitializeMyMemory = false;
 RawMemory.set("{}");
 
 // 主循环，游戏入口
-module.exports.loop = errorMapper(() => {
+module.exports.loop = ErrorMapper(() => {
     // 全局重启后将清空Memory，等当前tick结束，Creep和Room的初始的内存才能由游戏自动重新构建完成
     // 也就是说下一个tick才能复游戏初始的内存状态，然后才能在此基础构建自己的Memory
     // 也是因为这个原因无法在全局重启的时候初始化建筑索引和Memory
@@ -120,14 +118,13 @@ module.exports.loop = errorMapper(() => {
         switch (creep.memory.role) {
             case 'harvester': roleHarvester.run(creep); break;
             case 'filler': roleFiller.run(creep); break;
-            case 'collecter': roleCollecter.run(creep); break;
             case 'centercarrier': roleCentercarrier.run(creep); break;
             case 'upgrader': roleUpgrader.run(creep); break;
             case 'builder': roleBuilder.run(creep); break;
             case 'miner': roleMiner.run(creep); break;
             default: break;
         }
-    })
+    });
 
     // 自动开启SF模块工作
     autoSF.work();

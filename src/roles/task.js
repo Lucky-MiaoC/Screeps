@@ -11,7 +11,7 @@ class CenterCarryTask {
         this.resourceNumber = resourceNumber;
         this.progress = 0;
     }
-}
+};
 
 /**
  * 创建中央搬运任务，Room原型拓展版本
@@ -54,7 +54,7 @@ Room.prototype.creatCenterCarryTask = function (source, target, resourceType, re
     this.memory.centerCarryTask = _task;
     console.log(`成功在房间${this.name}创建以下中央搬运任务：`);
     console.log(`tick：${_task.id} | sourceType：${Game.getObjectById(_task.sourceId).structureType} | targetType：${Game.getObjectById(_task.targetId).structureType} | resourceType：${_task.resourceType} | resourceNumber：${_task.resourceNumber} | progress：${_task.progress}`);
-}
+};
 
 /**
  * 创建中央搬运任务，global全局函数版本
@@ -93,7 +93,7 @@ global.creatCenterCarryTask = function (source, target, resourceType, resourceNu
     room.memory.centerCarryTask = _task;
     console.log(`成功在房间${room.name}创建以下中央搬运任务：`);
     console.log(`tick：${_task.id} | sourceType：${Game.getObjectById(_task.sourceId).structureType} | targetType：${Game.getObjectById(_task.targetId).structureType} | resourceType：${_task.resourceType} | resourceNumber：${_task.resourceNumber} | progress：${_task.progress}`);
-}
+};
 
 /**
  * 取消已存在的中央搬运任务，Room原型拓展版本
@@ -106,7 +106,7 @@ Room.prototype.cancelCenterCarryTask = function () {
     else {
         console.log(`房间${this.name}当前并不存在中央搬运任务！`);
     }
-}
+};
 
 /**
  * 取消已存在的中央搬运任务，global全局函数版本
@@ -133,7 +133,7 @@ global.cancelCenterCarryTask = function (room) {
     else {
         console.log(`房间${_room.name}当前并不存在中央搬运任务！`);
     }
-}
+};
 
 /**
  * 在控制台显示当前存在的中央搬运任务，Room原型拓展版本
@@ -144,7 +144,7 @@ Room.prototype.showCenterCarryTask = function () {
         console.log(`房间${room.name}：`);
         console.log(`id：${task.id} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
     }
-}
+};
 
 /**
  * 在控制台显示当前存在的中央搬运任务，global全局函数版本
@@ -185,4 +185,4 @@ global.showCenterCarryTask = function (room = null) {
             console.log(`任何房间都不存在中央搬运任务！`);
         }
     }
-}
+};

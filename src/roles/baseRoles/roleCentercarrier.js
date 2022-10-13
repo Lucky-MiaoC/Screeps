@@ -110,9 +110,7 @@ export const roleCentercarrier = {
                     || ((creep.room.storage && creep.room.storage.store.getFreeCapacity() > 0) ?
                         creep.room.storage : null)
                     || ((creep.room.terminal && creep.room.terminal.store.getFreeCapacity() > 0) ?
-                        creep.room.terminal : null)
-                    || ((creep.room.factory && creep.room.factory.store.getFreeCapacity() > 0) ?
-                        creep.room.factory : null);
+                        creep.room.terminal : null);
 
                 // 验证target
                 if (!target) { return undefined; }
@@ -155,4 +153,4 @@ export const roleCentercarrier = {
             }
         }
     }
-}
+};

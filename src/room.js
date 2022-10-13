@@ -1,77 +1,67 @@
 import { configs } from "./configs";
 
 /**
- * 根据房间内矿的开采位权重来随机选择矿
- *
- * @param {boolean} flag 随机选择矿的时候是否考虑矿能量的剩余容量，默认为true
- * @returns {Resource} 返回Resource对象
- */
-Room.prototype.chooseSourceByFreeSpaceWeight = function (flag = true) {
-    let randomList = [];
-    this.source.forEach((i) => {
-        if (!(flag && i.energy == 0)) {
-            let j = i.getFreeSpaceNumber() - 1;
-            while (j--) {
-                randomList.push(i.id);
-            }
-        }
-    })
-    return Game.getObjectById(_.sample(randomList));
-};
-
-/**
- * 扫描房间是否有敌人，有敌人则进入自卫战争状态，没有则退出
+ * 扫描房间是否有敌人，有敌人则进入自卫战争状态，没有则退出自卫战争状态
  */
 Room.prototype.scanHostiles = function () {
-    if (!this.memory.period.forceNotToAttack) {
-        let hostiles = this.find(FIND_HOSTILE_CREEPS, {
-            filter: (hostile) => {
-                return !configs.whiteList['global'].concat(configs.whiteList[this.name] || []).includes(hostile.owner.username);
-            }
-        });
-        if (hostiles.length) {
-            this.memory.period.warOfSelfDefence = true;
+    let hostiles = this.find(FIND_HOSTILE_CREEPS, {
+        filter: (hostile) => {
+            return !configs.whiteList['global'].concat(configs.whiteList[this.name] || []).includes(hostile.owner.username);
         }
-        else {
-            this.memory.period.warOfSelfDefence = false;
-        }
+    });
+    if (hostiles.length) {
+        this.memory.period.warOfSelfDefence = true;
     }
-}
+    else {
+        this.memory.period.warOfSelfDefence = false;
+    }
+};
 
 /**
  * 更新creep内存（清理死亡creep内存）
  */
 Room.prototype.updateCreepMemory = function () {
     for (let name in Memory.creeps) {
+        // 跳过活着的creep和非本房间的creep
         if (Game.creeps[name] || Memory.creeps[name].originalRoomName != this.name) { continue; }
 
         let deadCreepRole = Memory.creeps[name].role;
 
-        // 如果死亡creep为harvester则解除对矿的预定
+        // 如果死亡creep为harvester则解除对矿绑定，同时需要检测是否已更新Container、Link的建筑缓存
         if (deadCreepRole == 'harvester') {
+            // 解除对矿绑定
             if (Memory.creeps[name].sourceId) {
-                this.memory.sourceInfo[Memory.creeps[name].sourceId] = 'unreserved';
+                _.remove(this.memory.sourceInfo[Memory.creeps[name].sourceId], (i) => { return i == name; });
+            }
+            // 更新建筑缓存
+            if (Memory.creeps[name].targetPos) {
+                let pos = new RoomPosition(Memory.creeps[name].targetPos.x, Memory.creeps[name].targetPos.y, Memory.creeps[name].targetPos.roomName);
+                let newStructure = _.filter(pos.lookFor(LOOK_STRUCTURES), (structure) => {
+                    return structure.structureType == STRUCTURE_CONTAINER || structure.structureType == STRUCTURE_LINK;
+                })[0];
+                if (newStructure && !this[newStructure.structureType].includes(newStructure)) {
+                    creep.room.updateStructureIndex(newStructure.structureType);
+                }
             }
         }
-        // 如果死亡creep为builder需要检测是否已刷新建筑缓存
+        // 如果死亡creep为builder需要检测是否已更新建筑缓存
         else if (deadCreepRole == 'builder') {
-            // 刷新建筑缓存
+            // 更新建筑缓存
             if (Memory.creeps[name].targetPos) {
-                let pos =
-                    new RoomPosition(Memory.creeps[name].targetPos.x, Memory.creeps[name].targetPos.y, Memory.creeps[name].targetPos.roomName);
+                let pos = new RoomPosition(Memory.creeps[name].targetPos.x, Memory.creeps[name].targetPos.y, Memory.creeps[name].targetPos.roomName);
                 let newStructure = pos.lookFor(LOOK_STRUCTURES);
                 if (newStructure.length) {
                     newStructure.forEach((i) => {
-                        if (!creep.room[i.structureType] ||
-                            (creep.room[i.structureType].length && !creep.room[i.structureType].includes(i))) {
-                            creep.room.updateStructureIndex(i.structureType);
+                        if (!this[i.structureType] ||
+                            (this[i.structureType] instanceof Array && !this[i.structureType].includes(i))) {
+                            this.updateStructureIndex(i.structureType);
                         }
                     })
                 }
             }
         }
 
-        // 更新Memory的creep数量
+        // 更新Memory中的creep数量
         if (configs.creepRoleSetting.includes(deadCreepRole)) {
             --this.memory.creepNumber[deadCreepRole];
         }
@@ -79,7 +69,7 @@ Room.prototype.updateCreepMemory = function () {
         // 清理死亡creep内存
         delete Memory.creeps[name];
     }
-}
+};
 
 /**
  * 分发生产任务到Spawn
@@ -88,8 +78,7 @@ Room.prototype.updateCreepMemory = function () {
  * @param {string} creepRole 需要生产的角色
  */
 Room.prototype.distributeSpawnTasks = function (Spawn, creepRole) {
-    // 预构造
-    let availableSpawn = Spawn;
+    // creep身体构造
     let assessRCLResult = assessRCL(this);
     let creepBodyMetadata = configs.creepBodyConfigs[assessRCLResult][creepRole];
     let creepBody = [];
@@ -99,19 +88,20 @@ Room.prototype.distributeSpawnTasks = function (Spawn, creepRole) {
             creepBody.push(i);
         }
     });
+    // creep名字构造
     let creepName = (creepRole + ' | ' + this.name + ' | ' + assessRCLResult + ' | ' + Game.time).toUpperCase();
 
-    // testIfCanSpawn在canSpawn时返回0（表示ok）
-    let testIfCanSpawn = availableSpawn.spawnCreep(creepBody, creepName, { dryRun: true });
-
+    // 注意：testIfCanSpawn在canSpawn时返回0（表示ok）
+    let testIfCanSpawn = Spawn.spawnCreep(creepBody, creepName, { dryRun: true });
     if (!testIfCanSpawn) {
         // Memory构造
         let creepMemory = { 'role': creepRole, 'autoControl': true, 'originalRoomName': this.name, 'ready': false, };
         // 生产
-        availableSpawn.spawnCreep(creepBody, creepName,
-            { memory: creepMemory });
-        // 更新数量
-        ++this.memory.creepNumber[creepRole];
+        if (Spawn.spawnCreep(creepBody, creepName,
+            { memory: creepMemory }) == OK) {
+            // 更新数量
+            ++this.memory.creepNumber[creepRole];
+        }
     }
 };
 

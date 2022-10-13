@@ -34,11 +34,11 @@ export const roleRole_0 = {
             // WRITE YOUR CODE WHEN CREEP IS READY
         }
     }
-}
+};
 
 
 /**
- * 这是添加新角色的模板（稍微复杂点）
+ * 这是添加新角色的模板（target导向）
  */
 export const roleRole_1 = {
     run: function (creep) {
@@ -125,4 +125,4 @@ export const roleRole_1 = {
             }
         }
     }
-}
+};

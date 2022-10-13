@@ -18,7 +18,7 @@ const getConsumer = function () {
         consumer = new SourceMapConsumer(require("main.js.map"));
     }
     return consumer;
-}
+};
 
 // 缓存映射关系以提高性能
 const cache = {};
@@ -78,7 +78,7 @@ const sourceMappedStackTrace = function (error) {
 
     cache[stack] = outStack;
     return outStack;
-}
+};
 
 /**
  * 错误追踪包装器
@@ -87,7 +87,7 @@ const sourceMappedStackTrace = function (error) {
  *
  * @param next 玩家代码
  */
-export const errorMapper = function (next) {
+export const ErrorMapper = function (next) {
     return () => {
         try {
             // 执行玩家代码
@@ -108,4 +108,4 @@ export const errorMapper = function (next) {
             }
         }
     }
-}
+};
