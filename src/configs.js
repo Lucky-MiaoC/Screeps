@@ -49,7 +49,7 @@ const creepRoleSetting = [...baseRoles, ...warRoles, ...remoteRoles];
 const creepNumberSetting = {
     'W59N37': {
         // baseRoles
-        'harvester': 2, 'filler': 1, 'upgrader': 1, 'builder': 1, 'centercarrier': 1, 'miner': 0,
+        'harvester': 2, 'filler': 2, 'upgrader': 1, 'builder': 2, 'centercarrier': 1, 'miner': 0,
         // warRoles
         // remoteRoles
     },
@@ -61,7 +61,7 @@ const creepNumberSetting = {
     },
     'W19N59': {
         // baseRoles
-        'harvester': 6, 'filler': 1, 'upgrader': 7, 'builder': 2, 'centercarrier': 0, 'miner': 0,
+        'harvester': 2, 'filler': 1, 'upgrader': 9, 'builder': 2, 'centercarrier': 0, 'miner': 0,
         // warRoles
         // remoteRoles
     },

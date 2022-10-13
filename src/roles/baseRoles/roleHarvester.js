@@ -25,69 +25,91 @@ export const roleHarvester = {
             // creep.memory.sourceId = null;
         }
 
-        // harvester特殊，需要先获取creep.memory.sourceId，从而定位target，并且不清除creep.memory.sourceId
-        // 这段代码先这样写着，以后可能会改来让风格统一
+        // harvester特殊，需要先获取source，才能定位target，并且不清除creep.memory.sourceId
         if (!creep.memory.sourceId) {
-            creep.memory.sourceId = creep.pos.findClosestByRange(_.filter(creep.room.source, (source) => {
-                return creep.room.memory.sourceInfo[source.id] == 'unreserved';
-            })).id;
-            creep.room.memory.sourceInfo[creep.memory.sourceId] = 'reserved';
+            // 获取source
+            let source = creep.chooseSource();
+
+            // 验证source
+            if (!source) { return undefined; }
+
+            // 缓存source
+            creep.memory.sourceId = source.id;
+            creep.room.memory.sourceInfo[source.id].push(creep.name);
         }
+
+        // 获取source缓存，不需要再验证缓存，不需要再获取source，不需要再缓存source
+        let source = Game.getObjectById(creep.memory.sourceId);
 
         // 获取target缓存
         let target = Game.getObjectById(creep.memory.targetId);
 
         // 验证target缓存
-        if (!target || target.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
+        if (!target || (target instanceof Structure && target.store.getFreeCapacity(RESOURCE_ENERGY) == 0)) {
+            // 更新建筑缓存，极端情况未更新建筑缓存creep死去，清理死亡creep内存时进行检查
+            if (creep.memory.targetPos) {
+                let pos = new RoomPosition(creep.memory.targetPos.x, creep.memory.targetPos.y, creep.memory.targetPos.roomName);
+                let newStructure = _.filter(pos.lookFor(LOOK_STRUCTURES), (structure) => {
+                    return structure.structureType == STRUCTURE_CONTAINER || structure.structureType == STRUCTURE_LINK;
+                })[0];
+                if (newStructure && !creep.room[newStructure.structureType].includes(newStructure)) {
+                    creep.room.updateStructureIndex(newStructure.structureType);
+                }
+                delete creep.memory.targetPos;
+            }
             target = null;
             creep.memory.targetId = null;
         }
 
         // 获取target
-        target = target || _.filter(Game.getObjectById(creep.memory.sourceId).pos.findInRange(creep.room.sourceLink, 2), (link) => {
-            return link.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-        })[0]
-            || _.filter(Game.getObjectById(creep.memory.sourceId).pos.findInRange(creep.room.sourceContainer, 2), (container) => {
-                return container.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+        target = target
+            || _.filter(source.pos.findInRange(creep.room.sourceLink, 2), (link) => {
+                return link.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
             })[0]
-            || ((Game.getObjectById(creep.memory.sourceId).pos.findInRange(creep.room.sourceLink, 2).length ||
-                Game.getObjectById(creep.memory.sourceId).pos.findInRange(creep.room.sourceContainer, 2).length) ? null :
-                creep.pos.findClosestByPath(_.filter(creep.room.spawn.concat(creep.room.extension), (i) => {
-                    return i.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-                })));
+            || _.filter(source.pos.findInRange(creep.room.sourceContainer, 2), (container) => {
+                return container.store.getFreeCapacity() > 0;
+            })[0]
+            || ((source.pos.findInRange(FIND_CONSTRUCTION_SITES, 2, {
+                filter: (constructionSite) => {
+                    return constructionSite.structureType == STRUCTURE_CONTAINER || constructionSite.structureType == STRUCTURE_LINK;
+                }
+            })))[0];
 
         // 验证target
-        if (!target) { return undefined; }
+        if (!target) {
+            return undefined;
+        }
 
         // 缓存target
         if (!creep.memory.targetId) {
             creep.memory.targetId = target.id;
+            if (target instanceof ConstructionSite) {
+                creep.memory.targetPos = target.pos;
+            }
         }
 
         // 工作逻辑代码
         if (!creep.memory.ready) {
             // 获取source缓存
-            let source = Game.getObjectById(creep.memory.sourceId);
+            // let source = Game.getObjectById(creep.memory.sourceId);
 
             // 验证source缓存
-            // Harvester的source属于必定存在、条件不足也不会更换的对象，因此可以省略验证缓存部分，将条件判断放到source交互去
             // if (!source) {
             //     source = null;
             //     // creep.memory.sourceId = null;
             // }
 
             // 获取source
-            // source = source || creep.pos.findClosestByRange(_.filter(creep.room.source, (source) => {
-            //     return creep.room.memory.sourceInfo[source.id] == 'unreserved';
+            // source = source || creep.chooseSource();
             // }));
 
             // 验证source
-            if (!source) { return undefined; }
+            // if (!source) { return undefined; }
 
             // 缓存source
             // if (!creep.memory.sourceId) {
             //     creep.memory.sourceId = source.id;
-            //     creep.room.memory.sourceInfo[source.id] = 'reserved';
+            //     creep.room.memory.sourceInfo[source.id].push(creep.name);
             // }
 
             // source交互
@@ -96,12 +118,24 @@ export const roleHarvester = {
                     creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
                 }
             }
+            else {
+                if (creep.store[RESOURCE_ENERGY] > 0) {
+                    creep.memory.ready = true;
+                }
+            }
         }
         else {
             // target交互
-            if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+            if (target instanceof Structure) {
+                if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+                }
+            }
+            else if (target instanceof ConstructionSite) {
+                if (creep.build(target) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+                }
             }
         }
     }
-}
+};

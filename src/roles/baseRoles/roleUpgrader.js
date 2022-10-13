@@ -4,7 +4,7 @@ export const roleUpgrader = {
         if (creep.spawning) { return undefined; }
 
         // 快死的时候趁着身上没资源赶紧死，否则浪费资源
-        if (creep.ticksToLive < 20 && creep.store.getUsedCapacity() == 0) {
+        if (creep.ticksToLive < 30 && creep.store.getUsedCapacity() == 0) {
             creep.suicide();
             return undefined;
         }
@@ -20,7 +20,7 @@ export const roleUpgrader = {
             creep.memory.ready = false;
             // creep.memory.targetId = null;
         }
-        if (!creep.memory.ready && creep.store.getFreeCapacity() == 0) {
+        if (!creep.memory.ready && creep.store.getUsedCapacity() > 0) {
             creep.memory.ready = true;
             creep.memory.sourceId = null;
         }
@@ -29,7 +29,6 @@ export const roleUpgrader = {
         let target = Game.getObjectById(creep.memory.targetId);
 
         // 验证target缓存
-        // Upgrader的target属于必定存在、条件不足也不会更换的对象，因此可以省略验证缓存部分
         // if (!target) {
         //     target = null;
         //     creep.memory.targetId = null;
@@ -39,7 +38,7 @@ export const roleUpgrader = {
         target = target || creep.room.controller;
 
         // 验证target
-        if (!target) { return undefined; }
+        // if (!target) { return undefined; }
 
         // 缓存target
         if (!creep.memory.targetId) {
@@ -52,22 +51,18 @@ export const roleUpgrader = {
             let source = Game.getObjectById(creep.memory.sourceId);
 
             // 验证source缓存
-            if (!source || (source instanceof Structure && source.store[RESOURCE_ENERGY] == 0)
-                || (source instanceof Source && source.energy == 0)) {
+            if (!source || source.store[RESOURCE_ENERGY] == 0) {
                 source = null;
                 creep.memory.sourceId = null;
             }
 
             // 获取source
-            source = source || ((creep.room.storage && creep.room.storage.store[RESOURCE_ENERGY] >
-                creep.getActiveBodyparts(CARRY) * 50) ? creep.room.storage : null)
+            source = source
+                || ((creep.room.storage && creep.room.storage.store[RESOURCE_ENERGY] >
+                    2000) ? creep.room.storage : null)
                 || ((creep.room.terminal && creep.room.terminal.store[RESOURCE_ENERGY] >
-                    creep.getActiveBodyparts(CARRY) * 50) ? creep.room.terminal : null)
-                || _.sample(_.filter(creep.room.sourceContainer, (container) => {
-                    return container.store[RESOURCE_ENERGY] > 200;
-                }))
-                || ((creep.room.controller > 3 && (creep.room.sourceContainer.length || creep.room.sourceLink.length))
-                    ? null : creep.room.chooseSourceByFreeSpaceWeight());
+                    2000) ? creep.room.terminal : null)
+                || creep.chooseSourceContainer(500);
 
             // 验证source
             if (!source) { return undefined; }
@@ -78,15 +73,8 @@ export const roleUpgrader = {
             }
 
             // source交互
-            if (source instanceof Source) {
-                if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
-                }
-            }
-            else {
-                if (creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
-                }
+            if (creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
             }
         }
         else {
@@ -96,4 +84,4 @@ export const roleUpgrader = {
             }
         }
     }
-}
+};

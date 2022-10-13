@@ -10,29 +10,19 @@ Room.prototype.judgeIfCreepNeedSpawn = function (creepRole) {
     switch (creepRole) {
         // harvester一直都需要生产
         case "harvester": { return true; }
-        // upgrader一直都需要生产
-        case "upgrader": { return true; }
+        // upgrader只有在有[storage或者terminal或者sourceContainer]时才需要生产
+        case "upgrader": { return (this.storage || this.terminal || this.sourceContainer.length) ? true : false; }
         // filler只有在有[storage或者terminal或者sourceContainer]时才需要生产
         case "filler": { return (this.storage || this.terminal || this.sourceContainer.length) ? true : false; }
-        // collecter只有在同时有[storage或者terminal或者factory]和[sourceContainer或者mineralContainer]
-        // 同时[storage或者terminal或者factory]有空余，mineralContainer快满了时才需要生产
-        case "collecter": {
-            let freeCapacity = (this.storage ? this.storage.store.getFreeCapacity() : 0) +
-                (this.terminal ? this.terminal.store.getFreeCapacity() : 0) +
-                (this.factory ? this.factory.store.getFreeCapacity() : 0);
-            return (freeCapacity > 200000 && (this.sourceContainer.length ||
-                (this.mineralContainer.length && this.mineralContainer[0].store.getFreeCapacity() < 200))) ? true : false;
-        }
-        // centercarrier只有在有[storage或者terminal或者factory]和[centerLink]和[集群中心时]才需要生产
+        // centercarrier只有在有[storage或者terminal]和[centerLink]和[集群中心时]才需要生产
         case "centercarrier": {
-            return ((this.storage || this.terminal || this.factory) &&
+            return ((this.storage || this.terminal) &&
                 this.centerLink.length && configs.centerPoint[this.name]) ? true : false;
         }
-        // miner只有在有[Extractor和mineralContainer]同时[storage或者terminal或者factory]有空余且[矿余量不为0]时才会生产
+        // miner只有在有[Extractor和mineralContainer]同时[storage或者terminal]有空余且[矿余量不为0]时才会生产
         case "miner": {
             let freeCapacity = (this.storage ? this.storage.store.getFreeCapacity() : 0) +
-                (this.terminal ? this.terminal.store.getFreeCapacity() : 0) +
-                (this.factory ? this.factory.store.getFreeCapacity() : 0);
+                (this.terminal ? this.terminal.store.getFreeCapacity() : 0);
             return (this.extractor && this.mineralContainer.length && freeCapacity > 200000 &&
                 this.mineral.mineralAmount > 0) ? true : false;
         }
@@ -41,18 +31,22 @@ Room.prototype.judgeIfCreepNeedSpawn = function (creepRole) {
         // 其他角色一律放行
         default: { return true; }
     }
-}
+};
 
 /**
- * 扫描房间是否有建筑工地或者Wall、Rampart是否要维修
+ * 扫描房间是否需要builder工作
  *
  * @returns {boolean} 返回true或者false
  */
 Room.prototype.ifNeedBuilderWork = function () {
-    // 当同时有storage和terminal时说明是稳定的后期，后期保留至少100k能量，防止刷墙、刷门把能量花光
-    // 没有storage或terminal说明是前期或被打了的紧急时期，前期靠sourceContainer和Source直接挖，紧急时期也不需要保留能量
+    // 不存在任何能量来源时不出builder
+    if (!this.storage && !this.terminal && !this.container.length) {
+        return false;
+    }
+
+    // 当同时有storage和terminal时保留至少50k能量，防止刷墙、刷门把能量花光
     if (this.storage && this.terminal &&
-        this.storage.store[RESOURCE_ENERGY] + this.terminal.store[RESOURCE_ENERGY] < 100000) {
+        this.storage.store[RESOURCE_ENERGY] + this.terminal.store[RESOURCE_ENERGY] < 50000) {
         return false;
     }
 
@@ -77,4 +71,39 @@ Room.prototype.ifNeedBuilderWork = function () {
 
     // 存在工地或者有符合的建筑（血量低于设定的Wall、Rampart）
     return targetFlag;
+};
+
+/**
+ * 自动设定creep数量，待完成
+ *
+ * @param {string} creepRole 角色类型
+ * @returns {number} 返回对应角色应该生产的数量
+ */
+Room.prototype.getCreepNumberSetting = function (creepRole) {
+    switch (creepRole) {
+        // harvester数量在RCL_1且没建成Container时与矿开采位数量有关，后续则始终为矿的数量
+        case "harvester": {
+            return (this.controller.level <= 2 && this.sourceContainer.length < this.source.length) ?
+                _.sum(this.source.map((i) => {
+                    let j = i.getFreeSpaceNumber();
+                    return j >= 3 ? 3 : j;
+                })) : this.source.length;
+        }
+        // upgrader数量随着RCL的增加而减少，当有builder存在时，数量直接减半
+        case "upgrader": {
+            return undefined;
+        }
+        // filler??
+        case "filler": {
+            return undefined;
+        }
+        // centercarrier数量一般为1
+        case "centercarrier": { return 1; }
+        // miner数量一般为1
+        case "miner": { return 1; }
+        // builder数量一般为2
+        case "builder": { return 2; }
+        // 其他角色数量一律为0
+        default: { return 0; }
+    }
 }

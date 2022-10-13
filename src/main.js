@@ -106,7 +106,7 @@ module.exports.loop = ErrorMapper(() => {
             towerWork.work(room);
             linkWork.work(room);
             labWork.work(room);
-            // PowerSpawn、Nuker、Observer、Factory是个体工作，因此使用原型拓展比较好
+            // PowerSpawn、Nuker、Observer、Factory是个体工作，并且需要实现手操，因此使用原型拓展比较好
             if (room.powerSpawn) { room.powerSpawn.work(); }
             if (room.factory) { room.factory.work(); }
             if (room.observer) { room.observer.work(); }

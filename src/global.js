@@ -119,7 +119,7 @@ global.judgeIfStructureNeedTowerWork = function (structure) {
         default:
             return structure.hits < structure.hitsMax ? true : false;
     }
-}
+};
 
 /**
  * 判断建筑是否需要builder维修
@@ -195,7 +195,7 @@ global.judgeIfStructureNeedBuilderWork = function (structure, flag) {
                 case 2: return true;
             }
     }
-}
+};
 
 /**
  * 在内存中更新 RCL、GCL、GPL 使用情况和当前 CPU、bucket 使用情况
@@ -248,7 +248,7 @@ global.showStateScannerInfo = function () {
     else {
         console.log('暂时还没收集到 RCL、GCL、GPL 使用情况和当前 CPU、bucket 使用情况，请等待一段时间后重试！');
     }
-}
+};
 
 /**
  * 杀死所有creep！该命令风险极高！需要手动更改false为true！
@@ -266,7 +266,7 @@ global.killAllMyCreeps = function (confirmation = false) {
     else {
         console.log('杀死所有creep失败！请手动将参数修改为true以确认操作！');
     }
-}
+};
 
 /**
  * 内存初始化函数
@@ -293,7 +293,6 @@ global.memoryInitialization = function () {
         console.log("已存在Creep将无法执行工作！");
     }
 
-
     // 针对每个房间执行内存初始化
     Object.values(Game.rooms).forEach((room) => {
         if (room.controller && room.controller.my) {
@@ -303,11 +302,18 @@ global.memoryInitialization = function () {
             room.memory.period.warOfSelfDefence = false;
             room.memory.period.warOfRevolution = false;
 
+            // 初始化建筑内存
+            room.memory.structure = {
+                'powerSpawn': false,
+                'factory': null,
+                'tower': { 'attack': null, 'repair': [] },
+            };
+
             // 初始化source信息
             room.memory.sourceInfo = {};
             room.source.forEach((i) => {
                 room.memory.sourceInfo[i.id] = [];
-            })
+            });
 
             // 初始化creep数量
             room.memory.creepNumber = {};

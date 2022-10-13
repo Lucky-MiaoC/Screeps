@@ -4,7 +4,7 @@ export const roleBuilder = {
         if (creep.spawning) { return undefined; }
 
         // 快死的时候趁着身上没资源赶紧死，否则浪费资源
-        if (creep.ticksToLive < 50 && creep.store.getUsedCapacity() == 0) {
+        if (creep.ticksToLive < 30 && creep.store.getUsedCapacity() == 0) {
             creep.suicide();
             return undefined;
         }
@@ -20,7 +20,7 @@ export const roleBuilder = {
             creep.memory.ready = false;
             creep.memory.targetId = null;
         }
-        if (!creep.memory.ready && creep.store.getFreeCapacity() == 0) {
+        if (!creep.memory.ready && creep.store.getUsedCapacity() > 0) {
             creep.memory.ready = true;
             creep.memory.sourceId = null;
         }
@@ -29,16 +29,15 @@ export const roleBuilder = {
         let target = Game.getObjectById(creep.memory.targetId);
 
         // 验证target缓存
-        if (!target ||
-            (target instanceof Structure && judgeIfStructureNeedBuilderWork(target, 2))) {
-            // 刷新建筑缓存，极端情况未刷新建筑缓存creep死去，清理死亡creep内存方法里会有检查
+        if (!target || (target instanceof Structure && judgeIfStructureNeedBuilderWork(target, 2))) {
+            // 更新建筑缓存，极端情况未更新建筑缓存creep死去，清理死亡creep内存时进行检查
             if (creep.memory.targetPos) {
                 let pos = new RoomPosition(creep.memory.targetPos.x, creep.memory.targetPos.y, creep.memory.targetPos.roomName);
                 let newStructure = pos.lookFor(LOOK_STRUCTURES);
                 if (newStructure.length) {
                     newStructure.forEach((i) => {
                         if (!creep.room[i.structureType] ||
-                            (creep.room[i.structureType].length && !creep.room[i.structureType].includes(i))) {
+                            (creep.room[i.structureType] instanceof Array && !creep.room[i.structureType].includes(i))) {
                             creep.room.updateStructureIndex(i.structureType);
                         }
                     })
@@ -50,7 +49,7 @@ export const roleBuilder = {
         }
 
         // 获取target
-        // 自卫战争时期紧急修墙，停止工地建设，找血量最低的需要维修的Wall、Rampart
+        // 自卫战争时期紧急修墙，停止工地建设，找血量最低的需要维修的Wall、Rampart，多余能量拿去升级
         if (creep.room.memory.period.warOfSelfDefence) {
             target = target || creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {
@@ -60,9 +59,9 @@ export const roleBuilder = {
                 }
             }).sort((i, j) => {
                 return i.hits - j.hits;
-            })[0];
+            })[0] || (creep.store[RESOURCE_ENERGY] > 0 ? creep.room.controller : null);
         }
-        // 非自卫战争时期先找建筑工地，再找最近的需要维修的Wall、Rampart
+        // 非自卫战争时期先找建筑工地，再找最近的需要维修的Wall、Rampart，多余能量拿去升级
         else {
             target = target || creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES) ||
                 creep.pos.findClosestByRange(FIND_STRUCTURES, {
@@ -71,7 +70,7 @@ export const roleBuilder = {
                             || structure.structureType == STRUCTURE_CONTAINER)
                             && judgeIfStructureNeedBuilderWork(structure, 1);
                     }
-                });
+                }) || (creep.store[RESOURCE_ENERGY] > 0 ? creep.room.controller : null);
         }
 
         // 验证target
@@ -91,22 +90,18 @@ export const roleBuilder = {
             let source = Game.getObjectById(creep.memory.sourceId);
 
             // 验证source缓存
-            if (!source || (source instanceof Structure && source.store[RESOURCE_ENERGY] == 0)
-                || (source instanceof Source && source.energy == 0)) {
+            if (!source || (source instanceof Structure && source.store[RESOURCE_ENERGY] == 0)) {
                 source = null;
                 creep.memory.sourceId = null;
             }
 
             // 获取source
-            source = source || ((creep.room.storage && creep.room.storage.store[RESOURCE_ENERGY] >
-                50000) ? creep.room.storage : null)
+            source = source
+                || ((creep.room.storage && creep.room.storage.store[RESOURCE_ENERGY] >
+                    2000) ? creep.room.storage : null)
                 || ((creep.room.terminal && creep.room.terminal.store[RESOURCE_ENERGY] >
-                    50000) ? creep.room.terminal : null)
-                || _.sample(_.filter(creep.room.sourceContainer, (container) => {
-                    return container.store[RESOURCE_ENERGY] > 250;
-                }))
-                || ((creep.room.controller > 3 && (creep.room.sourceContainer.length || creep.room.sourceLink.length))
-                    ? null : creep.room.chooseSourceByFreeSpaceWeight());
+                    2000) ? creep.room.terminal : null)
+                || creep.chooseSourceContainer(500);
 
             // 验证source
             if (!source) { return undefined; }
@@ -117,15 +112,8 @@ export const roleBuilder = {
             }
 
             // source交互
-            if (source instanceof Source) {
-                if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
-                }
-            }
-            else {
-                if (creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
-                }
+            if (creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
             }
         }
         else {
@@ -135,11 +123,16 @@ export const roleBuilder = {
                     creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
                 }
             }
-            else {
+            else if (target instanceof Structure) {
                 if (creep.repair(target) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+                }
+            }
+            else {
+                if (creep.upgradeController(target) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
                 }
             }
         }
     }
-}
+};
