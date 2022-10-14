@@ -269,65 +269,52 @@ global.killAllMyCreeps = function (confirmation = false) {
 };
 
 /**
- * 内存初始化函数
+ * creep内存初始化
  */
-global.memoryInitialization = function () {
+global.creepMemoryInitialization = function () {
     // 对已存在的creep进行内存初始化，依赖已存在creep的名称
-    try {
-        console.log("Creep内存初始化开始...");
-        Object.keys(Game.creeps).forEach((creepName) => {
-            let creepInfo = creepName.toLowerCase().split(' | ');
-            let creepMemory =
-            {
-                'role': creepInfo[0],
-                'autoControl': true,
-                'originalRoomName': creepInfo[1].toUpperCase(),
-                'ready': Game.creeps[creepName].store.getUsedCapacity() > 0 ? true : false,
-            };
-            Game.creeps[creepName].memory = creepMemory;
-        })
-        console.log("Creep内存初始化完成！");
-    }
-    catch {
-        console.log("Creep内存初始化失败！可能是Creep名称格式不符！");
-        console.log("已存在Creep将无法执行工作！");
-    }
+    Object.keys(Game.creeps).forEach((creepName) => {
+        let creepInfo = creepName.replace(/\s*/g, "").split('|');
+        let creepMemory =
+        {
+            'role': creepInfo[0].toLowerCase(),
+            'autoControl': true,
+            'originalRoomName': creepInfo[1],
+            'ready': Game.creeps[creepName].store.getUsedCapacity() > 0 ? true : false,
+        };
+        Game.creeps[creepName].memory = creepMemory;
+    });
+};
 
-    // 针对每个房间执行内存初始化
-    Object.values(Game.rooms).forEach((room) => {
-        if (room.controller && room.controller.my) {
-            console.log(`Room：${room.name} 内存初始化开始...`);
-            // 初始化战争时期标志，分为自卫战争和革命战争，自卫战争被动、革命战争主动
-            room.memory.period = {};
-            room.memory.period.warOfSelfDefence = false;
-            room.memory.period.warOfRevolution = false;
+/**
+ * room内存初始化
+ */
+global.roomMemoryInitialization = function (room) {
+    // 初始化战争时期标志，分为自卫战争和革命战争，自卫战争被动、革命战争主动
+    room.memory.period = {};
+    room.memory.period.warOfSelfDefence = false;
+    room.memory.period.warOfRevolution = false;
 
-            // 初始化建筑内存
-            room.memory.structure = {
-                'powerSpawn': false,
-                'factory': null,
-                'tower': { 'attack': null, 'repair': [] },
-            };
+    // 初始化建筑内存
+    room.memory.structure = {
+        'powerSpawn': false,
+        'factory': null,
+        'tower': { 'attack': null, 'repair': [] },
+    };
 
-            // 初始化source信息
-            room.memory.sourceInfo = {};
-            room.source.forEach((i) => {
-                room.memory.sourceInfo[i.id] = [];
-            });
-
-            // 初始化creep数量
-            room.memory.creepNumber = {};
-            configs.creepRoleSetting.forEach((i) => {
-                room.memory.creepNumber[i] = _.filter(Game.creeps, (creep) => {
-                    // 根据creep.memory.originalRoomName来判定归属房间，没有该属性则根据所处房间进行判定
-                    return (creep.memory.originalRoomName ? creep.memory.originalRoomName == room.name :
-                        creep.room == room) && creep.memory.role == i;
-                }).length;
-            });
-            console.log(`Room：${room.name} 内存初始化完成！`);
-        }
+    // 初始化source信息
+    room.memory.sourceInfo = {};
+    room.source.forEach((i) => {
+        room.memory.sourceInfo[i.id] = [];
     });
 
-    // 初始化游戏状态扫描相关内存
-    Memory.stats = {};
+    // 初始化creep数量
+    room.memory.creepNumber = {};
+    configs.creepRoleSetting.forEach((i) => {
+        room.memory.creepNumber[i] = _.filter(Game.creeps, (creep) => {
+            // 根据creep.memory.originalRoomName来判定归属房间，没有该属性则根据所处房间进行判定
+            return (creep.memory.originalRoomName ? creep.memory.originalRoomName == room.name :
+                creep.room == room) && creep.memory.role == i;
+        }).length;
+    });
 };

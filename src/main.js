@@ -41,7 +41,9 @@ import { roleMiner } from "./roles/baseRoles/roleMiner";
 // 设置初始化的相关标志位
 let doNotClearMyMemory = false;
 let doNotInitializeMyStructureIndex = false;
-let doNotInitializeMyMemory = false;
+let doNotInitializeMyCreepMemory = false;
+let doNotInitializeMyRoomMemory = {};
+let doNotInitializeMyGameStatsMemory = false;
 
 // 注意：全局重启时将清空内存
 // 注意：测试房间sim会不停的全局重启，因此无法将代码部署到测试房间sim
@@ -71,13 +73,39 @@ module.exports.loop = ErrorMapper(() => {
         console.log("建筑索引初始化完成！");
     }
 
-    // 内存初始化
+    // creep内存初始化
+    // 注意：creep内存初始化依赖已存在creep的名称，请先保证creep名称符合格式
+    if (!doNotInitializeMyCreepMemory) {
+        console.log("Creep内存初始化开始...");
+        try {
+            global.creepMemoryInitialization();
+            console.log("Creep内存初始化完成！");
+        }
+        catch {
+            console.log("Creep内存初始化失败！可能是Creep名称格式不符！");
+            console.log("已存在Creep将无法执行工作！");
+        }
+    }
+
+    // room内存初始化
     // 注意：内存初始化需要依赖建筑索引初始化，请保证先执行建筑索引初始化
-    if (!doNotInitializeMyMemory) {
-        console.log("内存初始化开始...");
-        global.memoryInitialization();
-        doNotInitializeMyMemory = true;
-        console.log("内存初始化完成！");
+    // 提醒：内存初始化在每次扩张房间时需要初始化一次，不像其他内存只需要在全局重启的时候初始化一次
+    Object.values(Game.rooms).forEach((room) => {
+        if (room.controller && room.controller.my) {
+            if (!doNotInitializeMyRoomMemory[room.name]) {
+                console.log(`Room：${room.name} 内存初始化开始...`);
+                global.roomMemoryInitialization(room);
+                doNotInitializeMyRoomMemory[room.name] = true;
+                console.log(`Room：${room.name} 内存初始化完成！`);
+            }
+        }
+    });
+
+    // 初始化游戏状态扫描相关内存
+    if (!doNotInitializeMyGameStatsMemory) {
+        console.log("游戏状态扫描相关内存初始化开始...");
+        Memory.stats = {};
+        console.log("游戏状态扫描相关内存初始化完成！");
     }
 
     // 利用空闲cpu获取pixel
@@ -86,7 +114,7 @@ module.exports.loop = ErrorMapper(() => {
         console.log("tick：" + Game.time + "获取了一点pixel！");
     }
 
-    // 房间运营
+    // 房间运维
     Object.values(Game.rooms).forEach((room) => {
         // 判断属于自己的房间，注意需要先判断room.controller，因为过道没有controller，不判断将导致过道有视野时报错
         if (room.controller && room.controller.my) {
