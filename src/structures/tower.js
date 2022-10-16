@@ -23,6 +23,12 @@ export const towerWork = {
                 return undefined;
             }
 
+            // 日常维护及战后维修留一半能量以防万一，无可用tower直接返回
+            let usableTowers = _.filter(room.tower, (tower) => {
+                return tower.store[RESOURCE_ENERGY] > 500;
+            })
+            if (!usableTowers.length) { return undefined; }
+
             // 由于需要修复的建筑列表是50tick扫描一次，所以每tick需要对该列表进行清洗，除去建筑不在了的，除去修好不需要再修的
             _.remove(room.memory.structures.tower['repair'], (structureId) => {
                 return (!Game.getObjectById(structureId) ||
@@ -34,12 +40,8 @@ export const towerWork = {
             });
 
             let workingTowerId = [];
-            let usableTowers = _.filter(room.tower, (tower) => {
-                return tower.store[RESOURCE_ENERGY] > 500;
-            })
-            if (!usableTowers.length) { return undefined; }
 
-            // 日常维护及战后维修留一半能量以防万一，从距离最近的修起
+            // structure主导，每个建筑一次只需要一个tower来修，优点：节约能量，缺点：修理时间更长
             for (let structure of DamagedStructures) {
                 let closestTower = structure.pos.findClosestByRange(usableTowers);
                 closestTower.repair(structure);
@@ -48,6 +50,12 @@ export const towerWork = {
                     return undefined;
                 }
             }
+
+            // tower主导，每个建筑一次由所有tower来修，缺点：浪费能量，优点：修理时间更短
+            // usableTowers.forEach((tower) => {
+            //     let closestDamagedStructure = tower.pos.findClosestByRange(DamagedStructures);
+            //     tower.repair(closestDamagedStructure);
+            // });
         }
         // 自卫战争时期，所有塔按照敌方creep的bodypart的构成以及射杀优先级集火射杀敌方creep
         // 射杀优先级[CLAIM, WORK, RANGED_ATTACK, ATTACK, HEAL]排名越靠前数量越多越优先射杀
