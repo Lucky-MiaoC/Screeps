@@ -29,21 +29,7 @@ export const roleBuilder = {
         let target = Game.getObjectById(creep.memory.targetId);
 
         // 验证target缓存
-        if (!target || (target instanceof Structure && judgeIfStructureNeedBuilderWork(target, 2))) {
-            // 更新建筑缓存，极端情况未更新建筑缓存creep死去，清理死亡creep内存时进行检查
-            if (creep.memory.targetPos) {
-                let pos = new RoomPosition(creep.memory.targetPos.x, creep.memory.targetPos.y, creep.memory.targetPos.roomName);
-                let newStructure = pos.lookFor(LOOK_STRUCTURES);
-                if (newStructure.length) {
-                    newStructure.forEach((i) => {
-                        if (!creep.room[i.structureType] ||
-                            (creep.room[i.structureType] instanceof Array && !creep.room[i.structureType].includes(i))) {
-                            creep.room.updateStructureIndex(i.structureType);
-                        }
-                    })
-                }
-                delete creep.memory.targetPos;
-            }
+        if (!target || (target instanceof Structure && judgeIfStructureNeedBuilderRepair(target, 2))) {
             target = null;
             creep.memory.targetId = null;
         }
@@ -55,7 +41,7 @@ export const roleBuilder = {
                 filter: (structure) => {
                     return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
                         || structure.structureType == STRUCTURE_CONTAINER)
-                        && judgeIfStructureNeedBuilderWork(structure, 1);
+                        && judgeIfStructureNeedBuilderRepair(structure, 1);
                 }
             }).sort((i, j) => {
                 return i.hits - j.hits;
@@ -68,7 +54,7 @@ export const roleBuilder = {
                     filter: (structure) => {
                         return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
                             || structure.structureType == STRUCTURE_CONTAINER)
-                            && judgeIfStructureNeedBuilderWork(structure, 1);
+                            && judgeIfStructureNeedBuilderRepair(structure, 1);
                     }
                 }) || (creep.store[RESOURCE_ENERGY] > 0 ? creep.room.controller : null);
         }
@@ -79,9 +65,6 @@ export const roleBuilder = {
         // 缓存target
         if (!creep.memory.targetId) {
             creep.memory.targetId = target.id;
-            if (target instanceof ConstructionSite) {
-                creep.memory.targetPos = target.pos;
-            }
         }
 
         // 工作逻辑代码

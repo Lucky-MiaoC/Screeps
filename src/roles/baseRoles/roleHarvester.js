@@ -46,17 +46,6 @@ export const roleHarvester = {
 
         // 验证target缓存
         if (!target || (target instanceof Structure && target.store.getFreeCapacity(RESOURCE_ENERGY) == 0)) {
-            // 更新建筑缓存，极端情况未更新建筑缓存creep死去，清理死亡creep内存时进行检查
-            if (creep.memory.targetPos) {
-                let pos = new RoomPosition(creep.memory.targetPos.x, creep.memory.targetPos.y, creep.memory.targetPos.roomName);
-                let newStructure = _.filter(pos.lookFor(LOOK_STRUCTURES), (structure) => {
-                    return structure.structureType == STRUCTURE_CONTAINER || structure.structureType == STRUCTURE_LINK;
-                })[0];
-                if (newStructure && !creep.room[newStructure.structureType].includes(newStructure)) {
-                    creep.room.updateStructureIndex(newStructure.structureType);
-                }
-                delete creep.memory.targetPos;
-            }
             target = null;
             creep.memory.targetId = null;
         }
@@ -83,9 +72,6 @@ export const roleHarvester = {
         // 缓存target
         if (!creep.memory.targetId) {
             creep.memory.targetId = target.id;
-            if (target instanceof ConstructionSite) {
-                creep.memory.targetPos = target.pos;
-            }
         }
 
         // 工作逻辑代码
@@ -127,8 +113,15 @@ export const roleHarvester = {
         else {
             // target交互
             if (target instanceof Structure) {
-                if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+                if (target instanceof StructureContainer && target.hits / target.hitsMax < 0.8) {
+                    if (creep.repair(target) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+                    }
+                }
+                else {
+                    if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+                    }
                 }
             }
             else if (target instanceof ConstructionSite) {

@@ -51,6 +51,7 @@
  *  复数建筑不存在时返回[]，唯一建筑不存在时返回undefined
  *  linkList系列、containerList系列、rampart系列均返回[]（视为复数建筑）
  *  拆除建筑会自动移除缓存，新建筑用room.update()更新缓存，不主动调用room.update()则不会识别新建筑
+ *  更新：游戏循环中调用global.autoUpdateStructureIndex()可以自动更新新建筑索引
  *
  *  建筑id缓存在global.structureIndex上，当访问room.*时，实际上是获取缓存里的对应id再转为对象（数组）返回
  *  更新时实际是更新global.structureIndex上的缓存内容
@@ -406,7 +407,7 @@ rampartList.forEach((type) => {
 })
 
 /**
- * 更新建筑列表
+ * 更新建筑索引
  *
  * @param {string | undefined} type STRUCTURE_*系列
  */
@@ -532,3 +533,63 @@ Room.prototype.updateStructureIndex = function (type = undefined) {
         }
     }
 }
+
+// 上一tick的建筑工地信息（id，位置，类型）
+global.previousConstructionSitesInfo = {};
+
+/**
+ * 自动更新建筑索引（针对所有房间）
+ */
+global.autoUpdateStructureIndex = function () {
+    // 上一tick的建筑工地id序列
+    let previousConstructionSitesIds = Object.keys(global.previousConstructionSitesInfo);
+    // 这一tick的建筑工地id序列
+    let currentConstructionSitesIds = Object.keys(Game.constructionSites);
+    // 需要自动更新的建筑信息（房间以及类型均相同的话只更新一次建筑索引）
+    let autoUpdateInfo = {};
+
+    if (previousConstructionSitesIds.length) {
+        // 上一tick有的这一tick没有的建筑工地id序列
+        let _constructionSitesIds = _.filter(previousConstructionSitesIds, (id) => {
+            return !currentConstructionSitesIds.includes(id);
+        });
+
+        // 确定对应建筑工地是否变成了建筑
+        _constructionSitesIds.forEach((id) => {
+            let structure = _.filter(global.previousConstructionSitesInfo[id]['pos'].lookFor(LOOK_STRUCTURES),
+                (structure) => {
+                    return structure.structureType == global.previousConstructionSitesInfo[id]['structureType'];
+                })[0];
+            if (structure) {
+                if (autoUpdateInfo[structure.room.name]) {
+                    autoUpdateInfo[structure.room.name].add(structure.structureType);
+                }
+                else {
+                    autoUpdateInfo[structure.room.name] = new Set([structure.structureType]);
+                }
+            }
+        });
+
+        // 更新建筑缓存
+        Object.keys(updateInfo).forEach((roomName) => {
+            autoUpdateInfo[roomName].forEach((structureType) => {
+                Game.rooms[roomName].updateStructureIndex(structureType);
+            });
+        });
+
+        // 移除已经更新或者不用更新的建筑工地信息
+        _constructionSitesIds.forEach((id) => {
+            delete global.previousConstructionSitesInfo[id];
+        });
+    }
+
+    if (currentConstructionSitesIds.length) {
+        // 缓存新增加的建筑工地信息
+        _.filter(currentConstructionSitesIds, (id) => {
+            return !previousConstructionSitesIds.includes(id);
+        }).forEach((id) => {
+            global.previousConstructionSitesInfo[id] =
+                { 'pos': Game.getObjectById(id).pos, 'structureType': Game.getObjectById(id).structureType };
+        });
+    }
+};
