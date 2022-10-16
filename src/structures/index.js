@@ -1,5 +1,5 @@
 /**
- *  修改自群（565401831）里Scorpior_gh大佬的极致建筑缓存v1.4.3，对代码进行大量额外添加、修改、删除以满足本人需求
+ *  修改自群（565401831）里Scorpior_gh大佬的极致建筑缓存v1.4.3，对代码进行大量额外增添、修改、删除以满足本人需求
  *
  *
  *  命令：
@@ -48,7 +48,8 @@
  *          room.surroundingRampart // 得到surroundingRampart数组
  *
  *  建筑缓存存放在global.structureIndex[room.name]，唯一对象存id, 复数对象存Set([id])
- *  复数建筑不存在时返回[]，唯一建筑不存在时返回undefined，linkList系列、containerList系列均返回[]（视为复数建筑）
+ *  复数建筑不存在时返回[]，唯一建筑不存在时返回undefined
+ *  linkList系列、containerList系列、rampart系列均返回[]（视为复数建筑）
  *  拆除建筑会自动移除缓存，新建筑用room.update()更新缓存，不主动调用room.update()则不会识别新建筑
  *
  *  建筑id缓存在global.structureIndex上，当访问room.*时，实际上是获取缓存里的对应id再转为对象（数组）返回
