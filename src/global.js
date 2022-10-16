@@ -296,10 +296,10 @@ global.roomMemoryInitialization = function (room) {
     room.memory.period.warOfRevolution = false;
 
     // 初始化建筑内存
-    room.memory.structure = {
-        'powerSpawn': false,
-        'factory': null,
+    room.memory.structures = {
         'tower': { 'attack': null, 'repair': [] },
+        'factory': { 'produce': null, 'failTick': false },
+        'powerSpawn': { 'processPower': false, 'failTick': false },
     };
 
     // 初始化source信息
