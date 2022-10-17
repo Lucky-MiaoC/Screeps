@@ -274,6 +274,9 @@ global.roomMemoryInitialization = function (room) {
     // 初始化creep数量
     // 优化：所有房间统一处理creep数量更节约cpu，但考虑代码结构和谐性暂时不予优化
     room.memory.creepNumber = {};
+    configs.creepRoleSetting.forEach((creepRole) => {
+        room.memory.creepNumber[creepRole] = 0;
+    });
     for (let creep of Object.values(Game.creeps)) {
         // 不是本房间的creep不记录
         let originalRoomName = creep.memory.originalRoomName || creep.room.name;
@@ -284,7 +287,6 @@ global.roomMemoryInitialization = function (room) {
         // role不是设定中的role不记录，这种情况发生在手动生产非设定role的creep的时候
         if (!configs.creepRoleSetting.includes(creep.memory.role)) { continue; }
 
-        room.memory.creepNumber[creep.memory.role] = room.memory.creepNumber[creep.memory.role] ?
-            ++room.memory.creepNumber[creep.memory.role] : 1;
+        ++room.memory.creepNumber[creep.memory.role];
     }
 };
