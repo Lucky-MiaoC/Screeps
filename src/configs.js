@@ -1,4 +1,4 @@
-// 玩家白名单
+// 玩家白名单，没有也不会报错，会在内部将其设为空
 const whiteList = {
     // 全局白名单
     'global': ['PandaFlower'],
@@ -8,7 +8,7 @@ const whiteList = {
     'W19N59': [],
 };
 
-// 房间中心点，指导centerCarrier生产工作，没有也不会报错，但是centercarrier无法正常生产工作
+// 房间中心点，指导centerCarrier生产、工作，没有也不会报错，但是centercarrier无法正常生产、工作
 const centerPoint = {
     'W59N37': new RoomPosition(19, 12, 'W59N37'),
     'W59N38': new RoomPosition(41, 12, 'W59N38'),
@@ -19,18 +19,18 @@ const centerPoint = {
 const maxHitsRepairingWallOrRampart = {
     'W59N37': {
         'centerRampart': 12000000,
-        'surroundingRampart': 400000,
-        'constructedWall': 400000
+        'surroundingRampart': 500000,
+        'constructedWall': 500000
     },
     'W59N38': {
-        'centerRampart': 20000,
-        'surroundingRampart': 20000,
+        'centerRampart': 50000,
+        'surroundingRampart': 50000,
         'constructedWall': 20000
     },
     'W19N59': {
-        'centerRampart': 10000,
-        'surroundingRampart': 10000,
-        'constructedWall': 10000
+        'centerRampart': 50000,
+        'surroundingRampart': 50000,
+        'constructedWall': 20000
     },
 };
 
@@ -44,7 +44,7 @@ const remoteRoles = [];
 const creepRoleSetting = [...baseRoles, ...warRoles, ...remoteRoles];
 
 // creep数量设定表
-// 提醒：是否生产某一角色取决于角色数量设定以及该角色是否达到房间生产条件
+// 提醒：是否生产某一角色取决于角色数量设定以及该角色是否达到当前房间生产条件
 // 提醒：为了减少判断生产条件的cpu花费，可以将长期确定不会生产的角色数量设置为0
 const creepNumberSetting = {
     'W59N37': {

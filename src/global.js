@@ -93,7 +93,7 @@ global.judgeIfStructureNeedTowerRepair = function (structure) {
             }
 
             if (rampartType == 'centerRampart') {
-                let hitsSetting = configs.maxHitsRepairingWallOrRampart[structure.room.name][rampartType] || 0;
+                let hitsSetting = configs?.maxHitsRepairingWallOrRampart?.[structure.room.name]?.[rampartType] || 0;
                 return (structure.hits < 1500 || (structure.hits >= hitsSetting - 5000 &&
                     structure.hits < hitsSetting)) ? true : false;
             }
@@ -121,7 +121,7 @@ global.judgeIfStructureNeedBuilderRepair = function (structure, flag) {
         // WALL血量低于设定血量开始维修
         // WALL血量高于设定血量结束维修
         case STRUCTURE_WALL: {
-            let hitsSetting = configs.maxHitsRepairingWallOrRampart[structure.room.name][STRUCTURE_WALL] || 0;
+            let hitsSetting = configs?.maxHitsRepairingWallOrRampart?.[structure.room.name]?.[STRUCTURE_WALL] || 0;
             switch (flag) {
                 case 0: return structure.hits <
                     (hitsSetting > 50000 ? hitsSetting - 5000 : hitsSetting * 0.9) ? true : false;
@@ -140,7 +140,7 @@ global.judgeIfStructureNeedBuilderRepair = function (structure, flag) {
             else if (structure.room.surroundingRampart.includes(structure)) {
                 rampartType = 'surroundingRampart';
             }
-            let hitsSetting = configs.maxHitsRepairingWallOrRampart[structure.room.name][rampartType] || 0;
+            let hitsSetting = configs?.maxHitsRepairingWallOrRampart?.[structure.room.name]?.[rampartType] || 0;
             switch (flag) {
                 case 0: return structure.hits <
                     (hitsSetting > 250000 ? hitsSetting - 50000 : hitsSetting * 0.8) ? true : false;

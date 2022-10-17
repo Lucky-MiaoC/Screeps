@@ -18,7 +18,7 @@ export const roleCentercarrier = {
         }
 
         // 验证中心位置
-        if (!configs.centerPoint[creep.room.name]) { return undefined; }
+        if (!configs?.centerPoint?.[creep.room.name]) { return undefined; }
 
         // 移动到中心位置
         if (!creep.memory.arrive) {
