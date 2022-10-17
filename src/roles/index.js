@@ -25,8 +25,8 @@ Room.prototype.judgeIfCreepNeedSpawn = function (creepRole) {
             return (this.extractor && this.mineralContainer.length && freeCapacity > 200000 &&
                 this.mineral.mineralAmount > 0) ? true : false;
         }
-        // builder只有在需要builder工作时才需要生产，并且为了节约cpu50tick扫描一次
-        case "builder": { return !(Game.time % 50) ? this.ifNeedBuilderWork() : false; }
+        // builder只有在需要builder工作时才需要生产，并且为了节约cpu25tick扫描一次
+        case "builder": { return !(Game.time % 25) ? this.ifNeedBuilderWork() : false; }
         // 其他角色一律放行
         default: { return true; }
     }
@@ -46,22 +46,14 @@ Room.prototype.ifNeedBuilderWork = function () {
     let targetFlag;
     // 自卫战争时期停止工地建设，找是否有符合的建筑
     if (this.memory.period.warOfSelfDefence) {
-        targetFlag = this.find(FIND_STRUCTURES, {
-            filter: (structure) => {
-                return structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART;
-            }
-        }).some((structure) => {
+        targetFlag = this.constructedWall.concat(this.rampart).some((structure) => {
             return judgeIfStructureNeedBuilderRepair(structure, 0);
         });
     }
     // 非自卫战争时期先找建筑工地，再找是否有符合的建筑
     else {
         targetFlag = !!this.find(FIND_CONSTRUCTION_SITES).length ||
-            this.find(FIND_STRUCTURES, {
-                filter: (structure) => {
-                    return structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
-                }
-            }).some((structure) => {
+            this.constructedWall.concat(this.rampart).some((structure) => {
                 return judgeIfStructureNeedBuilderRepair(structure, 0);
             });
     }

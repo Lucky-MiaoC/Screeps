@@ -69,8 +69,8 @@ module.exports.loop = ErrorMapper(() => {
                 room.updateStructureIndex();
             }
         });
-        doNotInitializeMyStructureIndex = true;
         console.log("建筑索引初始化完成！");
+        doNotInitializeMyStructureIndex = true;
     }
 
     // creep内存初始化
@@ -96,18 +96,18 @@ module.exports.loop = ErrorMapper(() => {
             if (!doNotInitializeMyRoomMemory[room.name]) {
                 console.log(`Room：${room.name} 内存初始化开始...`);
                 global.roomMemoryInitialization(room);
-                doNotInitializeMyRoomMemory[room.name] = true;
                 console.log(`Room：${room.name} 内存初始化完成！`);
+                doNotInitializeMyRoomMemory[room.name] = true;
             }
         }
     });
 
     // 初始化游戏状态扫描相关内存
     if (!doNotInitializeMyGameStatsMemory) {
-        console.log("游戏状态扫描相关内存初始化开始...");
+        console.log("游戏状态扫描内存初始化开始...");
         Memory.stats = {};
+        console.log("游戏状态扫描内存初始化完成！");
         doNotInitializeMyGameStatsMemory = true;
-        console.log("游戏状态扫描相关内存初始化完成！");
     }
 
     // 利用空闲cpu获取pixel

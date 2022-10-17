@@ -40,12 +40,8 @@ export const roleBuilder = {
         // 自卫战争时期紧急修墙，停止工地建设，找血量最低的需要维修的Wall、Rampart，多余能量拿去升级
         if (creep.room.memory.period.warOfSelfDefence) {
             target = target
-                || creep.room.find(FIND_STRUCTURES, {
-                    filter: (structure) => {
-                        return (structure.structureType == STRUCTURE_WALL
-                            || structure.structureType == STRUCTURE_RAMPART)
-                            && judgeIfStructureNeedBuilderRepair(structure, 1);
-                    }
+                || _.filter(creep.room.constructedWall.concat(creep.room.rampart), (structure) => {
+                    return judgeIfStructureNeedBuilderRepair(structure, 1);
                 }).sort((i, j) => {
                     return i.hits - j.hits;
                 })[0]
@@ -55,13 +51,9 @@ export const roleBuilder = {
         else {
             target = target
                 || creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES)
-                || creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                    filter: (structure) => {
-                        return (structure.structureType == STRUCTURE_WALL
-                            || structure.structureType == STRUCTURE_RAMPART)
-                            && judgeIfStructureNeedBuilderRepair(structure, 1);
-                    }
-                })
+                || creep.pos.findClosestByRange(_.filter(creep.room.constructedWall.concat(creep.room.rampart), (structure) => {
+                    return judgeIfStructureNeedBuilderRepair(structure, 1);
+                }))
                 || (creep.store[RESOURCE_ENERGY] > 0 ? creep.room.controller : null);
         }
 
@@ -79,7 +71,7 @@ export const roleBuilder = {
             let source = Game.getObjectById(creep.memory.sourceId);
 
             // 验证source缓存
-            if (!source || (source instanceof Structure && source.store[RESOURCE_ENERGY] == 0)) {
+            if (!source || source.store[RESOURCE_ENERGY] == 0) {
                 source = null;
                 creep.memory.sourceId = null;
             }

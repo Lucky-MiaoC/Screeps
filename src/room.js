@@ -55,10 +55,12 @@ Room.prototype.clearDeadCreepMemory = function () {
  * @param {string} creepRole 需要生产的角色
  */
 Room.prototype.distributeSpawnTasks = function (spawn, creepRole) {
-    // creep身体构造
+    // 获取creep身体数据
+    let creepBody = [];
     let assessRCLResult = assessRCL(this);
     let creepBodyMetadata = configs.creepBodyConfigs[assessRCLResult][creepRole];
-    let creepBody = [];
+
+    // creep身体构造
     Object.keys(creepBodyMetadata).forEach((i) => {
         let j = creepBodyMetadata[i];
         while (j--) {
@@ -69,14 +71,15 @@ Room.prototype.distributeSpawnTasks = function (spawn, creepRole) {
     // creep名字构造
     let creepName = (creepRole + ' | ' + this.name + ' | ' + assessRCLResult + ' | ' + Game.time).toUpperCase();
 
+    // 测试是否能够生产
     // 注意：testIfCanSpawn在canSpawn时返回0（表示ok）
     let testIfCanSpawn = spawn.spawnCreep(creepBody, creepName, { dryRun: true });
+
     if (!testIfCanSpawn) {
         // Memory构造
         let creepMemory = { 'role': creepRole, 'autoControl': true, 'originalRoomName': this.name, 'ready': false, };
         // 生产
-        if (spawn.spawnCreep(creepBody, creepName,
-            { memory: creepMemory }) == OK) {
+        if (spawn.spawnCreep(creepBody, creepName, { memory: creepMemory }) == OK) {
             // 更新数量
             ++this.memory.creepNumber[creepRole];
         }
