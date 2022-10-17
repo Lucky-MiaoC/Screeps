@@ -571,7 +571,7 @@ global.autoUpdateStructureIndex = function () {
         });
 
         // 更新建筑缓存
-        Object.keys(updateInfo).forEach((roomName) => {
+        Object.keys(autoUpdateInfo).forEach((roomName) => {
             autoUpdateInfo[roomName].forEach((structureType) => {
                 Game.rooms[roomName].updateStructureIndex(structureType);
             });

@@ -85,6 +85,7 @@ module.exports.loop = ErrorMapper(() => {
             console.log("Creep内存初始化失败！可能是Creep名称格式不符！");
             console.log("已存在Creep将无法执行工作！");
         }
+        doNotInitializeMyCreepMemory = true;
     }
 
     // room内存初始化
@@ -105,6 +106,7 @@ module.exports.loop = ErrorMapper(() => {
     if (!doNotInitializeMyGameStatsMemory) {
         console.log("游戏状态扫描相关内存初始化开始...");
         Memory.stats = {};
+        doNotInitializeMyGameStatsMemory = true;
         console.log("游戏状态扫描相关内存初始化完成！");
     }
 

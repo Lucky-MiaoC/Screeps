@@ -30,7 +30,7 @@ export const autoSF = {
         }
 
         // 获取检测的房间
-        watchRooms = _.filter(Object.values(Game.rooms), (room) => {
+        let watchRooms = _.filter(Object.values(Game.rooms), (room) => {
             return room.controller && room.controller.my && !autoSFConfig.excludeRooms.includes(room.name);
         });
 

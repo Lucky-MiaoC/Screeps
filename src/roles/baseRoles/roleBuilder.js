@@ -29,7 +29,9 @@ export const roleBuilder = {
         let target = Game.getObjectById(creep.memory.targetId);
 
         // 验证target缓存
-        if (!target || (target instanceof Structure && judgeIfStructureNeedBuilderRepair(target, 2))) {
+        if (!target ||
+            ([STRUCTURE_WALL, STRUCTURE_RAMPART].includes(target.structureType)
+                && judgeIfStructureNeedBuilderRepair(target, 2))) {
             target = null;
             creep.memory.targetId = null;
         }
@@ -37,26 +39,30 @@ export const roleBuilder = {
         // 获取target
         // 自卫战争时期紧急修墙，停止工地建设，找血量最低的需要维修的Wall、Rampart，多余能量拿去升级
         if (creep.room.memory.period.warOfSelfDefence) {
-            target = target || creep.room.find(FIND_STRUCTURES, {
-                filter: (structure) => {
-                    return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
-                        || structure.structureType == STRUCTURE_CONTAINER)
-                        && judgeIfStructureNeedBuilderRepair(structure, 1);
-                }
-            }).sort((i, j) => {
-                return i.hits - j.hits;
-            })[0] || (creep.store[RESOURCE_ENERGY] > 0 ? creep.room.controller : null);
+            target = target
+                || creep.room.find(FIND_STRUCTURES, {
+                    filter: (structure) => {
+                        return (structure.structureType == STRUCTURE_WALL
+                            || structure.structureType == STRUCTURE_RAMPART)
+                            && judgeIfStructureNeedBuilderRepair(structure, 1);
+                    }
+                }).sort((i, j) => {
+                    return i.hits - j.hits;
+                })[0]
+                || (creep.store[RESOURCE_ENERGY] > 0 ? creep.room.controller : null);
         }
         // 非自卫战争时期先找建筑工地，再找最近的需要维修的Wall、Rampart，多余能量拿去升级
         else {
-            target = target || creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES) ||
-                creep.pos.findClosestByRange(FIND_STRUCTURES, {
+            target = target
+                || creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES)
+                || creep.pos.findClosestByRange(FIND_STRUCTURES, {
                     filter: (structure) => {
-                        return (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART
-                            || structure.structureType == STRUCTURE_CONTAINER)
+                        return (structure.structureType == STRUCTURE_WALL
+                            || structure.structureType == STRUCTURE_RAMPART)
                             && judgeIfStructureNeedBuilderRepair(structure, 1);
                     }
-                }) || (creep.store[RESOURCE_ENERGY] > 0 ? creep.room.controller : null);
+                })
+                || (creep.store[RESOURCE_ENERGY] > 0 ? creep.room.controller : null);
         }
 
         // 验证target
@@ -106,7 +112,7 @@ export const roleBuilder = {
                     creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
                 }
             }
-            else if (target instanceof Structure) {
+            else if ([STRUCTURE_WALL, STRUCTURE_RAMPART].includes(target.structureType)) {
                 if (creep.repair(target) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
                 }

@@ -28,7 +28,7 @@ Room.prototype.clearDeadCreepMemory = function () {
 
         let deadCreepRole = Memory.creeps[name].role;
 
-        // 如果死亡creep为harvester则解除对矿绑定，同时需要检测是否已更新Container、Link的建筑缓存（几率非常小）
+        // 如果死亡creep为harvester则解除对矿绑定
         if (deadCreepRole == 'harvester') {
             // 解除对矿绑定
             if (Memory.creeps[name].sourceId) {

@@ -12,7 +12,7 @@ const whiteList = {
 const centerPoint = {
     'W59N37': new RoomPosition(19, 12, 'W59N37'),
     'W59N38': new RoomPosition(41, 12, 'W59N38'),
-    'W19N59': null,
+    'W19N59': new RoomPosition(18, 19, 'W19N59'),
 };
 
 // Wall、Rampart的目标血量，没有也不会报错，会在内部将其设为0
@@ -55,13 +55,13 @@ const creepNumberSetting = {
     },
     'W59N38': {
         // baseRoles
-        'harvester': 2, 'filler': 2, 'upgrader': 1, 'builder': 2, 'centercarrier': 1, 'miner': 0,
+        'harvester': 2, 'filler': 2, 'upgrader': 1, 'builder': 2, 'centercarrier': 1, 'miner': 1,
         // warRoles
         // remoteRoles
     },
     'W19N59': {
         // baseRoles
-        'harvester': 2, 'filler': 2, 'upgrader': 4, 'builder': 2, 'centercarrier': 0, 'miner': 0,
+        'harvester': 2, 'filler': 2, 'upgrader': 2, 'builder': 2, 'centercarrier': 1, 'miner': 0,
         // warRoles
         // remoteRoles
     },
