@@ -6,7 +6,7 @@ import { configs } from "./configs";
 Room.prototype.scanHostiles = function () {
     let hostiles = this.find(FIND_HOSTILE_CREEPS, {
         filter: (hostile) => {
-            return !(configs?.whiteList?.['global'] || []).concat(configs?.whiteList?.[this.name] || []).includes(hostile.owner.username);
+            return !(configs.whiteList['global'] || []).concat(configs.whiteList[this.name] || []).includes(hostile.owner.username);
         }
     });
     if (hostiles.length) {

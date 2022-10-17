@@ -78,7 +78,7 @@ export const towerWork = {
             // 获取hostile
             hostile = hostile || room.find(FIND_HOSTILE_CREEPS, {
                 filter: (hostile) => {
-                    return !(configs?.whiteList?.['global'] || []).concat(configs?.whiteList?.[room.name] || []).includes(hostile.owner.username);
+                    return !(configs.whiteList['global'] || []).concat(configs.whiteList[room.name] || []).includes(hostile.owner.username);
                 }
             }).sort((i, j) => {
                 for (let Bodypart of [CLAIM, WORK, RANGED_ATTACK, ATTACK, HEAL]) {

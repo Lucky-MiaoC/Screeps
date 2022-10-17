@@ -16,7 +16,7 @@ Room.prototype.judgeIfCreepNeedSpawn = function (creepRole) {
         case "filler": { return (this.storage || this.terminal || this.sourceContainer.length) ? true : false; }
         // centercarrier只有在有[storage或者terminal]和[centerLink]和[集群中心]时才需要生产
         case "centercarrier": {
-            return ((this.storage || this.terminal) && this.centerLink.length && configs?.centerPoint?.[this.name]) ? true : false;
+            return ((this.storage || this.terminal) && this.centerLink.length && configs.centerPoint[this.name]) ? true : false;
         }
         // miner只有在有[Extractor和mineralContainer]同时[storage或者terminal]有空余且[矿余量不为0]时才会生产
         case "miner": {
