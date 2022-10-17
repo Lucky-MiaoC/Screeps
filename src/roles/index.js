@@ -46,14 +46,19 @@ Room.prototype.ifNeedBuilderWork = function () {
     let targetFlag;
     // 自卫战争时期停止工地建设，找是否有符合的建筑
     if (this.memory.period.warOfSelfDefence) {
-        targetFlag = this.constructedWall.concat(this.rampart).some((structure) => {
+        targetFlag = this.rampart.some((structure) => {
+            return judgeIfStructureNeedBuilderRepair(structure, 0);
+        }) || this.constructedWall.some((structure) => {
             return judgeIfStructureNeedBuilderRepair(structure, 0);
         });
     }
     // 非自卫战争时期先找建筑工地，再找是否有符合的建筑
     else {
-        targetFlag = !!this.find(FIND_CONSTRUCTION_SITES).length ||
-            this.constructedWall.concat(this.rampart).some((structure) => {
+        targetFlag = !!this.find(FIND_CONSTRUCTION_SITES).length
+            || this.rampart.some((structure) => {
+                return judgeIfStructureNeedBuilderRepair(structure, 0);
+            })
+            || this.constructedWall.some((structure) => {
                 return judgeIfStructureNeedBuilderRepair(structure, 0);
             });
     }

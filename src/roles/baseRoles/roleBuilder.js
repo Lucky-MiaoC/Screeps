@@ -19,6 +19,7 @@ export const roleBuilder = {
         if (creep.memory.ready && creep.store.getUsedCapacity() == 0) {
             creep.memory.ready = false;
             creep.memory.targetId = null;
+            creep.memory.ignoreConditions = false;
         }
         if (!creep.memory.ready && creep.store.getUsedCapacity() > 0) {
             creep.memory.ready = true;
@@ -29,8 +30,8 @@ export const roleBuilder = {
         let target = Game.getObjectById(creep.memory.targetId);
 
         // 验证target缓存
-        if (!target ||
-            ([STRUCTURE_WALL, STRUCTURE_RAMPART].includes(target.structureType)
+        if (!target
+            || (target instanceof Structure && !creep.memory.ignoreConditions
                 && judgeIfStructureNeedBuilderRepair(target, 2))) {
             target = null;
             creep.memory.targetId = null;
@@ -40,25 +41,33 @@ export const roleBuilder = {
         // 自卫战争时期紧急修墙，停止工地建设，找血量最低的需要维修的Wall、Rampart，多余能量拿去升级
         if (creep.room.memory.period.warOfSelfDefence) {
             target = target
-                || _.filter(creep.room.constructedWall.concat(creep.room.rampart), (structure) => {
+                || _.filter(creep.room.rampart.concat(creep.room.constructedWall), (structure) => {
                     return judgeIfStructureNeedBuilderRepair(structure, 1);
                 }).sort((i, j) => {
                     return i.hits - j.hits;
-                })[0]
-                || (creep.store[RESOURCE_ENERGY] > 0 ? creep.room.controller : null);
+                })[0];
         }
         // 非自卫战争时期先找建筑工地，再找最近的需要维修的Wall、Rampart，多余能量拿去升级
         else {
             target = target
                 || creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES)
-                || creep.pos.findClosestByRange(_.filter(creep.room.constructedWall.concat(creep.room.rampart), (structure) => {
+                || creep.pos.findClosestByRange(_.filter(creep.room.rampart.concat(creep.room.constructedWall), (structure) => {
                     return judgeIfStructureNeedBuilderRepair(structure, 1);
-                }))
-                || (creep.store[RESOURCE_ENERGY] > 0 ? creep.room.controller : null);
+                }));
         }
 
         // 验证target
-        if (!target) { return undefined; }
+        if (!target) {
+            // 如果任务完成身上还有多余能量则无视Wall和Rampart的维修限制，直接找血最少的刷光身上能量防止浪费
+            target = creep.store.getUsedCapacity() > 0 ?
+                creep.room.rampart.concat(creep.room.constructedWall).sort((i, j) => {
+                    return i.hits - j.hits;
+                })[0] : null;
+
+            if (!target) { return undefined; }
+
+            creep.memory.ignoreConditions = true;
+        }
 
         // 缓存target
         if (!creep.memory.targetId) {
@@ -104,13 +113,8 @@ export const roleBuilder = {
                     creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
                 }
             }
-            else if ([STRUCTURE_WALL, STRUCTURE_RAMPART].includes(target.structureType)) {
-                if (creep.repair(target) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-                }
-            }
             else {
-                if (creep.upgradeController(target) == ERR_NOT_IN_RANGE) {
+                if (creep.repair(target) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
                 }
             }
