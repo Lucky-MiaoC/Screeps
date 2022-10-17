@@ -68,7 +68,8 @@ global.assessRCL = function (room) {
  * @param {Structure} structure 需要判断的建筑对象
  * @returns {boolean} 返回true或者false
  */
-global.judgeIfStructureNeedTowerWork = function (structure) {
+global.judgeIfStructureNeedTowerRepair = function (structure) {
+    // Tower维修几乎所有建筑
     switch (structure.structureType) {
         // 不需要修墙，修墙是builder的活
         case STRUCTURE_WALL:
@@ -76,10 +77,10 @@ global.judgeIfStructureNeedTowerWork = function (structure) {
         // Road血量低于80%再修
         case STRUCTURE_ROAD:
             return structure.hits / structure.hitsMax < 0.8 ? true : false;
-        // Container血量低于80%且高于70%再修，再低就是要builder来修
+        // Container血量高于50%低于70%再修
         case STRUCTURE_CONTAINER:
-            return (structure.hits / structure.hitsMax >= 0.7 &&
-                structure.hits / structure.hitsMax < 0.8) ? true : false;
+            return (structure.hits / structure.hitsMax >= 0.5 &&
+                structure.hits / structure.hitsMax < 0.7) ? true : false;
         // centerRampart血量低于1.5k或者低于设定血量且高于设定血量-5k则修
         // surroundingRampart血量低于1.5k则修
         case STRUCTURE_RAMPART: {
@@ -90,28 +91,13 @@ global.judgeIfStructureNeedTowerWork = function (structure) {
             else if (structure.room.surroundingRampart.includes(structure)) {
                 rampartType = 'surroundingRampart';
             }
-            /* 刷新建筑在builder里实现了
-            else {
-                structure.room.updateStructureIndex(STRUCTURE_RAMPART);
-                let structureUnderRampart = _.filter(structure.pos.lookFor(LOOK_STRUCTURES), (i) => {
-                    return i.structureType != STRUCTURE_ROAD &&
-                        i.structureType != STRUCTURE_RAMPART &&
-                        i.structureType != STRUCTURE_WALL;
-                });
-                if (structureUnderRampart.length || structure.pos.isNearTo(structure.room.controller)) {
-                    rampartType = 'centerRampart';
-                }
-                else {
-                    rampartType = 'surroundingRampart';
-                }
-            }
-            */
+
             if (rampartType == 'centerRampart') {
                 let hitsSetting = configs.maxHitsRepairingWallOrRampart[structure.room.name][rampartType] || 0;
                 return (structure.hits < 1500 || (structure.hits >= hitsSetting - 5000 &&
                     structure.hits < hitsSetting)) ? true : false;
             }
-            else {
+            else if (rampartType == 'surroundingRampart') {
                 return structure.hits < 1500 ? true : false;
             }
         }
@@ -128,33 +114,23 @@ global.judgeIfStructureNeedTowerWork = function (structure) {
  * @param {number} flag 0：生产条件 | 1：获取条件 | 2：停止条件
  * @returns {boolean} 返回true或者false
  */
-global.judgeIfStructureNeedBuilderWork = function (structure, flag) {
+global.judgeIfStructureNeedBuilderRepair = function (structure, flag) {
+    // builder只维修Wall和Rampart
     switch (structure.structureType) {
-        // Container在没有Tower（前期）且血量低于50%开始生产builder
-        // Container在没有Tower（前期）且血量低于80%开始维修
-        // Container在没有Tower（前期）且血量高于80%结束维修
-        case STRUCTURE_CONTAINER: {
-            switch (flag) {
-                case 0: return (structure.hits / structure.hitsMax < 0.5) ? true : false;
-                case 1: return (structure.hits / structure.hitsMax <= 0.8) ? true : false;
-                case 2: return (structure.hits / structure.hitsMax > 0.8) ? true : false;
-            }
-        }
-        // WALL血量低于设定血量80%开始生产builder
+        // WALL血量低于设定血量-5k或者*0.9开始生产builder维修
         // WALL血量低于设定血量开始维修
         // WALL血量高于设定血量结束维修
         case STRUCTURE_WALL: {
+            let hitsSetting = configs.maxHitsRepairingWallOrRampart[structure.room.name][STRUCTURE_WALL] || 0;
             switch (flag) {
                 case 0: return structure.hits <
-                    (configs.maxHitsRepairingWallOrRampart[structure.room.name][STRUCTURE_WALL] || 0) * 0.8 ? true : false;
-                case 1: return structure.hits <
-                    (configs.maxHitsRepairingWallOrRampart[structure.room.name][STRUCTURE_WALL] || 0) ? true : false;
-                case 2: return structure.hits >=
-                    (configs.maxHitsRepairingWallOrRampart[structure.room.name][STRUCTURE_WALL] || 0) ? true : false;
+                    (hitsSetting > 50000 ? hitsSetting - 5000 : hitsSetting * 0.9) ? true : false;
+                case 1: return structure.hits < hitsSetting ? true : false;
+                case 2: return structure.hits >= hitsSetting ? true : false;
             }
         }
-        // RAMPART血量低于于设定血量80%开始生产builder
-        // RAMPART血量高于设定血量-5k开始维修
+        // RAMPART血量低于设定血量-50k或者*0.8开始生产builder维修
+        // RAMPART血量高于设定血量-5k或者*0.9开始维修
         // RAMPART血量高于设定血量结束维修
         case STRUCTURE_RAMPART: {
             let rampartType = undefined;
@@ -164,36 +140,23 @@ global.judgeIfStructureNeedBuilderWork = function (structure, flag) {
             else if (structure.room.surroundingRampart.includes(structure)) {
                 rampartType = 'surroundingRampart';
             }
-            /* 刷新建筑在builder里实现了
-            else {
-                structure.room.updateStructureIndex(STRUCTURE_RAMPART);
-                let structureUnderRampart = _.filter(structure.pos.lookFor(LOOK_STRUCTURES), (i) => {
-                    return i.structureType != STRUCTURE_ROAD &&
-                        i.structureType != STRUCTURE_RAMPART &&
-                        i.structureType != STRUCTURE_WALL;
-                });
-                if (structureUnderRampart.length || structure.pos.isNearTo(structure.room.controller)) {
-                    rampartType = 'centerRampart';
-                }
-                else {
-                    rampartType = 'surroundingRampart';
-                }
-            }
-            */
             let hitsSetting = configs.maxHitsRepairingWallOrRampart[structure.room.name][rampartType] || 0;
             switch (flag) {
-                case 0: return structure.hits < hitsSetting * 0.8 ? true : false;
-                case 1: return structure.hits < hitsSetting - 5000 ? true : false;
+                case 0: return structure.hits <
+                    (hitsSetting > 250000 ? hitsSetting - 50000 : hitsSetting * 0.8) ? true : false;
+                case 1: return structure.hits <
+                    (hitsSetting > 50000 ? hitsSetting - 5000 : hitsSetting * 0.9) ? true : false;
                 case 2: return structure.hits >= hitsSetting ? true : false;
             }
         }
-        // 其他建筑不需要生产builder，不需要开始维修，如果开始了直接停止维修
-        default:
+        // 其他建筑不需要生产builder维修，不需要开始维修，如果开始了直接停止维修
+        default: {
             switch (flag) {
                 case 0: return false;
                 case 1: return false;
                 case 2: return true;
             }
+        }
     }
 };
 
@@ -309,12 +272,19 @@ global.roomMemoryInitialization = function (room) {
     });
 
     // 初始化creep数量
+    // 优化：所有房间统一处理creep数量更节约cpu，但考虑代码结构和谐性暂时不予优化
     room.memory.creepNumber = {};
-    configs.creepRoleSetting.forEach((i) => {
-        room.memory.creepNumber[i] = _.filter(Game.creeps, (creep) => {
-            // 根据creep.memory.originalRoomName来判定归属房间，没有该属性则根据所处房间进行判定
-            return (creep.memory.originalRoomName ? creep.memory.originalRoomName == room.name :
-                creep.room == room) && creep.memory.role == i;
-        }).length;
-    });
+    for (let creep of Object.values(Game.creeps)) {
+        // 不是本房间的creep不记录
+        let originalRoomName = creep.memory.originalRoomName || creep.room.name;
+        if (originalRoomName != room.name) { continue; }
+
+        // 没有creep.memory.role不记录，这种情况发生在creep内存初始化失败的时候
+        if (!creep.memory.role) { continue; }
+        // role不是设定中的role不记录，这种情况发生在手动生产非设定role的creep的时候
+        if (!configs.creepRoleSetting.includes(creep.memory.role)) { continue; }
+
+        room.memory.creepNumber[creep.memory.role] = room.memory.creepNumber[creep.memory.role] ?
+            ++room.memory.creepNumber[creep.memory.role] : 1;
+    }
 };

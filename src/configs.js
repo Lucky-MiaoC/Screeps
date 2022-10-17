@@ -19,13 +19,13 @@ const centerPoint = {
 const maxHitsRepairingWallOrRampart = {
     'W59N37': {
         'centerRampart': 12000000,
-        'surroundingRampart': 300000,
-        'constructedWall': 300000
+        'surroundingRampart': 400000,
+        'constructedWall': 400000
     },
     'W59N38': {
-        'centerRampart': 10000,
-        'surroundingRampart': 10000,
-        'constructedWall': 10000
+        'centerRampart': 20000,
+        'surroundingRampart': 20000,
+        'constructedWall': 20000
     },
     'W19N59': {
         'centerRampart': 10000,
@@ -55,13 +55,13 @@ const creepNumberSetting = {
     },
     'W59N38': {
         // baseRoles
-        'harvester': 2, 'filler': 2, 'upgrader': 4, 'builder': 2, 'centercarrier': 1, 'miner': 0,
+        'harvester': 2, 'filler': 2, 'upgrader': 1, 'builder': 2, 'centercarrier': 1, 'miner': 0,
         // warRoles
         // remoteRoles
     },
     'W19N59': {
         // baseRoles
-        'harvester': 2, 'filler': 1, 'upgrader': 9, 'builder': 2, 'centercarrier': 0, 'miner': 0,
+        'harvester': 2, 'filler': 2, 'upgrader': 4, 'builder': 2, 'centercarrier': 0, 'miner': 0,
         // warRoles
         // remoteRoles
     },

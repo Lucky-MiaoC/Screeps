@@ -1,4 +1,4 @@
-> 最后更新时间：2022/10/10
+> 最后更新时间：2022/10/15
 
 # Screeps Script of TC-MiaoC
 
@@ -61,7 +61,7 @@ npm run local
 
 **全新环境部署：**
 
-- 修改`./src/configs.js`中全局配置然后运行项目
+- 修改`./src/configs.js`中全局配置（主要是房间名称）然后运行项目
 
 **已有环境部署：**
 
@@ -71,7 +71,7 @@ npm run local
 
 - 杀死所有creep，因为对已存在creep的内存初始化需要依赖creep的名字（比如确定creep对应的role等），如果不杀死所有creep也不会报错，但是已存在creep将无法执行工作
 
-- 修改`./src/configs.js`中全局配置然后运行项目
+- 修改`./src/configs.js`中全局配置（主要是房间名称）然后运行项目
 
 **注意事项：**
 

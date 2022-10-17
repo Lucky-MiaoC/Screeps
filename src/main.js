@@ -124,8 +124,8 @@ module.exports.loop = ErrorMapper(() => {
                 room.scanHostiles();
             }
 
-            // 更新creep内存（清理死亡creep内存）
-            room.updateCreepMemory();
+            // 清理死亡creep内存
+            room.clearDeadCreepMemory();
             // 更新spawn生产任务
             room.updateSpawnTasks();
 
@@ -156,6 +156,9 @@ module.exports.loop = ErrorMapper(() => {
 
     // 自动开启SF模块工作
     autoSF.work();
+
+    // 自动更新建筑索引
+    global.autoUpdateStructureIndex();
 
     // 在内存中更新 RCL、GCL、GPL 使用情况和当前 CPU、bucket 使用情况
     global.stateScanner();

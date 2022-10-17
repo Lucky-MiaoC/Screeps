@@ -132,8 +132,9 @@ export const roleCentercarrier = {
                     }
 
                     // 获取source
-                    source = source || ((creep.room.centerLink.length && creep.room.centerLink[0].store[RESOURCE_ENERGY] > 0) ?
-                        creep.room.centerLink[0] : null);
+                    source = source ||
+                        ((creep.room.centerLink.length && creep.room.centerLink[0].store[RESOURCE_ENERGY] > 0) ?
+                            creep.room.centerLink[0] : null);
 
                     // 验证source
                     if (!source) { return undefined; }

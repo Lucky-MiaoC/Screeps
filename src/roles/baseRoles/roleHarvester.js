@@ -80,7 +80,7 @@ export const roleHarvester = {
             // let source = Game.getObjectById(creep.memory.sourceId);
 
             // 验证source缓存
-            // if (!source) {
+            // if (!source || source.energy == 0) {
             //     source = null;
             //     // creep.memory.sourceId = null;
             // }

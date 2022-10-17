@@ -82,8 +82,8 @@ export const roleMiner = {
             for (let resourceType in creep.store) {
                 if (creep.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-                    break;
                 }
+                break;
             }
         }
     }
