@@ -36,22 +36,22 @@ export const roleFiller = {
             || (creep.memory.fillTask == 'energy' &&
                 target instanceof StructurePowerSpawn && target.store.getFreeCapacity(RESOURCE_ENERGY) <= 500)
             || (creep.memory.fillTask == 'energy' && !(target instanceof StructurePowerSpawn)
-                && target.store.getFreeCapacity(RESOURCE_ENERGY) == 0)) {
+                && target.store.getFreeCapacity(RESOURCE_ENERGY) == 0)
+            || (creep.memory.fillTask == 'any' && target.store.getFreeCapacity() == 0)) {
             target = null;
             creep.memory.targetId = null;
             creep.memory.fillTask = null;
-        }
-
-        // 资源送回、收集的路上时刻观测是否有新的同类型任务出现，有的话中断送回、收集任务
-        if (target instanceof StructureStorage || target instanceof StructureTerminal || target instanceof StructureContainer) {
-            target = null;
-            creep.memory.targetId = null;
-            creep.memory.fillTask = null;
+            creep.memory.sourceId = null;
         }
 
         // 获取target
         // 如果creep手上拿着能量，就做填充能量工作
         if (creep.store[RESOURCE_ENERGY] > 0) {
+            // 送回的时候时刻留意是否有新的填充能量工作
+            if (target instanceof StructureStorage || target instanceof StructureTerminal || target instanceof StructureContainer) {
+                target = null;
+                creep.memory.targetId = null;
+            }
             target = target
                 || creep.pos.findClosestByRange(_.filter(creep.room.extension.concat(creep.room.spawn), (i) => {
                     return i.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
@@ -70,6 +70,11 @@ export const roleFiller = {
         }
         // 如果creep手上拿着power，就做填充power工作
         else if (creep.store[RESOURCE_POWER] > 0) {
+            // 送回的时候时刻留意是否有新的填充power工作
+            if (target instanceof StructureStorage || target instanceof StructureTerminal) {
+                target = null;
+                creep.memory.targetId = null;
+            }
             target = target
                 || ((creep.room.powerSpawn && creep.room.powerSpawn.store.getFreeCapacity(RESOURCE_POWER) > 10) ? creep.room.powerSpawn : null)
                 || ((creep.room.storage && creep.room.storage.store.getFreeCapacity(RESOURCE_POWER) > 0) ? creep.room.storage : null)
@@ -78,6 +83,11 @@ export const roleFiller = {
         }
         // 如果creep手上拿着ghodium，就做填充ghodium工作
         else if (creep.store[RESOURCE_GHODIUM] > 0) {
+            // 送回的时候时刻留意是否有新的填充ghodium工作
+            if (target instanceof StructureStorage || target instanceof StructureTerminal) {
+                target = null;
+                creep.memory.targetId = null;
+            }
             target = target
                 || ((creep.room.nuker && creep.room.nuker.store.getFreeCapacity(RESOURCE_GHODIUM) > 0) ? creep.room.nuker : null)
                 || ((creep.room.storage && creep.room.storage.store.getFreeCapacity(RESOURCE_GHODIUM) > 0) ? creep.room.storage : null)
@@ -86,11 +96,12 @@ export const roleFiller = {
         }
         // 如果creep手上啥都没拿
         else if (creep.store.getUsedCapacity() == 0) {
-            // 如果creep手上啥都没拿，需要时刻留意是否有energy类型的工作
+            // 不是能量型目标则时刻留意是否有新的填充能量工作
             if (creep.memory.fillTask && creep.memory.fillTask != 'energy') {
                 target = null;
                 creep.memory.targetId = null;
                 creep.memory.fillTask = null;
+                creep.memory.sourceId = null;
             }
             // 如果有需要填充的能量型目标，做填充能量工作
             target = target
@@ -132,7 +143,8 @@ export const roleFiller = {
         }
         // 如果creep手上拿着非energy、power、ghodium的资源，启动收集资源工作
         else {
-            target = ((creep.room.storage && creep.room.storage.store.getFreeCapacity() > 0) ? creep.room.storage : null)
+            target = target
+                || ((creep.room.storage && creep.room.storage.store.getFreeCapacity() > 0) ? creep.room.storage : null)
                 || ((creep.room.terminal && creep.room.terminal.store.getFreeCapacity() > 0) ? creep.room.terminal : null);
             creep.memory.fillTask = 'any';
         }
@@ -187,7 +199,7 @@ export const roleFiller = {
                     source = source
                         || creep.chooseSourceContainer(400)
                         || _.sample(_.filter(creep.room.mineralContainer, (container) => {
-                            return container.store.getUsedCapacity() > 500;
+                            return container.store.getUsedCapacity() > 1000;
                         }));
                 }
                 // Power和G有就拿去送，毕竟稀有可能经常拿不满身体（但都是能拿多少拿多少，反正多的会送回来）
