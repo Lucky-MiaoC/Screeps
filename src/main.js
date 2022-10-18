@@ -132,11 +132,11 @@ module.exports.loop = ErrorMapper(() => {
             room.updateSpawnTasks();
 
             // 房间内建筑工作
-            // 由于Tower、Link、Lab在相同房间内相同个体之间是协同作用的，因此需要将它们看成一个整体同一处理，因此不使用建筑原型拓展
+            // 由于Tower、Link、Lab在相同房间内不同个体之间是协同作用的，因此需要将它们看成一个整体同一处理，因此不使用建筑原型拓展
             towerWork.work(room);
             linkWork.work(room);
             labWork.work(room);
-            // PowerSpawn、Nuker、Observer、Factory是个体工作，并且需要实现手操，因此使用原型拓展比较好
+            // PowerSpawn、Nuker、Observer、Factory是个体单独工作，并且需要实现手操，因此使用原型拓展比较好
             if (room.powerSpawn) { room.powerSpawn.work(); }
             if (room.factory) { room.factory.work(); }
             if (room.observer) { room.observer.work(); }

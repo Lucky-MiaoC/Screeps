@@ -50,8 +50,9 @@
  *  建筑缓存存放在global.structureIndex[room.name]，唯一对象存id, 复数对象存Set([id])
  *  复数建筑不存在时返回[]，唯一建筑不存在时返回undefined
  *  linkList系列、containerList系列、rampart系列均返回[]（视为复数建筑）
+ *
  *  拆除建筑会自动移除缓存，新建筑用room.update()更新缓存，不主动调用room.update()则不会识别新建筑
- *  更新：游戏循环中调用global.autoUpdateStructureIndex()可以自动更新新建筑索引
+ *  更新：游戏循环中调用global.autoUpdateStructureIndex()可以自动更新新建筑索引，且几乎不会占用多少cpu
  *
  *  建筑id缓存在global.structureIndex上，当访问room.*时，实际上是获取缓存里的对应id再转为对象（数组）返回
  *  更新时实际是更新global.structureIndex上的缓存内容
@@ -570,7 +571,7 @@ global.autoUpdateStructureIndex = function () {
             }
         });
 
-        // 更新建筑缓存
+        // 更新建筑索引
         Object.keys(autoUpdateInfo).forEach((roomName) => {
             autoUpdateInfo[roomName].forEach((structureType) => {
                 Game.rooms[roomName].updateStructureIndex(structureType);

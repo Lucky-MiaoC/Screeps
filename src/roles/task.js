@@ -101,7 +101,7 @@ global.creatCenterCarryTask = function (source, target, resourceType, resourceNu
 Room.prototype.cancelCenterCarryTask = function () {
     if (this.memory.centerCarryTask) {
         delete this.memory.centerCarryTask;
-        console.log(`成功取消房间${this.name}的中央搬运任务`);
+        console.log(`成功取消房间${this.name}的中央搬运任务！`);
     }
     else {
         console.log(`房间${this.name}当前并不存在中央搬运任务！`);
