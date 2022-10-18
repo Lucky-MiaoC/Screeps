@@ -91,7 +91,7 @@ export const roleBuilder = {
                     2000) ? creep.room.storage : null)
                 || ((creep.room.terminal && creep.room.terminal.store[RESOURCE_ENERGY] >
                     2000) ? creep.room.terminal : null)
-                || creep.chooseSourceContainer(500);
+                || creep.chooseSourceContainer(750);
 
             // 验证source
             if (!source) { return undefined; }

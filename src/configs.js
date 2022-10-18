@@ -19,8 +19,8 @@ const centerPoint = {
 const maxHitsRepairingWallOrRampart = {
     'W59N37': {
         'centerRampart': 12000000,
-        'surroundingRampart': 600000,
-        'constructedWall': 600000
+        'surroundingRampart': 700000,
+        'constructedWall': 700000
     },
     'W59N38': {
         'centerRampart': 50000,
@@ -38,7 +38,7 @@ const maxHitsRepairingWallOrRampart = {
 // creep角色设定表
 // 说明：creepRoleSetting暗含了creepRole的生产优先级，creepRoleSetting中索引越小的角色生产优先级越高
 // baseRoles生产优先级 > warRoles生产优先级 > remoteRoles生产优先级
-const baseRoles = ['filler', 'harvester', 'centercarrier', 'upgrader', 'builder', 'miner'];
+const baseRoles = ['filler', 'harvester', 'centercarrier', 'collector', 'upgrader', 'builder', 'miner'];
 const warRoles = [];
 const remoteRoles = [];
 const creepRoleSetting = [...baseRoles, ...warRoles, ...remoteRoles];
@@ -49,19 +49,19 @@ const creepRoleSetting = [...baseRoles, ...warRoles, ...remoteRoles];
 const creepNumberSetting = {
     'W59N37': {
         // baseRoles
-        'harvester': 2, 'filler': 2, 'upgrader': 1, 'builder': 2, 'centercarrier': 1, 'miner': 1,
+        'harvester': 2, 'filler': 2, 'collector': 1, 'upgrader': 1, 'builder': 2, 'centercarrier': 1, 'miner': 1,
         // warRoles
         // remoteRoles
     },
     'W59N38': {
         // baseRoles
-        'harvester': 2, 'filler': 2, 'upgrader': 1, 'builder': 2, 'centercarrier': 1, 'miner': 1,
+        'harvester': 2, 'filler': 2, 'collector': 1, 'upgrader': 1, 'builder': 2, 'centercarrier': 1, 'miner': 1,
         // warRoles
         // remoteRoles
     },
     'W19N59': {
         // baseRoles
-        'harvester': 2, 'filler': 2, 'upgrader': 3, 'builder': 2, 'centercarrier': 1, 'miner': 0,
+        'harvester': 2, 'filler': 2, 'collector': 0, 'upgrader': 3, 'builder': 2, 'centercarrier': 1, 'miner': 0,
         // warRoles
         // remoteRoles
     },
@@ -75,6 +75,7 @@ const creepBodyConfigs = {
         // baseRoles
         'harvester': { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
         'filler': { [CARRY]: 3, [MOVE]: 3 },
+        'collector': { [CARRY]: 3, [MOVE]: 3 },
         'upgrader': { [WORK]: 1, [CARRY]: 1, [MOVE]: 2 },
         'builder': { [WORK]: 1, [CARRY]: 1, [MOVE]: 2 },
         'centercarrier': { [CARRY]: 5, [MOVE]: 1 },
@@ -88,6 +89,7 @@ const creepBodyConfigs = {
         // baseRoles
         'harvester': { [WORK]: 4, [CARRY]: 1, [MOVE]: 2 },
         'filler': { [CARRY]: 5, [MOVE]: 5 },
+        'collector': { [CARRY]: 5, [MOVE]: 5 },
         'upgrader': { [WORK]: 3, [CARRY]: 1, [MOVE]: 4 },
         'builder': { [WORK]: 2, [CARRY]: 2, [MOVE]: 4 },
         'centercarrier': { [CARRY]: 10, [MOVE]: 1 },
@@ -101,6 +103,7 @@ const creepBodyConfigs = {
         // baseRoles
         'harvester': { [WORK]: 6, [CARRY]: 1, [MOVE]: 3 },
         'filler': { [CARRY]: 8, [MOVE]: 8 },
+        'collector': { [CARRY]: 10, [MOVE]: 5 },
         'upgrader': { [WORK]: 4, [CARRY]: 2, [MOVE]: 6 },
         'builder': { [WORK]: 4, [CARRY]: 2, [MOVE]: 6 },
         'centercarrier': { [CARRY]: 15, [MOVE]: 1 },
@@ -114,6 +117,7 @@ const creepBodyConfigs = {
         // baseRoles
         'harvester': { [WORK]: 8, [CARRY]: 1, [MOVE]: 4 },
         'filler': { [CARRY]: 10, [MOVE]: 10 },
+        'collector': { [CARRY]: 10, [MOVE]: 5 },
         'upgrader': { [WORK]: 6, [CARRY]: 3, [MOVE]: 9 },
         'builder': { [WORK]: 6, [CARRY]: 3, [MOVE]: 9 },
         'centercarrier': { [CARRY]: 20, [MOVE]: 1 },
@@ -127,6 +131,7 @@ const creepBodyConfigs = {
         // baseRoles
         'harvester': { [WORK]: 10, [CARRY]: 2, [MOVE]: 5 },
         'filler': { [CARRY]: 20, [MOVE]: 10 },
+        'collector': { [CARRY]: 10, [MOVE]: 5 },
         'upgrader': { [WORK]: 8, [CARRY]: 4, [MOVE]: 12 },
         'builder': { [WORK]: 8, [CARRY]: 4, [MOVE]: 12 },
         'centercarrier': { [CARRY]: 30, [MOVE]: 1 },
@@ -140,6 +145,7 @@ const creepBodyConfigs = {
         // baseRoles
         'harvester': { [WORK]: 10, [CARRY]: 2, [MOVE]: 5 },
         'filler': { [CARRY]: 20, [MOVE]: 10 },
+        'collector': { [CARRY]: 10, [MOVE]: 5 },
         'upgrader': { [WORK]: 10, [CARRY]: 5, [MOVE]: 15 },
         'builder': { [WORK]: 10, [CARRY]: 5, [MOVE]: 15 },
         'centercarrier': { [CARRY]: 40, [MOVE]: 1 },
@@ -153,6 +159,7 @@ const creepBodyConfigs = {
         // baseRoles
         'harvester': { [WORK]: 10, [CARRY]: 2, [MOVE]: 5 },
         'filler': { [CARRY]: 30, [MOVE]: 15 },
+        'collector': { [CARRY]: 10, [MOVE]: 5 },
         'upgrader': { [WORK]: 10, [CARRY]: 5, [MOVE]: 15 },
         'builder': { [WORK]: 16, [CARRY]: 8, [MOVE]: 24 },
         'centercarrier': { [CARRY]: 40, [MOVE]: 1 },
@@ -166,6 +173,7 @@ const creepBodyConfigs = {
         // baseRoles
         'harvester': { [WORK]: 10, [CARRY]: 2, [MOVE]: 5 },
         'filler': { [CARRY]: 30, [MOVE]: 15 },
+        'collector': { [CARRY]: 10, [MOVE]: 5 },
         'upgrader': { [WORK]: 10, [CARRY]: 5, [MOVE]: 15 },
         'builder': { [WORK]: 16, [CARRY]: 8, [MOVE]: 24 },
         'centercarrier': { [CARRY]: 40, [MOVE]: 1 },

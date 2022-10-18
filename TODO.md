@@ -10,7 +10,7 @@
 - [ ] **战争creep的代码构建与完善，优先完善一体机**
 - [ ] **powercreep的构建，power可以市场买来**
 - [ ] **creep数量自动配置与生产条件完善**
-- [x] 将filler和collecter合并，减少creep类型（尚不确定）
+- [ ] 将filler和collector合并，减少creep类型（尚不确定）
 - [ ] 远程creep组的代码构建与完善，尤其是预定及躲敌对creep的部分，或许用到observer
 - [ ] *动态身体构成*
 - [ ] *creep预定含store建筑里的资源的功能，防止creep扎堆去送资源或者资源不够的情况下还有很多creep去拿资源的情况，可能扩大已有任务机制，也可能添加到memory里*

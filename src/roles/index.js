@@ -14,6 +14,15 @@ Room.prototype.judgeIfCreepNeedSpawn = function (creepRole) {
         case "upgrader": { return (this.storage || this.terminal || this.sourceContainer.length) ? true : false; }
         // filler只有在有[storage或者terminal或者sourceContainer]时才需要生产
         case "filler": { return (this.storage || this.terminal || this.sourceContainer.length) ? true : false; }
+        // collecter只有在同时有[storage或者terminal]和[sourceContainer或者mineralContainer]
+        // 同时[storage或者terminal或者factory]有空余，mineralContainer快满了时才需要生产
+        case "collector": {
+            let freeCapacity = (this.storage ? this.storage.store.getFreeCapacity() : 0) +
+                (this.terminal ? this.terminal.store.getFreeCapacity() : 0);
+            return (freeCapacity > 100000 && (this.sourceContainer.length ||
+                (this.mineralContainer.length && this.mineralContainer[0].store.getFreeCapacity() < 500))) ?
+                true : false;
+        }
         // centercarrier只有在有[storage或者terminal]和[centerLink]和[集群中心]时才需要生产
         case "centercarrier": {
             return ((this.storage || this.terminal) && this.centerLink.length && configs.centerPoint[this.name]) ? true : false;

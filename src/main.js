@@ -24,6 +24,7 @@ import "./structures/observer";
 // 导入基础角色
 import { roleHarvester } from "./roles/baseRoles/roleHarvester";
 import { roleFiller } from "./roles/baseRoles/roleFiller";
+import { roleCollector } from "./roles/baseRoles/roleCollector";
 import { roleCentercarrier } from "./roles/baseRoles/roleCentercarrier";
 import { roleUpgrader } from "./roles/baseRoles/roleUpgrader";
 import { roleBuilder } from "./roles/baseRoles/roleBuilder";
@@ -148,6 +149,7 @@ module.exports.loop = ErrorMapper(() => {
         switch (creep.memory.role) {
             case 'harvester': roleHarvester.run(creep); break;
             case 'filler': roleFiller.run(creep); break;
+            case 'collector': roleCollector.run(creep); break;
             case 'centercarrier': roleCentercarrier.run(creep); break;
             case 'upgrader': roleUpgrader.run(creep); break;
             case 'builder': roleBuilder.run(creep); break;
