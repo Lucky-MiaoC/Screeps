@@ -14,7 +14,7 @@ export const myPowerCreep = {
 
         // 快死的时候赶紧renew
         if (creep.ticksToLive < 500) {
-            if (creep.renew() == ERR_NOT_IN_RANGE) {
+            if (creep.renew(creep.room.powerSpawn) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(creep.room.powerSpawn, { visualizePathStyle: { stroke: '#ff0000' } });
             }
             return undefined;
