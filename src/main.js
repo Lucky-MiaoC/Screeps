@@ -21,6 +21,9 @@ import "./structures/nuker";
 import "./structures/factory";
 import "./structures/observer";
 
+// 导入powerCreep模块
+import { myPowerCreep } from './roles/powerCreep';
+
 // 导入基础角色
 import { roleHarvester } from "./roles/baseRoles/roleHarvester";
 import { roleFiller } from "./roles/baseRoles/roleFiller";
@@ -142,6 +145,11 @@ module.exports.loop = ErrorMapper(() => {
             if (room.factory) { room.factory.work(); }
             if (room.observer) { room.observer.work(); }
         }
+    });
+
+    // powerCreep工作
+    Object.values(Game.powerCreeps).forEach((creep) => {
+        myPowerCreep.run(creep);
     });
 
     // creep工作，非设定的creep不会工作但也不会报错
