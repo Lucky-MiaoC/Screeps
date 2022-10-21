@@ -75,7 +75,9 @@ StructureFactory.prototype.work = function () {
         if (!this.room.memory.structures.factory['failTick']) {
             this.room.memory.structures.factory['failTick'] = Game.time;
         }
-        console.log(`注意：Room ${this.room.name} 中的 Factory 暂停生产商品 ${resourceType}！`);
-        console.log(`请检查：Factory 中底物是否足够！容量是否足够！`);
+        if (!(Game.time % 20)) {
+            console.log(`注意：Room ${this.room.name} 中的 Factory 暂停生产商品 ${resourceType}！`);
+            console.log(`请检查：Factory 中底物是否足够！容量是否足够！`);
+        }
     }
 };
