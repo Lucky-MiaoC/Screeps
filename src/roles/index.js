@@ -54,7 +54,7 @@ Room.prototype.ifNeedBuilderWork = function () {
 
     let targetFlag;
     // 自卫战争时期停止工地建设，找是否有符合的建筑
-    if (this.memory.period.warOfSelfDefence) {
+    if (this.memory.period && this.memory.period.warOfSelfDefence) {
         targetFlag = this.rampart.some((structure) => {
             return judgeIfStructureNeedBuilderRepair(structure, 0);
         }) || this.constructedWall.some((structure) => {

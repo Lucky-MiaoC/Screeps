@@ -39,7 +39,7 @@ export const roleBuilder = {
 
         // 获取target
         // 自卫战争时期紧急修墙，停止工地建设，找血量最低的需要维修的Wall、Rampart，多余能量拿去升级
-        if (creep.room.memory.period.warOfSelfDefence) {
+        if (creep.room.memory.period && creep.room.memory.period.warOfSelfDefence) {
             target = target
                 || _.filter(creep.room.rampart.concat(creep.room.constructedWall), (structure) => {
                     return judgeIfStructureNeedBuilderRepair(structure, 1);
