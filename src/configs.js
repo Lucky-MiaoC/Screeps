@@ -5,32 +5,32 @@ const whiteList = {
     // 私有白名单
     'W59N37': ['Super_C'],
     'W59N38': ['TC_MiaoC'],
-    'W19N59': [],
+    'W51N34': ['TC_MiaoC', 'Super_C'],
 };
 
 // 房间中心点，指导centerCarrier生产、工作，没有也不会报错，但是centercarrier无法正常生产、工作
 const centerPoint = {
     'W59N37': new RoomPosition(19, 12, 'W59N37'),
     'W59N38': new RoomPosition(41, 12, 'W59N38'),
-    'W19N59': new RoomPosition(18, 19, 'W19N59'),
+    'W51N34': null,
 };
 
 // Wall、Rampart的目标血量，没有也不会报错，会在内部将其设为0
 const maxHitsRepairingWallOrRampart = {
     'W59N37': {
         'centerRampart': 12000000,
-        'surroundingRampart': 700000,
-        'constructedWall': 700000
+        'surroundingRampart': 1200000,
+        'constructedWall': 1200000
     },
     'W59N38': {
         'centerRampart': 50000,
         'surroundingRampart': 50000,
-        'constructedWall': 20000
+        'constructedWall': 50000
     },
-    'W19N59': {
+    'W51N34': {
         'centerRampart': 50000,
         'surroundingRampart': 50000,
-        'constructedWall': 20000
+        'constructedWall': 50000
     },
 };
 
@@ -59,9 +59,9 @@ const creepNumberSetting = {
         // warRoles
         // remoteRoles
     },
-    'W19N59': {
+    'W51N34': {
         // baseRoles
-        'harvester': 2, 'filler': 2, 'collector': 0, 'upgrader': 3, 'builder': 2, 'centercarrier': 1, 'miner': 0,
+        'harvester': 6, 'filler': 0, 'collector': 0, 'upgrader': 10, 'builder': 4, 'centercarrier': 0, 'miner': 0,
         // warRoles
         // remoteRoles
     },

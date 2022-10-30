@@ -1,6 +1,6 @@
-> 最后更新时间：2022/10/15
-
 # Screeps Script of TC-MiaoC
+
+> 最后更新时间：2022/10/15
 
 [Screeps](https://screeps.com/a/#!/enter)是一款大型多人在线编程RTS游戏，该项目实现了在Screeps公共服务器（[shard3](https://screeps.com/a/#!/shards)）上运行的半自动化AI脚本。你可以通过本项目了解 Screeps 相关的操作以及 node.js 的使用以及如何将 rollup 应用在 Screeps 里（本项目包含大量的中文注释）。
 
@@ -41,19 +41,19 @@ npm install
 
 - rollup本地编译 （只本地编译，不提交代码，可调试编译过程）
 
-```
+```shell
 npm run build
 ```
 
 - 直接向服务器提交代码（需要填写 `.secret.json` 中 `main.token` 字段，包含本地编译，无需启动游戏）
 
-```
+```shell
 npm run push
 ```
 
 - 通过本地文件目录提交代码（需要填写 `.secret.json` 中 `local.copyPath` 字段，包含本地编译，需启动游戏steam客户端）
 
-```
+```shell
 npm run local
 ```
 

@@ -1,4 +1,4 @@
-# baseRole代码设计：
+# baseRole代码设计
 
 代码设计细节可参考[`../src/roles/template.js`](../src/roles/template.js)模板文件，以下为大致逻辑：
 
