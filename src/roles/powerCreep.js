@@ -7,7 +7,7 @@ export const myPowerCreep = {
         if (!creep.room) { return undefined; }
 
         // 手动控制
-        if (creep.memory.autoControl) {
+        if (!creep.memory.autoControl) {
             // WRITE YOUR CODE WHEN CREEP IS NOT AUTOCONTROL
             return undefined;
         }

@@ -10,30 +10,30 @@
 
 - **安装依赖**
 
-```bash
-# nodejs >= 10.13.0
-npm install
-```
+    ```shell
+    # nodejs >= 10.13.0
+    npm install
+    ```
 
 - **添加密钥**
 
-在`./`下新建 `.secret.json` 文件，并填入以下内容:
+    在`./`下新建 `.secret.json` 文件，并填入以下内容:
 
-```json
-{
-    "main": {
-        "token": "[YOUR_TOKEN]",
-        "protocol": "https",
-        "hostname": "screeps.com",
-        "port": 443,
-        "path": "/",
-        "branch": "default"
-    },
-    "local": {
-        "copyPath": "[YOUR_LOCAL_FILE_DIRECTORY]"
+    ```json
+    {
+        "main": {
+            "token": "[YOUR_TOKEN]",
+            "protocol": "https",
+            "hostname": "screeps.com",
+            "port": 443,
+            "path": "/",
+            "branch": "default"
+        },
+        "local": {
+            "copyPath": "[YOUR_LOCAL_FILE_DIRECTORY]"
+        }
     }
-}
-```
+    ```
 
 ## 运行项目
 
@@ -41,21 +41,21 @@ npm install
 
 - rollup本地编译 （只本地编译，不提交代码，可调试编译过程）
 
-```shell
-npm run build
-```
+    ```shell
+    npm run build
+    ```
 
 - 直接向服务器提交代码（需要填写 `.secret.json` 中 `main.token` 字段，包含本地编译，无需启动游戏）
 
-```shell
-npm run push
-```
+    ```shell
+    npm run push
+    ```
 
 - 通过本地文件目录提交代码（需要填写 `.secret.json` 中 `local.copyPath` 字段，包含本地编译，需启动游戏steam客户端）
 
-```shell
-npm run local
-```
+    ```shell
+    npm run local
+    ```
 
 ## 部署说明
 

@@ -3,8 +3,8 @@
  * 提醒：Memory中不能存放复杂对象
  */
 class CenterCarryTask {
-    constructor(id, source, target, resourceType, resourceNumber) {
-        this.id = id;
+    constructor(tick, source, target, resourceType, resourceNumber) {
+        this.tick = tick;
         this.sourceId = source.id;
         this.targetId = target.id;
         this.resourceType = resourceType;
@@ -53,7 +53,7 @@ Room.prototype.creatCenterCarryTask = function (source, target, resourceType, re
     let _task = new CenterCarryTask(Game.time, _source, _starget, resourceType, resourceNumber);
     this.memory.centerCarryTask = _task;
     console.log(`成功在房间${this.name}创建以下中央搬运任务：`);
-    console.log(`tick：${_task.id} | sourceType：${Game.getObjectById(_task.sourceId).structureType} | targetType：${Game.getObjectById(_task.targetId).structureType} | resourceType：${_task.resourceType} | resourceNumber：${_task.resourceNumber} | progress：${_task.progress}`);
+    console.log(`tick：${_task.tick} | sourceType：${Game.getObjectById(_task.sourceId).structureType} | targetType：${Game.getObjectById(_task.targetId).structureType} | resourceType：${_task.resourceType} | resourceNumber：${_task.resourceNumber} | progress：${_task.progress}`);
 };
 
 /**
@@ -92,7 +92,7 @@ global.creatCenterCarryTask = function (source, target, resourceType, resourceNu
     let _task = new CenterCarryTask(Game.time, _source, _starget, resourceType, resourceNumber);
     room.memory.centerCarryTask = _task;
     console.log(`成功在房间${room.name}创建以下中央搬运任务：`);
-    console.log(`tick：${_task.id} | sourceType：${Game.getObjectById(_task.sourceId).structureType} | targetType：${Game.getObjectById(_task.targetId).structureType} | resourceType：${_task.resourceType} | resourceNumber：${_task.resourceNumber} | progress：${_task.progress}`);
+    console.log(`tick：${_task.tick} | sourceType：${Game.getObjectById(_task.sourceId).structureType} | targetType：${Game.getObjectById(_task.targetId).structureType} | resourceType：${_task.resourceType} | resourceNumber：${_task.resourceNumber} | progress：${_task.progress}`);
 };
 
 /**
@@ -142,7 +142,7 @@ Room.prototype.showCenterCarryTask = function () {
     if (this.memory.centerCarryTask) {
         let task = this.memory.centerCarryTask;
         console.log(`房间${room.name}：`);
-        console.log(`id：${task.id} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
+        console.log(`id：${task.tick} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
     }
 };
 
@@ -163,7 +163,7 @@ global.showCenterCarryTask = function (room = null) {
         if (_room.memory.centerCarryTask) {
             console.log(`房间${_room.name}：`);
             let task = _room.memory.centerCarryTask;
-            console.log(`id：${task.id} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
+            console.log(`id：${task.tick} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
         }
         else {
             console.log(`房间${_room.name}当前并不存在中央搬运任务！`);
@@ -176,7 +176,7 @@ global.showCenterCarryTask = function (room = null) {
                 if (room.memory.centerCarryTask) {
                     let task = room.memory.centerCarryTask;
                     console.log(`房间${room.name}：`);
-                    console.log(`id：${task.id} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
+                    console.log(`tick：${task.tick} | sourceType：${Game.getObjectById(task.sourceId).structureType} | targetType：${Game.getObjectById(task.targetId).structureType} | resourceType：${task.resourceType} | resourceNumber：${task.resourceNumber} | progress：${task.progress}`);
                     flag = 0;
                 }
             }

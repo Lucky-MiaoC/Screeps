@@ -44,10 +44,10 @@ StructureFactory.prototype.work = function () {
     let resourceType = this.room.memory.structures.factory['produce'];
     if (!resourceType || this.cooldown) { return undefined; }
 
-    // 失败持续超过200tick自动停止生产商品
+    // 失败持续超过100tick自动停止生产商品
     let failTick = this.room.memory.structures.factory['failTick'];
     if (failTick) {
-        if (Game.time - failTick > 200) {
+        if (Game.time - failTick > 100) {
             this.stopProduce();
             this.room.memory.structures.factory['failTick'] = false;
             return undefined;
